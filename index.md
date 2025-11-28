@@ -2,8 +2,9 @@
 layout: default
 title: "Portfolio"
 ---
+Based in The Hague, The Netherlands. For the past 10+ years I’ve designed digital experiences for platforms in finance, sustainability, marketplaces and retail. I turn complex journeys into clear, human-friendly products.  
 
-I’m based The Hague, The Netherlands. I have 10 years of experience designing digital experiences from idea to optimisation in different contexts. Currently at Nationale-Nederlanden. 
+Previously at Funda, Ace & Tate, Werkspot, Powerly — now at Nationale-Nederlanden.
 
 <!-- <span class="start-date">2023</span>       
 <span class="start-date">2021</span>**Powerly**   
@@ -11,8 +12,7 @@ I’m based The Hague, The Netherlands. I have 10 years of experience designing 
 <span class="start-date">2017</span>**Ace & Tate**  
 <span class="start-date">2014</span>**funda**   -->
 
-
-## A few things I’ve worked on
+A few things I've worked on ↓
 
 <ul class="project-list">
   {% assign sorted_projects = site.projects | sort: 'year' | reverse %}
