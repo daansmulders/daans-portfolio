@@ -110,6 +110,42 @@ Each choice shaped what they saw next, creating a mix of branching video and con
 !['High level video flow']({{ site.baseurl }}/assets/images/powerly-interactive-video/video-flow.png)
 
 
+
+<div class="video-grid">
+    <div class="video-item">
+        <div class="project-video" data-autoplay>
+            <video
+            class="project-video__media"
+            src="/assets/images/powerly-interactive-video/prototype-2.mp4"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            ></video>
+            <button class="project-video__pause">❚❚</button>
+        </div>
+        <p class="video-caption">Eerste prototype interactieve video.</p>
+    </div>
+
+<div class='video-item'>
+        <div class="project-video" data-autoplay>
+            <video
+            class="project-video__media"
+            src="/assets/images/powerly-interactive-video/prototype-1.mp4"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            ></video>
+            <button class="project-video__pause">❚❚</button>
+        </div>
+        <p class="video-caption">Tweede versie, gebruikt in concept test.</p>
+    </div>
+</div>
+
+
 ## Research
 
 To understand whether this approach could help homeowners, I tested the prototype through moderated sessions with people who had just scheduled a free advice call. These users were ideal because they were actively thinking about sustainability, had real questions, and were about to experience the existing phone-first process.
@@ -136,3 +172,5 @@ So while the concept showed promise with users, we learned that it wasn’t feas
 ## Closing thoughts
 
 We didn’t launch this concept, but the exploration was valuable. It strengthened our understanding of homeowners, opened up new prototyping approaches, and highlighted a direction worth exploring further.
+
+<script src="/assets/js/video-control.js"></script>
