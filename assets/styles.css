@@ -5,6 +5,10 @@ body {
     line-height: 1.6;
     font-size: 1.1rem;
   }
+
+  a {
+    text-decoration: none;
+  }
   
   .site-header,
   .site-footer {
