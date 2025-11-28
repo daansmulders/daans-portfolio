@@ -1,0 +1,39 @@
+---
+layout: default
+---
+
+<article class="project">
+  {% if page.hero_image %}
+    <div class="project-hero">
+      <img src="{{ page.hero_image | relative_url }}" alt="{{ page.title }} hero image">
+    </div>
+  {% endif %}
+
+<a href="{{ '/' | relative_url }}" class="back-link">
+      ← Back to overview
+</a>
+
+  <h1>{{ page.title }}</h1>
+
+  <p class="project-meta">
+    {% if page.company %}<strong>{{ page.company }}</strong>{% endif %}
+    {% if page.role %} · {{ page.role }}{% endif %}
+    {% if page.year %} · {{ page.year }}{% endif %}
+  </p>
+
+  {% if page.summary %}
+    <p class="project-summary">{{ page.summary }}</p>
+  {% endif %}
+
+  <div class="project-content">
+    {{ content }}
+  </div>
+
+  <hr class="project-footer-divider">
+
+  <section class="project-footer">
+    <a href="{{ '/' | relative_url }}" class="back-link">
+      ← Back to all work
+    </a>
+  </section>
+</article>

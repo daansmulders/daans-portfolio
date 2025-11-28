@@ -1,0 +1,194 @@
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    font-size: 1.1rem;
+  }
+  
+  .site-header,
+  .site-footer {
+    padding: 1.5rem 2rem;
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+  }
+
+  .site-header a {
+    font-size: 1.1rem;
+  }
+  
+  .site-footer {
+    border-top: 1px solid #eee;
+    border-bottom: none;
+    margin-top: 3rem;
+  }
+  
+  .site-title {
+    font-weight: 600;
+    text-decoration: none;
+  }
+  
+  .site-nav a {
+    margin-left: 1rem;
+    text-decoration: none;
+  }
+  
+  .site-main {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+  }
+  
+  .project-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .project-list-item {
+    margin-bottom: 2rem;
+    margin-top: 2rem;
+  }
+  
+  .project-list-item h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .project-list-summary {
+    color: #555;
+  }
+  
+  .project {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .project-hero img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 2.5rem;
+  }
+
+.project-content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 2rem auto; /* adds nice spacing */
+  border-radius: 8px; /* optional, looks polished */
+}
+
+  
+  .project-meta {
+    color: #666;
+    font-size: 0.9rem;
+  }
+  
+  .project-summary {
+    margin-bottom: 1.5rem;
+  }
+  
+.case-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: flex-start;
+  margin: 3.5rem 0;
+}
+
+.case-text h3 {
+  margin-bottom: 0.75rem;
+}
+
+.case-text p + p {
+  margin-top: 0.75rem;
+}
+
+.case-media {
+  margin: 0;
+}
+
+.case-media img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+.case-media figcaption {
+  font-size: 0.9rem;
+  color: #777;
+  margin-top: 0.5rem;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.9rem;
+  text-decoration: none;
+  color: #555;
+  margin-bottom: 1.5rem;
+}
+
+.back-link:hover {
+  color: #000;
+  text-decoration: underline;
+}
+
+.project-footer-divider {
+  margin: 4rem 0 2.5rem;
+  border: 0;
+  border-top: 1px solid #eee;
+}
+
+.project-footer {
+  margin-bottom: 4rem;
+}
+
+.project-footer-link {
+  font-size: 1rem;
+  text-decoration: none;
+  color: #555;
+}
+
+.project-footer-link:hover {
+  text-decoration: underline;
+  color: #000;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.9rem;
+  color: #555;
+  background: #fff;
+  border-radius: 8px;
+  text-decoration: none;
+  border: 1px solid #eee;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.back-link:hover {
+  background: #fefefe;
+  border-color: #ddd;
+  color: #000;
+  text-decoration: none;
+}
+
+.start-date {
+  margin-right: 1.5rem;
+  color:#999;
+}
+
+
+/* Mobile / small screens */
+
+@media (max-width: 900px) {
+  .case-section {
+    grid-template-columns: 1fr;
+  }
+}
+

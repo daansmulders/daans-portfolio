@@ -1,0 +1,12 @@
+title: "Hi, I’m Daan — I design digital products."
+description: "Portfolio of Daan Smulders, UX / Digital Product Designer."
+url: "https://www.daansmulders.nl"
+baseurl: ""   # set to repo name for project pages
+
+collections:
+  projects:
+    output: true
+    permalink: /projects/:title/
+
+markdown: kramdown
+
