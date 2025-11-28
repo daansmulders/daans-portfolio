@@ -101,14 +101,15 @@ This helped us define which video paths needed deeper content.
 
 
 ## Concept development
+
+!['High level video flow']({{ site.baseurl }}/assets/images/powerly-interactive-video/video-flow.png)
+
+
 Based on these insights, I explored whether a short, interactive video format could guide users through the information they needed—at their own pace, and without waiting for a call.
 
 To test the concept, I built an interactive prototype that combined short recorded videos with a lightweight question flow. After watching an introduction, users answered a few simple questions about their home. Based on their answers, they could choose which measures they wanted to explore—such as insulation or different types of heat pumps—and then dive deeper with follow-up questions that made the next video more relevant to their situation.
 
 Each choice shaped what they saw next, creating a mix of branching video and conditional logic. Throughout the flow, users could continue exploring or move directly into the Woningcheck or complete advice. The prototype was simple, but realistic enough to understand whether this approach felt helpful, trustworthy, and easy to navigate.
-
-!['High level video flow']({{ site.baseurl }}/assets/images/powerly-interactive-video/video-flow.png)
-
 
 
 <div class="video-grid">
@@ -125,7 +126,7 @@ Each choice shaped what they saw next, creating a mix of branching video and con
             ></video>
             <button class="project-video__pause">❚❚</button>
         </div>
-        <p class="video-caption">Eerste prototype interactieve video.</p>
+        <p class="video-caption">First interactive video prototype.</p>
     </div>
 
 <div class='video-item'>
@@ -141,7 +142,7 @@ Each choice shaped what they saw next, creating a mix of branching video and con
             ></video>
             <button class="project-video__pause">❚❚</button>
         </div>
-        <p class="video-caption">Tweede versie, gebruikt in concept test.</p>
+        <p class="video-caption">Second version, used in concept test.</p>
     </div>
 </div>
 

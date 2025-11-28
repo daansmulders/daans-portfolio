@@ -256,11 +256,14 @@ body {
   }
   .project-video {
     width: 100%;
+    max-width: 371px;
+    aspect-ratio: 371 / 720;
     height: auto;
-    aspect-ratio: 371 / 720; /* preserve shape */
+    flex-shrink: 0;
   }
 
   .project-video__media {
+    width: 100%;
     height: 100%;
     object-fit: cover;
   }
