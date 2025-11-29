@@ -251,6 +251,85 @@ body {
   max-width: 371px; /* matches video width */
 }
 
+/*Case grid */
+
+/* Grid layout */
+.case-grid {
+  display: grid;
+  gap: 1.5rem;
+  margin: 2rem 0;
+  grid-template-columns: 1fr;
+  justify-items: center; /* center the cards */
+}
+/* 
+
+/* Card styles */
+.case-card {
+  display: block;
+  padding: 1.75rem;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+  text-decoration: none;
+  color: inherit;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    border-color 140ms ease,
+    background-color 140ms ease;
+  position: relative;
+}
+
+/* Hover + focus styling */
+.case-card:hover,
+.case-card:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.10);
+  background: #fff;
+}
+
+
+.case-card__meta {
+  font-size: 0.8rem;
+  /* text-transform: uppercase; */
+  letter-spacing: 0.04em;
+  color: #777;
+  margin-bottom: 0.5rem;
+}
+
+.case-card__title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+.case-card__summary {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #444;
+}
+
+.case-card::after {
+  content: "↗";
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  font-size: 0.9rem;
+  color: #bbb;
+  transition: transform 150ms ease, color 150ms ease;
+}
+
+.case-card:hover::after,
+.case-card:focus-visible::after {
+  transform: translate(2px, -2px);
+  color: #666;
+}
+
+
+
 
 /* Mobile / small screens */
 

@@ -14,19 +14,16 @@ Previously at Funda, Ace & Tate, Werkspot, Powerly — now at Nationale-Nederlan
 
 A few things I've worked on ↓
 
-<ul class="project-list">
+<div class="case-grid">
   {% assign sorted_projects = site.projects | sort: 'year' | reverse %}
   {% for project in sorted_projects %}
-    <li class="project-list-item">
-      <a href="{{ project.url | relative_url }}">
-        <h2>{{ project.title }}</h2>
-      </a>
-      <p class="project-list-meta">
+    <a href="{{ project.url | relative_url }}" class="case-card">
+      <div class="case-card__meta">
         {{ project.company }} · {{ project.role }} · {{ project.year }}
-      </p>
-      <p class="project-list-summary">
-        {{ project.summary }}
-      </p>
-    </li>
+      </div>
+      <h2 class="case-card__title">{{ project.title }}</h2>
+      <p class="case-card__summary">{{ project.summary }}</p>
+    </a>
   {% endfor %}
-</ul>
+</div>
+
