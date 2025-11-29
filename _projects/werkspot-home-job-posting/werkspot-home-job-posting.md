@@ -1,6 +1,6 @@
 ---
 layout: projects
-title: "Werkspot: a new home and job posting flow "
+title: "A new home and job posting flow for Werkspot "
 year: 2018
 company: "Werkspot"
 role: "UX / Product Designer"

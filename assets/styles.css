@@ -9,6 +9,7 @@ body {
   a {
     text-decoration: none;
   }
+
   
   .site-header,
   .site-footer {
@@ -20,6 +21,11 @@ body {
 
   .site-header a {
     font-size: 1.1rem;
+    color:#0000EE;
+  }
+
+  .site-header a:visited {
+    color:#0000EE;
   }
   
   .site-footer {
@@ -267,17 +273,17 @@ body {
 .case-card {
   display: block;
   padding: 1.75rem;
-  border-radius: 16px;
+  border-radius: 8px;
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
   text-decoration: none;
   color: inherit;
   transition:
-    transform 140ms ease,
-    box-shadow 140ms ease,
-    border-color 140ms ease,
-    background-color 140ms ease;
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    border-color 150ms ease,
+    background-color 150ms ease;
   position: relative;
 }
 
@@ -285,11 +291,11 @@ body {
 .case-card:hover,
 .case-card:focus-visible {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  border-color: rgba(0, 0, 0, 0.10);
-  background: #fff;
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.06),
+    0 1px 4px rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.12);
 }
-
 
 .case-card__meta {
   font-size: 0.8rem;

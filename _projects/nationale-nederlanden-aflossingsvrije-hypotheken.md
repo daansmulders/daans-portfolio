@@ -1,6 +1,6 @@
 ---
 layout: projects
-title: "Interest Only Mortgages (Aflossingsvrij)"
+title: "Interest Only Mortgages"
 year: 2025
 company: "Nationale-Nederlanden"
 role: "UX / Product Designer"

@@ -1,6 +1,6 @@
 ---
 layout: projects
-title: "Powerly Woningcheck"
+title: "Improvements to the Woningcheck"
 year: 2023
 company: "Powerly"
 role: "UX / Product Designer"
