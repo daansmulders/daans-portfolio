@@ -272,11 +272,11 @@ body {
 /* Card styles */
 .case-card {
   display: block;
-  padding: 1.75rem;
+  padding: 2rem 0rem;
   border-radius: 8px;
   background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+  /* border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01); */
   text-decoration: none;
   color: inherit;
   transition:
@@ -290,15 +290,15 @@ body {
 /* Hover + focus styling */
 .case-card:hover,
 .case-card:focus-visible {
-  transform: translateY(-1px);
-  box-shadow:
+  transform: translateY(-2px);
+  /* box-shadow:
     0 4px 10px rgba(0, 0, 0, 0.06),
     0 1px 4px rgba(0, 0, 0, 0.04);
-  border-color: rgba(0, 0, 0, 0.12);
+  border-color: rgba(0, 0, 0, 0.12); */
 }
 
 .case-card__meta {
-  font-size: 0.8rem;
+  font-size: 1rem;
   /* text-transform: uppercase; */
   letter-spacing: 0.04em;
   color: #777;
@@ -313,7 +313,7 @@ body {
 
 .case-card__summary {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   line-height: 1.5;
   color: #444;
 }
