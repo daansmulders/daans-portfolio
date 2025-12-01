@@ -130,7 +130,17 @@ body.theme-dark .toggle-button {
 .site-footer {
   border-bottom: none;
   margin-top: 3rem;
+  border-top: 1px solid var(--border-subtle);
 }
+
+.footer-credit {
+  font-size: 0.85rem;
+  color: var(--text-muted, #777);
+  text-align: left;
+  margin-top: 3rem;
+  line-height: 1.5;
+}
+
 
 .site-title {
   font-weight: 600;
@@ -292,7 +302,8 @@ body.theme-dark .toggle-button {
 
 
 .project-footer {
-  margin-bottom: 4rem;
+  margin-bottom: 3rem;
+  margin-top: 3rem;
 }
 
 .project-footer-link {

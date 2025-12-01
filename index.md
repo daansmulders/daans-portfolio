@@ -2,7 +2,7 @@
 layout: default
 title: "Portfolio"
 ---
-Based in The Hague, The Netherlands. For the past 10+ years I’ve designed digital experiences for platforms in finance, sustainability, marketplaces and retail. I turn complex journeys into clear, human-friendly products.  
+Based in The Hague, The Netherlands. For the past 10+ years I’ve designed digital experiences for platforms in finance, sustainability, marketplaces and retail. I turn complex journeys into human-friendly products and enjoy bringing positive energy to the teams I work with.
 
 Previously at funda, Ace & Tate, Werkspot, Powerly — now at Nationale-Nederlanden.
 
