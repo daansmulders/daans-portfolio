@@ -200,6 +200,31 @@ body.theme-dark .toggle-button {
   margin-bottom: 4rem;
 }
 
+.project-intro-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem 2rem;
+  margin: 2.5rem 0 3rem;
+}
+
+
+@media (max-width: 700px) {
+  .project-intro-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.project-intro-grid h4 {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+}
+
+.project-intro-grid p {
+  margin: 0;
+  color: var(--fg);
+}
+
+
 /* ---------- CASE SECTIONS (TEXT + MEDIA GRID) ---------- */
 
 .case-section {

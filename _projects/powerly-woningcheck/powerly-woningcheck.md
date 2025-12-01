@@ -8,8 +8,25 @@ summary: "By combining a few key details from the homeowner with external housin
 hero_image: "/assets/images/powerly-woningcheck/form-step-energy-costs.png"
 ---
 
-**My role:** UX / Product Designer   
-**Team:** Product manager, developers, sustainability experts, marketing
+<div class="project-intro-grid">
+  <div>
+    <h4>Goal</h4>
+    <p>Improve the Woningcheck so more homeowners feel confident to book a call with a sustainability expert — ultimately increasing sustainable installations through Powerly.</p>
+  </div>
+  <div>
+    <h4>Outcome</h4>
+    <p>A clearer, more accurate Woningcheck led to higher conversion, more expert calls, and a stronger foundation for ongoing improvements.</p>
+  </div>
+  <div>
+    <h4>My role</h4>
+    <p>Research, UX design, concept development, implementation guidance.</p>
+  </div>
+  <div>
+    <h4>Team</h4>
+    <p>Product manager, developers, sustainability experts, marketing.</p>
+  </div>
+</div>
+
 
 Powerly helped homeowners understand what sustainable measures could do for their home and helped guide the process of installing sustainable measures. The Woningcheck was a critical first step.
 
@@ -83,18 +100,31 @@ More revenue + impact.
     </div>
 
     <figure class="case-media">
-            <img
-            src="{{ '/assets/images/powerly-woningcheck/form-step-additional-details.png' | relative_url }}"
-        alt="Redesigned additional details step"
-            >
-        <figcaption>
-            Additional details form with most of the information pre-filled.
-     </figcaption>
-  </figure>
+      <img
+        src="{{ '/assets/images/powerly-woningcheck/form-step-additional-details.png' | relative_url }}"
+        loading="lazy"
+        decoding="async"
+        alt="Redesigned additional details step with most fields pre-filled"
+      >
+      <figcaption>
+        Additional details form with most of the information pre-filled.
+      </figcaption>
+    </figure>
 </div>
 
 ### Energy costs
-![Mockup of 'Energy Costs' steps]({{ site.baseurl }}/assets/images/powerly-woningcheck/form-step-energy-costs.png)
+
+<figure>
+  <img
+    src="{{ site.baseurl }}/assets/images/powerly-woningcheck/form-step-energy-costs.png"
+    loading="lazy"
+    decoding="async"
+    alt="Energy costs form step showing usage inputs and estimation option"
+  >
+  <figcaption>
+    Energy costs step with direct input and an estimation option to keep results meaningful.
+  </figcaption>
+</figure>
 
 To calculate an accurate estimation on how much money someone could save by installing sustainable measures and using less gas and electricity, we needed to know how much gas and electricity someone uses now. This is why we offer the option for people to input these values.
 
@@ -125,7 +155,9 @@ But we also didn’t want users to leave this empty, since this would lead to in
   <figure class="case-media">
     <img
       src="{{ '/assets/images/powerly-woningcheck/results.png' | relative_url }}"
-      alt="Redesigned additional details step, showing a single clear question"
+      loading="lazy"
+      decoding="async"
+      alt="Redesigned results screen with structured measures and clear next step"
     >
     <figcaption>
       Clearly structured results screen.
@@ -136,17 +168,27 @@ But we also didn’t want users to leave this empty, since this would lead to in
 
 ### Create an appointment 
 
-![Mockup of 'Create appointment' steps]({{ site.baseurl }}/assets/images/powerly-woningcheck/create-appointment.png) 
+<figure>
+  <img
+    src="{{ site.baseurl }}/assets/images/powerly-woningcheck/create-appointment.png"
+    loading="lazy"
+    decoding="async"
+    alt="Appointment flow for scheduling a call with a sustainability expert"
+  >
+  <figcaption>
+    Streamlined appointment flow to schedule a call with a sustainability expert.
+  </figcaption>
+</figure>
 
-WWhen a homeowner is ready to move forward, scheduling an appointment with a sustainability expert should feel simple and straightforward. I designed this part of the flow to have little friction and make each input and step feel necessary.
+When a homeowner is ready to move forward, scheduling an appointment with a sustainability expert should feel simple and straightforward. I designed this part of the flow to have little friction and make each input and step feel necessary.
 
-*  Email lookup to simplify the form
+*  Email lookup to simplify the form  
 The flow begins with entering an email address. This helps us check whether we already know the customer. For example, if they previously booked a call or explored options earlier. If we already have their information, the next step becomes shorter. If not, they still move through the flow quickly. Either way, it's one small step that helps keep the form lightweight.
 
-* A faster way to choose a date and time
+* A faster way to choose a date and time  
 Most appointments took place within a week, and users wanted to follow up while the topic was still fresh. Instead of a typical calendar, I surfaced the next few working days right away. For times, I grouped availability into “morning” and “afternoon” slots. This made it quicker and more intuitive for people to match the call to their own schedule.
 
-* A clear confirmation and easy access later
+* A clear confirmation and easy access later  
 After booking, users landed on a concise summary of everything they just completed: their results, the appointment date and time, and what to expect from the call. We also sent a link via email so they could revisit or reschedule their appointment with one click.
 
 ## Closing thoughts

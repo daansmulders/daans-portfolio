@@ -8,6 +8,28 @@ summary: "I designed and tested an interactive video prototype to help homeowner
 hero_image: "/assets/images/powerly-interactive-video/interactive-video-hero.png"
 ---
 
+<div class="project-intro-grid">
+  <div>
+    <h4>Goal</h4>
+    <p>Explore whether personalized, interactive video could help homeowners understand their sustainable options earlier, reducing pressure on sustainability experts and help Powerly scale expert advice more efficiently.</p>
+  </div>
+  <div>
+   <h4>Outcome</h4>
+    <p>User research confirmed the value of the concept, technical feasibility challenges prevented further development at this time.</p>
+
+  </div>
+  <div>
+    <h4>My role</h4>
+    <p>Research, UX design, prototyping</p>
+  </div>
+  <div>
+    <h4>Team</h4>
+    <p>UX, business stakeholders</p>
+    </div>
+</div>
+
+
+
 ## Context
 
 For many homeowners, the journey toward making their home more sustainable starts from a place of uncertainty. Powerly’s Woningcheck helps them understand their options, but usually only a call with a sustainability experts gives them enough confidence to continue the process.
@@ -17,10 +39,7 @@ This means that our sustainability experts spent a large part of their phone cal
 We asked ourselves:
 Can we answer users’ biggest questions earlier and at scale without losing trust or clarity?
 
-## My role
 
-UX / Product Designer
-Concept creation, research setup, prototype design, script structure, stakeholder alignment.
 
 ## The challenge
 
@@ -96,14 +115,25 @@ Then they need more specific information:
 
 This helped us define which video paths needed deeper content.
 
-
-!['High level journey of knowledge in sustainable measures']({{ site.baseurl }}/assets/images/powerly-interactive-video/journey-high-level.png)
-
+<figure>
+  <img
+    src="{{ site.baseurl }}/assets/images/powerly-interactive-video/journey-high-level.png"
+    loading="lazy"
+    decoding="async"
+    alt="High-level journey of knowledge in sustainable measures for homeowners"
+  >
+</figure>
 
 ## Concept development
 
-!['High level video flow']({{ site.baseurl }}/assets/images/powerly-interactive-video/video-flow.png)
-
+<figure>
+  <img
+    src="{{ site.baseurl }}/assets/images/powerly-interactive-video/video-flow.png"
+    loading="lazy"
+    decoding="async"
+    alt="High-level flow of the interactive video concept"
+  >
+</figure>
 
 Based on these insights, I explored whether a short, interactive video format could guide users through the information they needed—at their own pace, and without waiting for a call.
 

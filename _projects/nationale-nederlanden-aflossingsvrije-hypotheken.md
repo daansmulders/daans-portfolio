@@ -7,9 +7,24 @@ role: "UX / Product Designer"
 summary: "Nationale-Nederlanden needed a strategy to inform people about the state of their interest only mortgage. I set-up and facilitated a design sprint with a colleague designer and worked on an implementation plan based on the results. "
 hero_image: "/assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/aflossingsvrij-storyboard-end.png"
 ---
-
-**My role:** UX / Product Designer   
-**Team:** Product, content, UX, marketing, business stakeholders
+<div class="project-intro-grid">
+  <div>
+    <h4>Goal</h4>
+    <p>Align teams around a shared understanding of the interest-only mortgage journey and define a clear strategy that supports customers earlier and more effectively, while making the process more efficient for the business.</p>
+  </div>
+  <div>
+    <h4>Outcome</h4>
+    <p>The project produced a direction and full end-to-end storyboard that aligned teams and clarified next steps. A structured handover was prepared for development, and the first implementation steps for a new tool and communication updates were set in motion.</p>
+  </div>
+  <div>
+    <h4>My role</h4>
+    <p>Workshop design, workshop facilition, UX design, concept development</p>
+  </div>
+  <div>
+    <h4>Team</h4>
+    <p>Product, content, UX, marketing, business stakeholders</p>
+  </div>
+</div>
 
 ## Overview
 
