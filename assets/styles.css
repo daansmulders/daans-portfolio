@@ -25,110 +25,182 @@
   font-display: swap;
 }
 
+/* ---------- THEME VARIABLES ---------- */
 
+:root {
+  --bg: #fff;
+  --fg: #111111;
+  --muted: #666666;
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --link: #0000ee;
+}
+
+/* Dark theme overrides */
+body.theme-dark {
+  --bg: #050608;
+  --fg: #f4f1ea;
+  --muted: #aaa7a0;
+  --border-subtle: rgba(255, 255, 255, 0.16);
+  --link: #7aa2ff;
+}
+
+/* Base font + theme */
 body {
-    font-family: 'TimesTen LT Std', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    margin: 0;
-    padding: 0;
-    line-height: 1.7;
-    font-size: 1.1rem;
-  }
+  font-family: 'TimesTen LT Std', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.7;
+  font-size: 1.1rem;
+  background: var(--bg);
+  color: var(--fg);
+  transition: background-color 180ms ease, color 180ms ease;
+}
 
-  a {
-    text-decoration: none;
-  }
+/* Sans-serif override when toggled */
+body.font-sans {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
 
-  
-  .site-header,
-  .site-footer {
-    padding: 1.5rem 2rem;
-    max-width: 720px;
-    margin: 2rem auto;
-    padding: 0 1.5rem;
-  }
+a {
+  text-decoration: none;
+}
 
-  .site-header a {
-    font-size: 1.2rem;
-    color:#0000EE;
-    letter-spacing: normal;
-    font-weight: 400;
-  }
+/* ---------- PREFERENCE TOGGLES ---------- */
 
-  .site-header a:visited {
-    color:#0000EE;
-  }
-  
-  .site-footer {
-    border-top: 1px solid #eee;
-    border-bottom: none;
-    margin-top: 3rem;
-  }
-  
-  .site-title {
-    font-weight: 600;
-    text-decoration: none;
-  }
-  
-  .site-nav a {
-    margin-left: 1rem;
-    text-decoration: none;
-  }
-  
-  .site-main {
-    max-width: 720px;
-    margin: 2rem auto;
-    padding: 0 1.5rem;
-  }
-  
-  .project-list {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .project-list-item {
-    margin-bottom: 2rem;
-    margin-top: 2rem;
-  }
-  
-  .project-list-item h2 {
-    font-size: 1.5rem;
-    margin-bottom: 0.25rem;
-  }
+.preferences-toggle-bar {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  align-items: right;
+  margin: 2rem auto;
+  font-size: 0.85rem;
+  max-width: 720px;
+}
 
-  .project-list-summary {
-    color: #555;
-  }
-  
-  .project {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-  
-  .project-hero img {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-    margin-bottom: 2.5rem;
-  }
+.toggle-button {
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.8);
+  padding: 0.35rem 0.8rem;
+  cursor: pointer;
+  font: inherit;
+  color: var(--fg);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  backdrop-filter: blur(4px);
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    color 150ms ease;
+}
+
+body.theme-dark .toggle-button {
+  background: rgba(15, 15, 15, 0.85);
+}
+
+.toggle-button:hover {
+  transform: translateY(-1px);
+}
+
+/* ---------- LAYOUT / STRUCTURE ---------- */
+
+.site-header,
+.site-footer {
+  padding: 1.5rem 2rem;
+  max-width: 720px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+.site-header a {
+  font-size: 1.2rem;
+  color: var(--link);;
+  letter-spacing: normal;
+  font-weight: 400;
+}
+
+.site-header a:visited {
+  color:var(--link);;
+}
+
+.site-footer {
+  border-bottom: none;
+  margin-top: 3rem;
+}
+
+.site-title {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.site-nav a {
+  margin-left: 1rem;
+  text-decoration: none;
+}
+
+.site-main {
+  max-width: 720px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+/* ---------- PROJECT LIST (OLD STYLE, STILL HERE IF NEEDED) ---------- */
+
+.project-list {
+  list-style: none;
+  padding: 0;
+}
+
+.project-list-item {
+  margin-bottom: 2rem;
+  margin-top: 2rem;
+}
+
+.project-list-item h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.project-list-summary {
+  color: #555;
+}
+
+/* ---------- PROJECT PAGES ---------- */
+
+.project {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.project-hero img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 2.5rem;
+}
 
 .project-content img {
   max-width: 100%;
   height: auto;
   display: block;
-  margin: 2rem auto; /* adds nice spacing */
-  border-radius: 8px; /* optional, looks polished */
+  margin: 2rem auto;
+  border-radius: 8px;
 }
 
-  
-  .project-meta {
-    color: #666;
-    font-size: 0.9rem;
-  }
-  
-  .project-summary {
-    margin-bottom: 1.5rem;
-  }
-  
+.project-meta {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.project-summary {
+  margin-bottom: 4rem;
+}
+
+/* ---------- CASE SECTIONS (TEXT + MEDIA GRID) ---------- */
+
 .case-section {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
@@ -162,6 +234,8 @@ body {
   margin-top: 0.5rem;
 }
 
+/* ---------- BACK LINK / FOOTER ---------- */
+
 .back-link {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   margin: 0;
@@ -172,29 +246,25 @@ body {
   color: #555;
   margin-bottom: 1.5rem;
   gap: 0.4rem;
-  background: #fff;
+  background: var(--border-subtle);
   border-radius: 8px;
-  text-decoration: none;
   border: 1px solid #eee;
   padding: 0.4rem 0.75rem;
 }
 
 .back-link:hover {
-  color: #000;
-  text-decoration: underline;
-  background: #fefefe;
+  background: (--border-subtle);
   border-color: #ddd;
   color: #000;
   text-decoration: none;
   transition: background 0.2s ease, border-color 0.2s ease;
 }
 
-
 .project-footer-divider {
   margin: 4rem 0 2.5rem;
-  border: 0;
-  border-top: 1px solid #eee;
+  border: 1px solid var(--border-subtle);
 }
+
 
 .project-footer {
   margin-bottom: 4rem;
@@ -211,34 +281,32 @@ body {
   color: #000;
 }
 
-
-
 .start-date {
   margin-right: 1.5rem;
   color:#999;
 }
 
-/* Video */
+/* ---------- VIDEO ---------- */
 
 .video-grid {
   display: flex;
-  gap: 2rem;           /* spacing between videos */
+  gap: 2rem;
   justify-content: center;
   align-items: flex-start;
-  flex-wrap: wrap;     /* allows stacking on mobile */
+  flex-wrap: wrap;
 }
 
 /* Two columns on desktop */
 @media (min-width: 900px) {
   .video-grid {
-    flex-wrap: nowrap; /* side-by-side */
+    flex-wrap: nowrap;
   }
 }
 
 /* Individual video boxes (portrait) */
 .project-video {
   position: relative;
-  width: 371px;        /* your exact size */
+  width: 371px;
   height: 720px;
   overflow: hidden;
   border-radius: 16px;
@@ -279,10 +347,10 @@ body {
   font-size: 0.9rem;
   text-align: center;
   color: #666;
-  max-width: 371px; /* matches video width */
+  max-width: 371px;
 }
 
-/*Case grid */
+/* ---------- CASE GRID (HOMEPAGE CARDS) ---------- */
 
 /* Grid layout */
 .case-grid {
@@ -290,18 +358,15 @@ body {
   gap: 1.5rem;
   margin: 2rem 0;
   grid-template-columns: 1fr;
-  justify-items: center; /* center the cards */
+  justify-items: center;
 }
-/* 
 
 /* Card styles */
 .case-card {
   display: block;
   padding: 1.7rem 0rem;
   border-radius: 8px;
-  background: #fff;
-  /* border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01); */
+  background: transparent;
   text-decoration: none;
   color: inherit;
   transition:
@@ -316,15 +381,10 @@ body {
 .case-card:hover,
 .case-card:focus-visible {
   transform: translateY(-2px);
-  /* box-shadow:
-    0 4px 10px rgba(0, 0, 0, 0.06),
-    0 1px 4px rgba(0, 0, 0, 0.04);
-  border-color: rgba(0, 0, 0, 0.12); */
 }
 
 .case-card__meta {
   font-size: 1rem;
-  /* text-transform: uppercase; */
   letter-spacing: 0.04em;
   color: #777;
   margin-bottom: 0.5rem;
@@ -340,7 +400,7 @@ body {
   margin: 0;
   font-size: 1.1rem;
   line-height: 1.5;
-  color: #444;
+  color: var(--muted);
 }
 
 .case-card::after {
@@ -359,15 +419,13 @@ body {
   color: #666;
 }
 
-
-
-
-/* Mobile / small screens */
+/* ---------- MOBILE / SMALL SCREENS ---------- */
 
 @media (max-width: 900px) {
   .case-section {
     grid-template-columns: 1fr;
   }
+
   .project-video {
     width: 100%;
     max-width: 371px;
@@ -382,4 +440,3 @@ body {
     object-fit: cover;
   }
 }
-
