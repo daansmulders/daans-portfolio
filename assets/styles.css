@@ -288,7 +288,7 @@ body.theme-dark .toggle-button {
 }
 
 .back-link:hover {
-  background: (--border-subtle);
+  background: var(--border-subtle);
   border-color: var(--muted);
   color: var(--fg);
   text-decoration: none;
