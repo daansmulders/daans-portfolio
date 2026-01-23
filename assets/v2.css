@@ -1,3 +1,230 @@
-/* v2.css — intentionally empty
-   Styles will be added once structure is stable
+/* v2.css
+   - No bottom-height measuring (prevents shrinking feedback loop)
+   - Each case = 2-row grid: content (1fr) + bottom (auto)
+   - Image always fits available height and stays centered
+   - Overlays respect [hidden]
 */
+
+:root{
+  --v2-header-h: 140px;   /* fallback until JS measures header */
+  --v2-pad-x: 48px;
+}
+
+/* Base */
+.v2 { background: var(--bg); color: var(--fg); }
+
+/* Header */
+.v2-header{
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  display: grid;
+  grid-template-columns: 1fr 3fr 1fr;
+  padding: 32px var(--v2-pad-x);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.v2-header__left,
+.v2-header__center,
+.v2-header__right{
+  pointer-events: auto;
+}
+
+.v2-header__right{ text-align: right; }
+
+.v2-link{
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--fg);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* Stage */
+.v2-stage{
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* Case: 2-row grid (content + bottom) */
+.v2-case{
+  height: 100vh;
+  height: 100dvh;
+
+  padding-top: var(--v2-header-h);
+  padding-left: var(--v2-pad-x);
+  padding-right: var(--v2-pad-x);
+
+  box-sizing: border-box;
+
+  display: grid;
+  grid-template-rows: 1fr auto; /* <- key change */
+  row-gap: 24px;
+
+  position: relative;
+}
+
+/* Content row */
+.v2-grid{
+  min-height: 0; /* allows children to size within grid row */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  column-gap: 24px;
+  align-items: start;
+}
+
+/* Left */
+.v2-left{
+  min-height: 0;
+  overflow: hidden;
+}
+
+.v2-kicker{ margin-bottom: 28px; }
+.v2-company{ font-weight: 700; }
+.v2-title{ font-style: italic; color: var(--muted); }
+
+.v2-stepHeading{ font-weight: 700; margin-bottom: 6px; }
+.v2-stepBody{ color: var(--fg); }
+
+/* Right: image frame fills the content row height */
+.v2-right{
+  min-height: 0;
+  height: 100%;
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.v2-right img{
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+}
+
+/* "next" hint on hover */
+.v2-nextHint{
+  position: absolute;
+  top: 12px; right: 12px;
+  color: var(--fg);
+  opacity: 0;
+  transition: opacity 120ms ease;
+  pointer-events: none;
+}
+.v2-right:hover .v2-nextHint{ opacity: 1; }
+
+/* Bottom row (no absolute positioning => never overlaps) */
+.v2-bottom{
+  padding-bottom: 24px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: end;
+}
+
+.v2-bottom__left{
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.v2-bottom__center{
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.v2-counterItem{
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  color: var(--muted);
+}
+.v2-counterItem[aria-current="true"]{
+  color: var(--fg);
+  text-decoration: underline;
+}
+
+/* Overlays */
+.v2-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: grid;
+  place-items: center;
+  z-index: 50;
+}
+.v2-overlay[hidden]{ display: none !important; }
+body.theme-dark .v2-overlay{ background: rgba(0,0,0,0.6); }
+
+.v2-panel{
+  width: min(720px, calc(100% - 48px));
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border-subtle);
+  padding: 16px;
+}
+.v2-panel__head{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Fixed footer links (persistent across scroll/cases) */
+.v2-fixedFooter{
+  position: fixed;
+  left: var(--v2-pad-x);
+  bottom: 24px;
+  z-index: 20;
+}
+
+.v2-fixedFooter__left{
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+/* Cursor-follow "next" label */
+.v2-cursorNext{
+  position: fixed;
+  left: 0;
+  top: 0;
+  transform: translate(-9999px, -9999px);
+  z-index: 30;
+  pointer-events: none;
+
+  color: var(--fg);
+  background: transparent;
+  text-decoration: underline;
+
+  /* optional: make it feel more “cursor-y” */
+  font-size: 0.95rem;
+}
+
+.v2-right{
+  cursor: none;
+}
+
+
+/* Mobile */
+@media (max-width: 900px){
+  :root{ --v2-pad-x: 20px; }
+
+  .v2-header{
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 20px var(--v2-pad-x);
+    pointer-events: auto;
+  }
+  .v2-header__right{ text-align: left; }
+
+  .v2-grid{
+    grid-template-columns: 1fr;
+    row-gap: 16px;
+  }
+}

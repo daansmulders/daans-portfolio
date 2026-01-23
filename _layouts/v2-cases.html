@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{{ site.title }} · v2</title>
+    <link rel="stylesheet" href="{{ '/assets/v2.css' | relative_url }}">
+  </head>
+
+  <body class="v2">
+    <header class="v2-header">
+      <div class="v2-header__left">Daan Smulders</div>
+
+      <div class="v2-header__center">
+        Daan is a UX and digital product designer who has designed digital experiences for platforms in finance, sustainability, marketplaces and retail over the past 10 years.
+      </div>
+
+      <div class="v2-header__right">
+        <button type="button" class="v2-link" data-open="menu">menu</button>
+      </div>
+    </header>
+
+    <main class="v2-stage">
+      {% assign cases = site.projects %}
+      {% assign chosen = nil %}
+
+      {% for c in cases %}
+        {% if page.case_title and c.title == page.case_title %}
+          {% assign chosen = c %}
+        {% endif %}
+      {% endfor %}
+
+      {% if chosen %}
+        {% assign steps = chosen.steps | default: empty %}
+
+        <section class="v2-case" data-case>
+          <div class="v2-grid">
+            <aside class="v2-left">
+              <div class="v2-kicker">
+                <div class="v2-company">{{ chosen.company }}</div>
+                <div class="v2-title">{{ chosen.title }}</div>
+              </div>
+
+              <div class="v2-copy">
+                <div class="v2-stepHeading" data-step-heading></div>
+                <div class="v2-stepBody" data-step-body></div>
+              </div>
+            </aside>
+
+            <div class="v2-right" data-media tabindex="0" role="button" aria-label="Next">
+              <img data-step-image alt="" />
+            </div>
+          </div>
+
+            <div class="v2-bottom__center" data-counter></div>
+            <div class="v2-bottom__right"></div>
+          </div>
+
+          <script type="application/json" data-steps>
+            {{ steps | jsonify }}
+          </script>
+        </section>
+      {% else %}
+        <p>No case found. Check `page.case_title` in v2/index.md.</p>
+      {% endif %}
+    </main>
+
+    <footer class="v2-fixedFooter" aria-label="Site links">
+    <div class="v2-fixedFooter__left">
+        <button type="button" class="v2-link" data-open="overview">case study overview</button>
+        <button type="button" class="v2-link" data-open="about">about</button>
+    </div>
+    </footer>
+
+    <div class="v2-cursorNext" aria-hidden="true" hidden>next</div>
+
+
+    <script src="{{ '/assets/js/v2.js' | relative_url }}"></script>
+  </body>
+</html>
