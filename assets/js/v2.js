@@ -1,11 +1,13 @@
 // assets/js/v2.js
-// v2 carousel + overlays + cursor-next + trackpad paging snap between cases
+// v2 paging + case carousel + cursor navigation
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n));
 }
 
-// Measure ONLY the header (bottom is handled by normal flow in CSS grid)
+/* ----------------------------
+   Header height measurement
+---------------------------- */
 function setV2HeaderHeight() {
   const root = document.documentElement;
   const header = document.querySelector(".v2-header");
@@ -44,39 +46,48 @@ function initPanels() {
 }
 
 /* ----------------------------
-   Cursor-follow "next" label
+   Cursor-follow label
+   (previous / next)
 ---------------------------- */
-function initCursorNext() {
+
+function initCursorNav() {
   const el = document.querySelector(".v2-cursorNext");
   if (!el) return;
 
-  function show() {
+  function show(text) {
+    el.textContent = text;
     el.hidden = false;
   }
+
   function hide() {
     el.hidden = true;
   }
 
   document.addEventListener("mousemove", (e) => {
-    if (el.hidden) return;
-    const x = e.clientX + 12;
-    const y = e.clientY + 10;
-    el.style.transform = `translate(${x}px, ${y}px)`;
+    const isInsideCase = e.target.closest(".v2-case");
+    if (!isInsideCase) {
+      hide();
+      return;
+    }
+
+    const midX = window.innerWidth / 2;
+
+    if (e.clientX < midX) {
+      show("previous");
+    } else {
+      show("next");
+    }
+
+    el.style.transform = `translate(${e.clientX + 12}px, ${e.clientY + 10}px)`;
   });
 
-  document.addEventListener("mouseover", (e) => {
-    const media = e.target.closest("[data-media]");
-    if (media) show();
-  });
+  // Hide cursor label when leaving the case area
+  document.addEventListener("mouseleave", () => hide());
 
-  document.addEventListener("mouseout", (e) => {
-    const media = e.target.closest("[data-media]");
-    if (media) hide();
-  });
-
-  // If user scrolls without moving mouse, don't leave "next" hanging
+  // Safety: hide on scroll so it never gets stuck
   document.addEventListener("scroll", () => hide(), { passive: true });
 }
+
 
 /* ----------------------------
    Case carousel (per case)
@@ -98,6 +109,7 @@ function initCase(caseEl) {
   const bodyEl = caseEl.querySelector("[data-step-body]");
   const imgEl = caseEl.querySelector("[data-step-image]");
   const mediaEl = caseEl.querySelector("[data-media]");
+  const prevAreaEl = caseEl.querySelector("[data-prev-area]");
   const counterEl = caseEl.querySelector("[data-counter]");
 
   let idx = 0;
@@ -149,26 +161,26 @@ function initCase(caseEl) {
     render();
   }
 
-  if (mediaEl) {
-    mediaEl.addEventListener("click", next);
+    // Click anywhere on the case:
+    // left half = previous step, right half = next step
+    caseEl.addEventListener("click", (e) => {
+    // Don't hijack clicks on UI controls/links
+    if (e.target.closest("button, a, input, textarea, select, label")) return;
 
-    mediaEl.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        next();
-      }
-      if (e.key === "ArrowRight") next();
-      if (e.key === "ArrowLeft") prev();
+    const midX = window.innerWidth / 2;
+    if (e.clientX < midX) {
+      prev();
+    } else {
+      next();
+    }
     });
-  }
 
   render();
 }
 
 /* ----------------------------
-   Trackpad paging snap (no skipping)
-   - Intercepts wheel on .v2-snap
-   - Converts scroll intent into +1/-1 case jumps
+   Paging between cases
+   (one scroll gesture = one case)
 ---------------------------- */
 function initSnapPaging() {
   const scroller = document.querySelector(".v2-snap");
@@ -178,14 +190,9 @@ function initSnapPaging() {
   if (cases.length < 2) return;
 
   let isAnimating = false;
-
-  // Gesture gating: after we page once, we lock until wheel input stops
   let gestureLocked = false;
   let wheelIdleTimer = null;
-
-  // Accumulate small deltas into a “commit”
   let wheelAccum = 0;
-  let accumResetTimer = null;
 
   function findNearestIndex() {
     const st = scroller.scrollTop;
@@ -208,7 +215,6 @@ function initSnapPaging() {
 
     const start = performance.now();
     const easeOut = (x) => 1 - Math.pow(1 - x, 3);
-
     isAnimating = true;
 
     function frame(now) {
@@ -230,37 +236,24 @@ function initSnapPaging() {
   scroller.addEventListener(
     "wheel",
     (e) => {
-      if (e.ctrlKey) return; // allow pinch zoom
-
-      // We control scrolling
+      if (e.ctrlKey) return;
       e.preventDefault();
 
-      // Reset idle timer: when wheel quiets down, unlock next gesture
       if (wheelIdleTimer) clearTimeout(wheelIdleTimer);
       wheelIdleTimer = setTimeout(() => {
         gestureLocked = false;
         wheelAccum = 0;
       }, 40);
 
-      // If we already paged this gesture (or we're animating), ignore remaining momentum
       if (gestureLocked || isAnimating) return;
 
       const deltaY = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
       wheelAccum += deltaY;
 
-      // reset accumulator if user pauses mid-gesture
-      if (accumResetTimer) clearTimeout(accumResetTimer);
-      accumResetTimer = setTimeout(() => {
-        wheelAccum = 0;
-      }, 120);
-
-      // Your “deliberate” threshold.
-      // Fixed: 300 works fine
-      // Or scalable: scroller.clientHeight * 0.25 (~300 on tall screens)
-      const THRESH = 300;
+      const THRESH = 300; // deliberate, calm
 
       if (wheelAccum > THRESH) {
-        gestureLocked = true; // <-- key: only one page per gesture
+        gestureLocked = true;
         wheelAccum = 0;
         go(+1);
       } else if (wheelAccum < -THRESH) {
@@ -273,31 +266,24 @@ function initSnapPaging() {
   );
 }
 
-
-
 /* ----------------------------
    Main
 ---------------------------- */
 (function main() {
   initPanels();
-  initCursorNext();
-  // Measure header after first paint
-  setV2HeaderHeight();
+  initCursorNav();
 
+  setV2HeaderHeight();
   initSnapPaging();
 
-  // Init carousel for all cases on the page
   const caseEls = Array.from(document.querySelectorAll("[data-case]"));
   caseEls.forEach(initCase);
 
-
-  // Keep header height in sync on resize/orientation changes
   const onResize = () => window.requestAnimationFrame(setV2HeaderHeight);
   window.addEventListener("resize", onResize);
   window.addEventListener("orientationchange", onResize);
 
-  // Ensure correct after custom font loads
   if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(() => setV2HeaderHeight());
+    document.fonts.ready.then(setV2HeaderHeight);
   }
 })();

@@ -93,6 +93,7 @@ html, body {
 .v2-left{
   min-height: 0;
   overflow: hidden;
+  cursor: none;
 }
 
 .v2-kicker{ margin-bottom: 28px; }
