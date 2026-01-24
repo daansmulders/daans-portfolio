@@ -15,6 +15,14 @@ function setV2HeaderHeight() {
   if (headerH > 0) root.style.setProperty("--v2-header-h", `${headerH}px`);
 }
 
+function setV2ScrollbarWidth() {
+  const scroller = document.querySelector(".v2-snap");
+  if (!scroller) return;
+
+  const scrollbarW = scroller.offsetWidth - scroller.clientWidth;
+  document.documentElement.style.setProperty("--v2-scrollbar-w", `${scrollbarW}px`);
+}
+
 /* ----------------------------
    Overlays (About / Overview)
 ---------------------------- */
@@ -274,14 +282,25 @@ function initSnapPaging() {
   initCursorNav();
 
   setV2HeaderHeight();
+  setV2ScrollbarWidth();
+
+  const onResize = () => {
+    window.requestAnimationFrame(() => {
+      setV2HeaderHeight();
+      setV2ScrollbarWidth();
+    });
+  };
+
+  window.addEventListener("resize", onResize);
+  window.addEventListener("orientationchange", onResize);
+
+
   initSnapPaging();
 
   const caseEls = Array.from(document.querySelectorAll("[data-case]"));
   caseEls.forEach(initCase);
 
-  const onResize = () => window.requestAnimationFrame(setV2HeaderHeight);
-  window.addEventListener("resize", onResize);
-  window.addEventListener("orientationchange", onResize);
+ 
 
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(setV2HeaderHeight);

@@ -1,19 +1,23 @@
 /* v2.css
-   - No bottom-height measuring (prevents shrinking feedback loop)
    - Each case = 2-row grid: content (1fr) + bottom (auto)
    - Image always fits available height and stays centered
-   - Overlays respect [hidden]
 */
 
 :root{
-  --v2-header-h: 140px;   /* fallback until JS measures header */
+  --v2-header-h: 140px;
   --v2-pad-x: 48px;
+  --v2-scrollbar-w: 0px; /* filled by JS */
 }
 
 html, body {
   height: 100%;
   overflow: hidden; /* IMPORTANT: prevents body scrolling */
+  margin: 0;
+  padding: 0;
 }
+
+*, *::before, *::after { box-sizing: border-box; }
+
 
 /* Base */
 .v2 { background: var(--bg); color: var(--fg); }
@@ -24,9 +28,13 @@ html, body {
   top: 0; left: 0; right: 0;
   display: grid;
   grid-template-columns: 1fr 3fr 1fr;
-  padding: 16px var(--v2-pad-x) 72px var(--v2-pad-x) ;
+
+  /* key change: add scrollbar width to the RIGHT padding */
+  padding: 16px calc(var(--v2-pad-x) + var(--v2-scrollbar-w)) 72px var(--v2-pad-x);
+
   z-index: 10;
   pointer-events: none;
+  box-sizing: border-box;
 }
 
 .v2-header__left,
@@ -47,10 +55,12 @@ html, body {
   text-decoration: underline;
 }
 
-/* Stage */
-.v2-stage{
+/* Snap scrolling container (JS paging controls scroll) */
+.v2-snap{
   height: 100vh;
   height: 100dvh;
+  overflow-y: auto;
+  scroll-snap-type: none;
 }
 
 /* Case: 2-row grid (content + bottom) */
@@ -59,34 +69,31 @@ html, body {
   height: 100dvh;
 
   padding-top: var(--v2-header-h);
+
+  /* single source of horizontal padding for the whole case */
   padding-left: var(--v2-pad-x);
   padding-right: var(--v2-pad-x);
 
   box-sizing: border-box;
 
   display: grid;
-  grid-template-rows: 1fr auto; /* <- key change */
+  grid-template-rows: 1fr auto;
   row-gap: 24px;
 
   position: relative;
 }
 
-/* Snap scrolling container */
-.v2-snap{
-  height: 100vh;
-  height: 100dvh;
-  overflow-y: auto;
-  scroll-snap-type: none;
-}
-
-
 /* Content row */
 .v2-grid{
-  min-height: 0; /* allows children to size within grid row */
+  min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
   column-gap: 24px;
   align-items: start;
+
+  /* IMPORTANT: remove double padding */
+  padding-left: 0;
+  padding-right: 0;
 }
 
 /* Left */
@@ -94,6 +101,7 @@ html, body {
   min-height: 0;
   overflow: hidden;
   cursor: none;
+  padding-left: 0; /* keep */
 }
 
 .v2-kicker{ margin-bottom: 28px; }
@@ -108,7 +116,7 @@ html, body {
   min-height: 0;
   height: 100%;
   position: relative;
-  cursor: pointer;
+  cursor: none; /* match left side because cursor label is used */
   overflow: hidden;
 }
 
@@ -120,18 +128,7 @@ html, body {
   object-position: center;
 }
 
-/* "next" hint on hover */
-.v2-nextHint{
-  position: absolute;
-  top: 12px; right: 12px;
-  color: var(--fg);
-  opacity: 0;
-  transition: opacity 120ms ease;
-  pointer-events: none;
-}
-.v2-right:hover .v2-nextHint{ opacity: 1; }
-
-/* Bottom row (no absolute positioning => never overlaps) */
+/* Bottom row */
 .v2-bottom{
   padding-bottom: 24px;
   display: grid;
@@ -204,7 +201,7 @@ body.theme-dark .v2-overlay{ background: rgba(0,0,0,0.6); }
   align-items: center;
 }
 
-/* Cursor-follow "next" label */
+/* Cursor-follow label */
 .v2-cursorNext{
   position: fixed;
   left: 0;
@@ -216,15 +213,8 @@ body.theme-dark .v2-overlay{ background: rgba(0,0,0,0.6); }
   color: var(--fg);
   background: transparent;
   text-decoration: underline;
-
-  /* optional: make it feel more “cursor-y” */
   font-size: 0.95rem;
 }
-
-.v2-right{
-  cursor: none;
-}
-
 
 /* Mobile */
 @media (max-width: 900px){
