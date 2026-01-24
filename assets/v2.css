@@ -10,6 +10,11 @@
   --v2-pad-x: 48px;
 }
 
+html, body {
+  height: 100%;
+  overflow: hidden; /* IMPORTANT: prevents body scrolling */
+}
+
 /* Base */
 .v2 { background: var(--bg); color: var(--fg); }
 
@@ -71,13 +76,7 @@
   height: 100vh;
   height: 100dvh;
   overflow-y: auto;
-  scroll-snap-type: y mandatory;
-  scroll-padding-top: var(--v2-header-h); /* accounts for fixed header */
-}
-
-/* Each case snaps */
-.v2-case{
-  scroll-snap-align: start;
+  scroll-snap-type: none;
 }
 
 

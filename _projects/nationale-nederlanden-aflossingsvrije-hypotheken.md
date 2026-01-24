@@ -6,6 +6,20 @@ company: "Nationale-Nederlanden"
 role: "UX / Product Designer"
 summary: "Nationale-Nederlanden needed a strategy to inform people about the state of their interest only mortgage. I set-up and facilitated a design sprint with a colleague designer and worked on an implementation plan based on the results. "
 hero_image: "/assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/aflossingsvrij-storyboard-end.png"
+steps:
+  - heading: Context
+    body: (Write 1–2 sentences later.)
+    image: /assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/aflossingsvrij-storyboard-end.png
+  - heading: Problem
+    body: (What was the challenge?)
+    image: /assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/aflossingsvrij-storyboard-end.png
+  - heading: What I did
+    body: (Your role + key actions.)
+    image: /assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/aflossingsvrij-storyboard-end.png
+  - heading: Outcome
+    body: (Impact / result / learnings.)
+    image: /assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/aflossingsvrij-storyboard-end.png
+
 ---
 <div class="project-intro-grid">
   <div>

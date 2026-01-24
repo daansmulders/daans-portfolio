@@ -1,5 +1,5 @@
 // assets/js/v2.js
-// v2 carousel + overlays, with robust header-only height measuring (no shrinking feedback loop)
+// v2 carousel + overlays + cursor-next + trackpad paging snap between cases
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n));
@@ -13,6 +13,9 @@ function setV2HeaderHeight() {
   if (headerH > 0) root.style.setProperty("--v2-header-h", `${headerH}px`);
 }
 
+/* ----------------------------
+   Overlays (About / Overview)
+---------------------------- */
 function initPanels() {
   const overlays = document.querySelectorAll("[data-overlay]");
 
@@ -40,6 +43,44 @@ function initPanels() {
   });
 }
 
+/* ----------------------------
+   Cursor-follow "next" label
+---------------------------- */
+function initCursorNext() {
+  const el = document.querySelector(".v2-cursorNext");
+  if (!el) return;
+
+  function show() {
+    el.hidden = false;
+  }
+  function hide() {
+    el.hidden = true;
+  }
+
+  document.addEventListener("mousemove", (e) => {
+    if (el.hidden) return;
+    const x = e.clientX + 12;
+    const y = e.clientY + 10;
+    el.style.transform = `translate(${x}px, ${y}px)`;
+  });
+
+  document.addEventListener("mouseover", (e) => {
+    const media = e.target.closest("[data-media]");
+    if (media) show();
+  });
+
+  document.addEventListener("mouseout", (e) => {
+    const media = e.target.closest("[data-media]");
+    if (media) hide();
+  });
+
+  // If user scrolls without moving mouse, don't leave "next" hanging
+  document.addEventListener("scroll", () => hide(), { passive: true });
+}
+
+/* ----------------------------
+   Case carousel (per case)
+---------------------------- */
 function initCase(caseEl) {
   const stepsScript = caseEl.querySelector("script[data-steps]");
   let steps = [];
@@ -95,7 +136,6 @@ function initCase(caseEl) {
     }
 
     renderCounter();
-    // Header can change slightly if fonts load late; safe to keep synced.
     setV2HeaderHeight();
   }
 
@@ -110,7 +150,6 @@ function initCase(caseEl) {
   }
 
   if (mediaEl) {
-    // Make media area clickable and keyboard accessible
     mediaEl.addEventListener("click", next);
 
     mediaEl.addEventListener("keydown", (e) => {
@@ -126,101 +165,120 @@ function initCase(caseEl) {
   render();
 }
 
-function initSnapSettle() {
+/* ----------------------------
+   Trackpad paging snap (no skipping)
+   - Intercepts wheel on .v2-snap
+   - Converts scroll intent into +1/-1 case jumps
+---------------------------- */
+function initSnapPaging() {
   const scroller = document.querySelector(".v2-snap");
   if (!scroller) return;
 
   const cases = Array.from(scroller.querySelectorAll(".v2-case"));
-  if (cases.length === 0) return;
+  if (cases.length < 2) return;
 
-  let t = null;
-  let isSnapping = false;
+  // Make scroller focusable (optional for key controls later)
+  if (!scroller.hasAttribute("tabindex")) scroller.setAttribute("tabindex", "0");
 
-  function pickCaseByThreshold() {
-    const scrollerRect = scroller.getBoundingClientRect();
-    const topY = scrollerRect.top;
+  let isAnimating = false;
+  let wheelAccum = 0;
+  let wheelResetTimer = null;
 
-    // Commit threshold: once the next case is >= 35% into view, snap to it
-    const threshold = scrollerRect.height * 0.35;
-
-    let chosen = cases[0];
-
-    for (const c of cases) {
-      const r = c.getBoundingClientRect();
-      const delta = r.top - topY;
-
-      // If this case's top has passed the threshold, treat it as the current target.
-      // This biases snapping "forward" rather than nearest.
-      if (delta <= threshold) {
-        chosen = c;
-      } else {
-        // Because cases are in DOM order, once delta is beyond threshold we can stop.
-        break;
+  function findNearestIndex() {
+    const st = scroller.scrollTop;
+    let best = 0;
+    let bestDist = Infinity;
+    for (let i = 0; i < cases.length; i++) {
+      const d = Math.abs(cases[i].offsetTop - st);
+      if (d < bestDist) {
+        bestDist = d;
+        best = i;
       }
     }
-
-    return chosen;
+    return best;
   }
 
-  function settle() {
-    if (isSnapping) return;
-    const target = pickCaseByThreshold();
-    if (!target) return;
+  function animateTo(targetTop, durationMs) {
+    const startTop = scroller.scrollTop;
+    const delta = targetTop - startTop;
+    if (delta === 0) return;
 
-    isSnapping = true;
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    const start = performance.now();
+    const easeOut = (x) => 1 - Math.pow(1 - x, 3);
 
-    // Prevent recursive settle loops while smooth scrolling is happening
-    window.setTimeout(() => {
-      isSnapping = false;
-    }, 220);
+    isAnimating = true;
+
+    function frame(now) {
+      const t = Math.min(1, (now - start) / durationMs);
+      scroller.scrollTop = startTop + delta * easeOut(t);
+      if (t < 1) requestAnimationFrame(frame);
+      else isAnimating = false;
+    }
+
+    requestAnimationFrame(frame);
   }
 
-  function debounceSettle(ms) {
-    if (t) window.clearTimeout(t);
-    t = window.setTimeout(settle, ms);
+  function go(step) {
+    const idx = findNearestIndex();
+    const next = Math.max(0, Math.min(cases.length - 1, idx + step));
+    animateTo(cases[next].offsetTop, 160); // snappy
   }
-
-  // Trackpad-tuned timings: quick commit without fighting momentum
-  scroller.addEventListener(
-    "scroll",
-    () => debounceSettle(30),
-    { passive: true }
-  );
 
   scroller.addEventListener(
     "wheel",
-    () => debounceSettle(60),
-    { passive: true }
-  );
+    (e) => {
+      // allow pinch-zoom
+      if (e.ctrlKey) return;
 
-  scroller.addEventListener(
-    "touchend",
-    () => debounceSettle(60),
-    { passive: true }
-  );
+      // We fully control scroll behavior here
+      e.preventDefault();
 
-  // Optional: if the user clicks the scrollbar track, still settle
-  scroller.addEventListener(
-    "mouseup",
-    () => debounceSettle(60),
-    { passive: true }
+      if (isAnimating) return;
+
+      // Normalize delta
+      const deltaY = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+
+      // Accumulate small trackpad deltas into one "intent"
+      wheelAccum += deltaY;
+
+      // Reset accumulation after a short pause
+      if (wheelResetTimer) clearTimeout(wheelResetTimer);
+      wheelResetTimer = setTimeout(() => {
+        wheelAccum = 0;
+      }, 120);
+
+      // Threshold tuned for trackpad (lower = more eager)
+      const THRESH = scroller.clientHeight * 0.25;
+
+      if (wheelAccum > THRESH) {
+        wheelAccum = 0;
+        go(+1);
+      } else if (wheelAccum < -THRESH) {
+        wheelAccum = 0;
+        go(-1);
+      }
+    },
+    { passive: false }
   );
 }
 
 
 
+/* ----------------------------
+   Main
+---------------------------- */
 (function main() {
   initPanels();
   initCursorNext();
-  initSnapSettle();
-
-  // Init carousel for the (current) single case
-const caseEls = Array.from(document.querySelectorAll("[data-case]"));
-caseEls.forEach(initCase);
-
   // Measure header after first paint
   setV2HeaderHeight();
+
+  initSnapPaging();
+
+  // Init carousel for all cases on the page
+  const caseEls = Array.from(document.querySelectorAll("[data-case]"));
+  caseEls.forEach(initCase);
+
 
   // Keep header height in sync on resize/orientation changes
   const onResize = () => window.requestAnimationFrame(setV2HeaderHeight);
@@ -231,34 +289,4 @@ caseEls.forEach(initCase);
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(() => setV2HeaderHeight());
   }
-
-  function initCursorNext() {
-  const el = document.querySelector(".v2-cursorNext");
-  if (!el) return;
-
-  function show() { el.hidden = false; }
-  function hide() { el.hidden = true; }
-
-  document.addEventListener("mousemove", (e) => {
-    if (el.hidden) return;
-    // offset a bit so it doesn't sit directly under the pointer
-    const x = e.clientX + 12;
-    const y = e.clientY + 10;
-    el.style.transform = `translate(${x}px, ${y}px)`;
-  });
-
-  document.addEventListener("mouseover", (e) => {
-    const media = e.target.closest("[data-media]");
-    if (media) show();
-  });
-
-  document.addEventListener("mouseout", (e) => {
-    const media = e.target.closest("[data-media]");
-    if (media) hide();
-  });
-
-  // Safety: if user scrolls without moving mouse, keep it from hanging around
-  document.addEventListener("scroll", () => hide(), { passive: true });
-}
-
 })();
