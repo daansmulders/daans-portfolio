@@ -235,9 +235,7 @@ body.theme-dark .v2-overlay{ background: rgba(0,0,0,0.6); }
     top: 16px;
     right: var(--v2-pad-x);
    }
-
-
-
+ 
   .v2-grid{
     grid-template-columns: 1fr;
     row-gap: 16px;
