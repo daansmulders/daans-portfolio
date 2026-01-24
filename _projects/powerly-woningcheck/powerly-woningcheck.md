@@ -9,7 +9,7 @@ hero_image: "/assets/images/powerly-woningcheck/form-step-energy-costs.png"
 steps:
   - heading: Goal
     body: Improve the Woningcheck so more homeowners feel confident to book a call with a sustainability expert — ultimately increasing sustainable installations through Powerly.
-    image: /assets/images/powerly-woningcheck/form-step-energy-costs.png
+    image: /assets/images/powerly-woningcheck/cover.png
   - heading: Outcome
     body: A clearer, more accurate Woningcheck led to higher conversion, more expert calls, and a stronger foundation for ongoing improvements.
     image: /assets/images/powerly-woningcheck/results.png

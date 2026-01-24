@@ -19,7 +19,7 @@
   top: 0; left: 0; right: 0;
   display: grid;
   grid-template-columns: 1fr 3fr 1fr;
-  padding: 32px var(--v2-pad-x);
+  padding: 16px var(--v2-pad-x) 72px var(--v2-pad-x) ;
   z-index: 10;
   pointer-events: none;
 }
@@ -65,6 +65,21 @@
 
   position: relative;
 }
+
+/* Snap scrolling container */
+.v2-snap{
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-padding-top: var(--v2-header-h); /* accounts for fixed header */
+}
+
+/* Each case snaps */
+.v2-case{
+  scroll-snap-align: start;
+}
+
 
 /* Content row */
 .v2-grid{

@@ -21,48 +21,44 @@
     </header>
 
     <main class="v2-stage">
-      {% assign cases = site.projects %}
-      {% assign chosen = nil %}
+      {% assign cases = site.projects | sort: "date" | reverse %}
 
-      {% for c in cases %}
-        {% if page.case_title and c.title == page.case_title %}
-          {% assign chosen = c %}
-        {% endif %}
-      {% endfor %}
+  {% for c in cases %}
+    {% assign steps = c.steps | default: empty %}
+    {% if steps and steps.size > 0 %}
 
-      {% if chosen %}
-        {% assign steps = chosen.steps | default: empty %}
-
-        <section class="v2-case" data-case>
-          <div class="v2-grid">
-            <aside class="v2-left">
-              <div class="v2-kicker">
-                <div class="v2-company">{{ chosen.company }}</div>
-                <div class="v2-title">{{ chosen.title }}</div>
-              </div>
-
-              <div class="v2-copy">
-                <div class="v2-stepHeading" data-step-heading></div>
-                <div class="v2-stepBody" data-step-body></div>
-              </div>
-            </aside>
-
-            <div class="v2-right" data-media tabindex="0" role="button" aria-label="Next">
-              <img data-step-image alt="" />
+      <section class="v2-case" data-case>
+        <div class="v2-grid">
+          <aside class="v2-left">
+            <div class="v2-kicker">
+              <div class="v2-company">{{ c.company }}</div>
+              <div class="v2-title">{{ c.title }}</div>
             </div>
-          </div>
 
-            <div class="v2-bottom__center" data-counter></div>
-            <div class="v2-bottom__right"></div>
-          </div>
+            <div class="v2-copy">
+              <div class="v2-stepHeading" data-step-heading></div>
+              <div class="v2-stepBody" data-step-body></div>
+            </div>
+          </aside>
 
-          <script type="application/json" data-steps>
-            {{ steps | jsonify }}
-          </script>
-        </section>
-      {% else %}
-        <p>No case found. Check `page.case_title` in v2/index.md.</p>
-      {% endif %}
+          <div class="v2-right" data-media tabindex="0" role="button" aria-label="Next">
+            <img data-step-image alt="" />
+          </div>
+        </div>
+
+        <div class="v2-bottom">
+          <div class="v2-bottom__left"></div>
+          <div class="v2-bottom__center" data-counter></div>
+          <div class="v2-bottom__right"></div>
+        </div>
+
+        <script type="application/json" data-steps>
+          {{ steps | jsonify }}
+        </script>
+      </section>
+
+    {% endif %}
+  {% endfor %}
     </main>
 
     <footer class="v2-fixedFooter" aria-label="Site links">

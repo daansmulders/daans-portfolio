@@ -6,6 +6,34 @@ company: "Powerly"
 role: "UX / Product Designer"
 summary: "I designed and tested an interactive video prototype to help homeowners understand their sustainable options earlier in the journey. Reducing dependency on phone calls and making expert advice more scalable."
 hero_image: "/assets/images/powerly-interactive-video/interactive-video-hero.png"
+steps:
+  - heading: Goal
+    body: Explore whether personalized, interactive video could help homeowners understand their sustainable options earlier — reducing pressure on experts and helping Powerly scale advice more efficiently.
+    image: /assets/images/powerly-interactive-video/interactive-video-hero.png
+
+  - heading: The challenge
+    body: Users came in with big foundational questions, and experts repeated the same scripted explanations in every call. That created long, repetitive calls, limited scale, and high operational cost.
+    image: /assets/images/powerly-interactive-video/journey-high-level.png
+
+  - heading: Hypothesis
+    body: If we inform users through personalized, interactive video, they’ll understand their possibilities earlier and feel more ready to take the next step — even before a phone call.
+    image: /assets/images/powerly-interactive-video/video-flow.png
+
+  - heading: Concept
+    body: I built an interactive prototype combining short recorded videos with a lightweight question flow. Choices (e.g. insulation vs heat pump paths) shaped what users saw next.
+    image: /assets/images/powerly-interactive-video/video-flow.png
+
+  - heading: Prototype
+    body: Two prototype versions were created to test whether the format felt helpful, trustworthy, and easy to navigate — and whether it could reduce call time.
+    image: /assets/images/powerly-interactive-video/interactive-video-hero.png
+
+  - heading: Research
+    body: Moderated sessions with users who had just scheduled a free advice call. We tested comprehension, confidence, preference vs waiting for a call, and likelihood of taking a next step.
+    image: /assets/images/powerly-interactive-video/journey-high-level.png
+
+  - heading: Outcome
+    body: Users liked the interactive format and described it as clear and digestible. But technical API constraints and production costs made it not feasible to implement at the time.
+    image: /assets/images/powerly-interactive-video/interactive-video-hero.png
 ---
 
 <div class="project-intro-grid">

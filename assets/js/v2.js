@@ -126,13 +126,98 @@ function initCase(caseEl) {
   render();
 }
 
+function initSnapSettle() {
+  const scroller = document.querySelector(".v2-snap");
+  if (!scroller) return;
+
+  const cases = Array.from(scroller.querySelectorAll(".v2-case"));
+  if (cases.length === 0) return;
+
+  let t = null;
+  let isSnapping = false;
+
+  function pickCaseByThreshold() {
+    const scrollerRect = scroller.getBoundingClientRect();
+    const topY = scrollerRect.top;
+
+    // Commit threshold: once the next case is >= 35% into view, snap to it
+    const threshold = scrollerRect.height * 0.35;
+
+    let chosen = cases[0];
+
+    for (const c of cases) {
+      const r = c.getBoundingClientRect();
+      const delta = r.top - topY;
+
+      // If this case's top has passed the threshold, treat it as the current target.
+      // This biases snapping "forward" rather than nearest.
+      if (delta <= threshold) {
+        chosen = c;
+      } else {
+        // Because cases are in DOM order, once delta is beyond threshold we can stop.
+        break;
+      }
+    }
+
+    return chosen;
+  }
+
+  function settle() {
+    if (isSnapping) return;
+    const target = pickCaseByThreshold();
+    if (!target) return;
+
+    isSnapping = true;
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    // Prevent recursive settle loops while smooth scrolling is happening
+    window.setTimeout(() => {
+      isSnapping = false;
+    }, 220);
+  }
+
+  function debounceSettle(ms) {
+    if (t) window.clearTimeout(t);
+    t = window.setTimeout(settle, ms);
+  }
+
+  // Trackpad-tuned timings: quick commit without fighting momentum
+  scroller.addEventListener(
+    "scroll",
+    () => debounceSettle(30),
+    { passive: true }
+  );
+
+  scroller.addEventListener(
+    "wheel",
+    () => debounceSettle(60),
+    { passive: true }
+  );
+
+  scroller.addEventListener(
+    "touchend",
+    () => debounceSettle(60),
+    { passive: true }
+  );
+
+  // Optional: if the user clicks the scrollbar track, still settle
+  scroller.addEventListener(
+    "mouseup",
+    () => debounceSettle(60),
+    { passive: true }
+  );
+}
+
+
+
 (function main() {
   initPanels();
   initCursorNext();
+  initSnapSettle();
 
   // Init carousel for the (current) single case
-  const caseEl = document.querySelector("[data-case]");
-  if (caseEl) initCase(caseEl);
+const caseEls = Array.from(document.querySelectorAll("[data-case]"));
+caseEls.forEach(initCase);
 
   // Measure header after first paint
   setV2HeaderHeight();
