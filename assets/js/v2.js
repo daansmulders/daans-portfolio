@@ -1,8 +1,19 @@
 // assets/js/v2.js
 // v2 paging + case carousel + cursor navigation
+// - Desktop: wheel = one case per gesture (unchanged)
+// - Mobile: scroll reads within a case; only at top/bottom + harder swipe (on release) pages
+// - Mobile: tap anywhere advances step (forward only)
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n));
+}
+
+function isMobileUI() {
+  return (
+    window.matchMedia("(max-width: 900px)").matches ||
+    (window.matchMedia("(pointer: coarse)").matches &&
+      window.matchMedia("(hover: none)").matches)
+  );
 }
 
 /* ----------------------------
@@ -30,9 +41,11 @@ function initPanels() {
   const overlays = document.querySelectorAll("[data-overlay]");
 
   function open(name) {
+    closeAll(); // ensure only one overlay at a time
     const el = document.querySelector(`[data-overlay="${name}"]`);
     if (el) el.hidden = false;
   }
+
 
   function closeAll() {
     overlays.forEach((o) => (o.hidden = true));
@@ -57,8 +70,10 @@ function initPanels() {
    Cursor-follow label
    (previous / next)
 ---------------------------- */
-
 function initCursorNav() {
+  // Don’t show cursor label on touch devices
+  if (isMobileUI()) return;
+
   const el = document.querySelector(".v2-cursorNext");
   if (!el) return;
 
@@ -80,22 +95,15 @@ function initCursorNav() {
 
     const midX = window.innerWidth / 2;
 
-    if (e.clientX < midX) {
-      show("previous");
-    } else {
-      show("next");
-    }
+    if (e.clientX < midX) show("previous");
+    else show("next");
 
     el.style.transform = `translate(${e.clientX + 12}px, ${e.clientY + 10}px)`;
   });
 
-  // Hide cursor label when leaving the case area
   document.addEventListener("mouseleave", () => hide());
-
-  // Safety: hide on scroll so it never gets stuck
   document.addEventListener("scroll", () => hide(), { passive: true });
 }
-
 
 /* ----------------------------
    Case carousel (per case)
@@ -116,8 +124,6 @@ function initCase(caseEl) {
   const headingEl = caseEl.querySelector("[data-step-heading]");
   const bodyEl = caseEl.querySelector("[data-step-body]");
   const imgEl = caseEl.querySelector("[data-step-image]");
-  const mediaEl = caseEl.querySelector("[data-media]");
-  const prevAreaEl = caseEl.querySelector("[data-prev-area]");
   const counterEl = caseEl.querySelector("[data-counter]");
 
   let idx = 0;
@@ -169,26 +175,28 @@ function initCase(caseEl) {
     render();
   }
 
-    // Click anywhere on the case:
-    // left half = previous step, right half = next step
-    caseEl.addEventListener("click", (e) => {
+  // Click/tap anywhere on the case:
+  // - Mobile: always NEXT (forward-only)
+  // - Desktop: left half = prev, right half = next
+  caseEl.addEventListener("click", (e) => {
     // Don't hijack clicks on UI controls/links
     if (e.target.closest("button, a, input, textarea, select, label")) return;
 
-    const midX = window.innerWidth / 2;
-    if (e.clientX < midX) {
-      prev();
-    } else {
+    if (isMobileUI()) {
       next();
+      return;
     }
-    });
+
+    const midX = window.innerWidth / 2;
+    if (e.clientX < midX) prev();
+    else next();
+  });
 
   render();
 }
 
 /* ----------------------------
    Paging between cases
-   (one scroll gesture = one case)
 ---------------------------- */
 function initSnapPaging() {
   const scroller = document.querySelector(".v2-snap");
@@ -197,10 +205,10 @@ function initSnapPaging() {
   const cases = Array.from(scroller.querySelectorAll(".v2-case"));
   if (cases.length < 2) return;
 
+  const mobile = isMobileUI();
+
   let isAnimating = false;
   let gestureLocked = false;
-  let wheelIdleTimer = null;
-  let wheelAccum = 0;
 
   function findNearestIndex() {
     const st = scroller.scrollTop;
@@ -238,39 +246,152 @@ function initSnapPaging() {
   function go(step) {
     const idx = findNearestIndex();
     const next = Math.max(0, Math.min(cases.length - 1, idx + step));
-    animateTo(cases[next].offsetTop, 140);
+    animateTo(cases[next].offsetTop, mobile ? 220 : 140);
   }
 
+  function currentCaseEl() {
+    return cases[findNearestIndex()];
+  }
+
+  function isNearTop(el, px = 40) {
+    const top = el.offsetTop;
+    return scroller.scrollTop <= top + px;
+  }
+
+  function isNearBottom(el, px = 56) {
+    const bottom = el.offsetTop + el.offsetHeight;
+    const viewportBottom = scroller.scrollTop + scroller.clientHeight;
+    return viewportBottom >= bottom - px;
+  }
+
+  // Safari momentum cancel trick: stops native scrolling before we animate
+  function forceStopScroll(el) {
+    const y = el.scrollTop;
+    el.scrollTop = y + 1;
+    el.scrollTop = y;
+  }
+
+  // -----------------------------
+  // Desktop: wheel paging (one gesture = one case)
+  // -----------------------------
+  if (!mobile) {
+    let wheelIdleTimer = null;
+    let wheelAccum = 0;
+
+    scroller.addEventListener(
+      "wheel",
+      (e) => {
+        if (e.ctrlKey) return;
+        e.preventDefault();
+
+        if (wheelIdleTimer) clearTimeout(wheelIdleTimer);
+        wheelIdleTimer = setTimeout(() => {
+          gestureLocked = false;
+          wheelAccum = 0;
+        }, 40);
+
+        if (gestureLocked || isAnimating) return;
+
+        const deltaY = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+        wheelAccum += deltaY;
+
+        const THRESH = 300; // deliberate, calm
+
+        if (wheelAccum > THRESH) {
+          gestureLocked = true;
+          wheelAccum = 0;
+          go(+1);
+        } else if (wheelAccum < -THRESH) {
+          gestureLocked = true;
+          wheelAccum = 0;
+          go(-1);
+        }
+      },
+      { passive: false }
+    );
+
+    return;
+  }
+
+  // -----------------------------
+  // Mobile: boundary-aware touch paging (decide on release)
+  // -----------------------------
+  let startY = 0;
+  let accum = 0;
+  let intent = 0; // -1 prev, +1 next, 0 none
+
+  const ARM_PX = 12;   // ignore tiny jitter at boundary
+  const PAGE_PX = 120; // “slightly bigger/harder” swipe
+
   scroller.addEventListener(
-    "wheel",
+    "touchstart",
     (e) => {
-      if (e.ctrlKey) return;
-      e.preventDefault();
+      if (!e.touches || e.touches.length !== 1) return;
+      startY = e.touches[0].clientY;
+      accum = 0;
+      intent = 0;
+    },
+    { passive: true }
+  );
 
-      if (wheelIdleTimer) clearTimeout(wheelIdleTimer);
-      wheelIdleTimer = setTimeout(() => {
-        gestureLocked = false;
-        wheelAccum = 0;
-      }, 40);
-
+  scroller.addEventListener(
+    "touchmove",
+    (e) => {
       if (gestureLocked || isAnimating) return;
+      if (!e.touches || e.touches.length !== 1) return;
 
-      const deltaY = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
-      wheelAccum += deltaY;
+      const el = currentCaseEl();
+      const y = e.touches[0].clientY;
 
-      const THRESH = 300; // deliberate, calm
+      // dy > 0: user swiped up (wants to scroll DOWN)
+      // dy < 0: user swiped down (wants to scroll UP)
+      const dy = startY - y;
 
-      if (wheelAccum > THRESH) {
-        gestureLocked = true;
-        wheelAccum = 0;
-        go(+1);
-      } else if (wheelAccum < -THRESH) {
-        gestureLocked = true;
-        wheelAccum = 0;
-        go(-1);
+      const atBottom = isNearBottom(el);
+      const atTop = isNearTop(el);
+
+      // Not at a boundary: allow native scrolling
+      if (!atBottom && !atTop) return;
+
+      if (atBottom && dy > ARM_PX) {
+        // paging intent to NEXT
+        e.preventDefault();
+        accum += dy;
+        intent = +1;
+      } else if (atTop && dy < -ARM_PX) {
+        // paging intent to PREV
+        e.preventDefault();
+        accum += dy;
+        intent = -1;
       }
     },
     { passive: false }
+  );
+
+  scroller.addEventListener(
+    "touchend",
+    () => {
+      if (gestureLocked || isAnimating) return;
+      if (intent === 0) return;
+
+      if (intent === +1 && accum > PAGE_PX) {
+        gestureLocked = true;
+        forceStopScroll(scroller);
+        go(+1);
+      } else if (intent === -1 && accum < -PAGE_PX) {
+        gestureLocked = true;
+        forceStopScroll(scroller);
+        go(-1);
+      }
+
+      intent = 0;
+      accum = 0;
+
+      window.setTimeout(() => {
+        gestureLocked = false;
+      }, 240);
+    },
+    { passive: true }
   );
 }
 
@@ -294,13 +415,10 @@ function initSnapPaging() {
   window.addEventListener("resize", onResize);
   window.addEventListener("orientationchange", onResize);
 
-
   initSnapPaging();
 
   const caseEls = Array.from(document.querySelectorAll("[data-case]"));
   caseEls.forEach(initCase);
-
- 
 
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(setV2HeaderHeight);

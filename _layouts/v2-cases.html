@@ -16,9 +16,15 @@
       </div>
 
       <div class="v2-header__right">
-        <button type="button" class="v2-link" data-open="menu">menu</button>
+        <button
+          type="button"
+          class="v2-link v2-onlyMobile"
+          data-open="menu">
+          menu
+        </button>
       </div>
     </header>
+
 
     <main class="v2-snap">
       {% assign cases = site.projects | sort: "date" | reverse %}
@@ -69,6 +75,25 @@
     </footer>
 
     <div class="v2-cursorNext" aria-hidden="true" hidden>next</div>
+
+    <div class="v2-overlay" data-overlay="menu" hidden>
+      <div class="v2-panel" role="dialog" aria-modal="true" aria-label="Menu">
+        <div class="v2-panel__head">
+          <strong>menu</strong>
+          <button class="v2-link" type="button" data-close>close</button>
+        </div>
+
+        <div class="v2-menuList">
+          <button class="v2-link" type="button" data-open="overview">
+            case study overview
+          </button>
+          <button class="v2-link" type="button" data-open="about">
+            about
+          </button>
+        </div>
+      </div>
+    </div>
+
 
 
     <script src="{{ '/assets/js/v2.js' | relative_url }}"></script>

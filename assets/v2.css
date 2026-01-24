@@ -18,6 +18,8 @@ html, body {
 
 *, *::before, *::after { box-sizing: border-box; }
 
+.v2-onlyMobile { display: none; }
+.v2-onlyDesktop { display: inline; }
 
 /* Base */
 .v2 { background: var(--bg); color: var(--fg); }
@@ -88,7 +90,7 @@ html, body {
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
-  column-gap: 24px;
+  column-gap: 32px;
   align-items: start;
 
   /* IMPORTANT: remove double padding */
@@ -217,7 +219,7 @@ body.theme-dark .v2-overlay{ background: rgba(0,0,0,0.6); }
 }
 
 /* Mobile */
-@media (max-width: 900px){
+@media (max-width: 700px){
   :root{ --v2-pad-x: 20px; }
 
   .v2-header{
@@ -225,11 +227,49 @@ body.theme-dark .v2-overlay{ background: rgba(0,0,0,0.6); }
     gap: 10px;
     padding: 20px var(--v2-pad-x);
     pointer-events: auto;
+    position: fixed;
   }
-  .v2-header__right{ text-align: left; }
+  .v2-header__right{ 
+    text-align: left;
+    position: absolute;
+    top: 16px;
+    right: var(--v2-pad-x);
+   }
+
+
 
   .v2-grid{
     grid-template-columns: 1fr;
     row-gap: 16px;
+  }
+
+   .v2-case{
+    height: auto;           /* allow content to be taller than viewport */
+    min-height: 100dvh;     /* still feels like a “chapter” */
+    grid-template-rows: auto auto; /* content row grows with text */
+  }
+
+  /* Optional: cursor stuff doesn’t matter on touch */
+  .v2-left,
+  .v2-right{
+    cursor: auto;
+  }
+
+  /* Optional: don’t hide overflow on mobile text */
+  .v2-left{
+    overflow: visible;
+  }
+  .v2-onlyMobile { display: inline; }
+  .v2-onlyDesktop { display: none; }
+
+  /* Hide fixed footer links on mobile */
+  .v2-fixedFooter { display: none; }
+
+  /* Optional: menu list layout */
+  .v2-menuList{
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 16px;
   }
 }
