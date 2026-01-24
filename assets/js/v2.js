@@ -177,12 +177,15 @@ function initSnapPaging() {
   const cases = Array.from(scroller.querySelectorAll(".v2-case"));
   if (cases.length < 2) return;
 
-  // Make scroller focusable (optional for key controls later)
-  if (!scroller.hasAttribute("tabindex")) scroller.setAttribute("tabindex", "0");
-
   let isAnimating = false;
+
+  // Gesture gating: after we page once, we lock until wheel input stops
+  let gestureLocked = false;
+  let wheelIdleTimer = null;
+
+  // Accumulate small deltas into a “commit”
   let wheelAccum = 0;
-  let wheelResetTimer = null;
+  let accumResetTimer = null;
 
   function findNearestIndex() {
     const st = scroller.scrollTop;
@@ -221,39 +224,47 @@ function initSnapPaging() {
   function go(step) {
     const idx = findNearestIndex();
     const next = Math.max(0, Math.min(cases.length - 1, idx + step));
-    animateTo(cases[next].offsetTop, 160); // snappy
+    animateTo(cases[next].offsetTop, 140);
   }
 
   scroller.addEventListener(
     "wheel",
     (e) => {
-      // allow pinch-zoom
-      if (e.ctrlKey) return;
+      if (e.ctrlKey) return; // allow pinch zoom
 
-      // We fully control scroll behavior here
+      // We control scrolling
       e.preventDefault();
 
-      if (isAnimating) return;
+      // Reset idle timer: when wheel quiets down, unlock next gesture
+      if (wheelIdleTimer) clearTimeout(wheelIdleTimer);
+      wheelIdleTimer = setTimeout(() => {
+        gestureLocked = false;
+        wheelAccum = 0;
+      }, 40);
 
-      // Normalize delta
+      // If we already paged this gesture (or we're animating), ignore remaining momentum
+      if (gestureLocked || isAnimating) return;
+
       const deltaY = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
-
-      // Accumulate small trackpad deltas into one "intent"
       wheelAccum += deltaY;
 
-      // Reset accumulation after a short pause
-      if (wheelResetTimer) clearTimeout(wheelResetTimer);
-      wheelResetTimer = setTimeout(() => {
+      // reset accumulator if user pauses mid-gesture
+      if (accumResetTimer) clearTimeout(accumResetTimer);
+      accumResetTimer = setTimeout(() => {
         wheelAccum = 0;
       }, 120);
 
-      // Threshold tuned for trackpad (lower = more eager)
-      const THRESH = scroller.clientHeight * 0.25;
+      // Your “deliberate” threshold.
+      // Fixed: 300 works fine
+      // Or scalable: scroller.clientHeight * 0.25 (~300 on tall screens)
+      const THRESH = 300;
 
       if (wheelAccum > THRESH) {
+        gestureLocked = true; // <-- key: only one page per gesture
         wheelAccum = 0;
         go(+1);
       } else if (wheelAccum < -THRESH) {
+        gestureLocked = true;
         wheelAccum = 0;
         go(-1);
       }
