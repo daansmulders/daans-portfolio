@@ -1,0 +1,3 @@
+While user feedback confirmed the value of the concept, two practical constraints prevented further development. The APIs behind the Woningcheck weren’t yet flexible enough to support a fully personalized video flow, and producing professional-quality video content required time and resources that weren’t available at the time.
+
+Although the concept wasn’t launched, the exploration proved valuable. It strengthened our understanding of homeowners’ needs, validated interactive video as a promising direction, and informed future thinking around scalable expert guidance.

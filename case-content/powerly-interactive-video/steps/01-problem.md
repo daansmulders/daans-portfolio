@@ -1,0 +1,3 @@
+For many homeowners, the journey toward making their home more sustainable starts with uncertainty. While the Woningcheck helped clarify options, most users still needed a call with a sustainability expert before they felt confident enough to continue.
+
+This meant that our sustainability experts spent a large part of their calls answering the same high-level questions again and again. These conversations were valuable, but also expensive, time-intensive, and difficult to scale. In order to keep growing we wanted to find a solution to this problem.
