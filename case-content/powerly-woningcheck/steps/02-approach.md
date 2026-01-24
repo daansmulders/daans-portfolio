@@ -1,0 +1,5 @@
+Research showed that homeowners approached the Woningcheck with very different levels of knowledge. Some were new to sustainability and needed help understanding what was even possible for their home, while others were already researching specific measures and wanted more detailed, technically sound advice.
+
+Despite these differences, both groups shared the same underlying need: guidance that felt personal and trustworthy enough to act on. I reframed the role of the Woningcheck from generating recommendations to preparing homeowners for the right conversation with a sustainability expert.
+
+This meant balancing accuracy with approachability. Helping less experienced homeowners build confidence and understanding, while recognising when more advanced users were ready to move faster toward discussing specific solutions or next steps.

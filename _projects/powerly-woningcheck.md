@@ -7,21 +7,24 @@ role: "UX / Product Designer"
 summary: "By combining a few key details from the homeowner with external housing data, the Woningcheck generates a personalized set of sustainable measures, expected savings, and a clear next step: scheduling an appointment with a sustainability expert.  I executed research and identified problems with the Woningcheck for different user groups. I designed and guided implementation of improvements which increased the amount of customers and customer satisfaction."
 hero_image: "/assets/images/powerly-woningcheck/form-step-energy-costs.png"
 steps:
-  - heading: Goal
-    body: Improve the Woningcheck so more homeowners feel confident to book a call with a sustainability expert — ultimately increasing sustainable installations through Powerly.
-    image: /assets/images/powerly-woningcheck/cover.png
+  - heading: Problem, incomplete and unconvincing
+    body: /case-content/powerly-woningcheck/steps/01-context.md
+    image: /case-content/powerly-woningcheck/images/01.png
+  - heading: Approach
+    body: /case-content/powerly-woningcheck/steps/02-approach.md
+    image: /case-content/powerly-woningcheck/images/02.png
+  - heading: Making results easier to understand
+    body: /case-content/powerly-woningcheck/steps/03-clarity.md
+    image: /case-content/powerly-woningcheck/images/02.png
+  - heading: Improving the reliability of the advice
+    body: /case-content/powerly-woningcheck/steps/04-accuracy.md
+    image: /case-content/powerly-woningcheck/images/02.png
+  - heading: Turning insight into a clear next step
+    body: /case-content/powerly-woningcheck/steps/05-foundation.md
+    image: /case-content/powerly-woningcheck/images/02.png
   - heading: Outcome
-    body: A clearer, more accurate Woningcheck led to higher conversion, more expert calls, and a stronger foundation for ongoing improvements.
-    image: /assets/images/powerly-woningcheck/results.png
-  - heading: My role
-    body: Research, UX design, concept development, implementation guidance.
-    image: /assets/images/powerly-woningcheck/form-step-additional-details.png
-  - heading: Team
-    body: Product manager, developers, sustainability experts, marketing.
-    image: /assets/images/powerly-woningcheck/create-appointment.png
-  - heading: Context
-    body: Powerly helped homeowners understand which sustainable measures fit their home and guided them to installation. The Woningcheck was the critical first step.
-    image: /assets/images/powerly-woningcheck/results.png
+    body: /case-content/powerly-woningcheck/steps/06-outcome.md
+    image: /case-content/powerly-woningcheck/images/02.png
 ---
 
 <div class="project-intro-grid">

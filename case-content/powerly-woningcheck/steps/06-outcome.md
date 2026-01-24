@@ -1,0 +1,3 @@
+The redesigned Woningcheck gave homeowners clearer, more trustworthy guidance and helped them understand when and why speaking to an expert made sense. As a result, more users felt confident taking the next step, leading to higher conversion to expert calls and increased customer satisfaction.
+
+Beyond immediate impact, the improvements created a stronger foundation for ongoing experimentation. With a more structured flow and more reliable advice, the team could continue refining the experience and exploring new ways to support homeowners at different stages of their sustainability journey.

@@ -1,8 +1,9 @@
 // assets/js/v2.js
 // v2 paging + case carousel + cursor navigation
-// - Desktop: wheel = one case per gesture (unchanged)
+// - Desktop: wheel = one case per gesture
 // - Mobile: scroll reads within a case; only at top/bottom + harder swipe (on release) pages
 // - Mobile: tap anywhere advances step (forward only)
+// - Step bodies are loaded from Markdown files via fetch(), with caching + prefetching
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n));
@@ -15,6 +16,68 @@ function isMobileUI() {
       window.matchMedia("(hover: none)").matches)
   );
 }
+
+/* ----------------------------
+   Markdown loading + rendering
+   (cached + prefetched)
+---------------------------- */
+const mdCache = new Map(); // url -> Promise<string> (HTML)
+
+async function loadMarkdown(url) {
+  if (!url) return "";
+
+  if (mdCache.has(url)) return mdCache.get(url);
+
+  const p = (async () => {
+    const res = await fetch(url, { cache: "force-cache" });
+    if (!res.ok) throw new Error(`Failed to load ${url}`);
+    const text = await res.text();
+    return markdownToHtml(text);
+  })();
+
+  mdCache.set(url, p);
+  return p;
+}
+
+function prefetchMarkdown(url) {
+  if (!url || mdCache.has(url)) return;
+  loadMarkdown(url).catch(() => {});
+}
+
+function markdownToHtml(md) {
+  const blocks = md.trim().split(/\n\s*\n/);
+  let html = "";
+
+  for (const block of blocks) {
+    // Detect simple bullet list
+    if (/^-\s+/m.test(block)) {
+      const items = block
+        .split("\n")
+        .filter(line => line.trim().startsWith("- "))
+        .map(line => {
+          let text = line.replace(/^-+\s*/, "");
+          text = text
+            .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+            .replace(/\*(.+?)\*/g, "<em>$1</em>");
+          return `<li>${text}</li>`;
+        });
+
+      html += `<ul>${items.join("")}</ul>`;
+      continue;
+    }
+
+    // Regular paragraph
+    let p = block
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*(.+?)\*/g, "<em>$1</em>")
+      .replace(/\n/g, "<br>");
+
+    html += `<p>${p}</p>`;
+  }
+
+  return html;
+}
+
 
 /* ----------------------------
    Header height measurement
@@ -35,20 +98,19 @@ function setV2ScrollbarWidth() {
 }
 
 /* ----------------------------
-   Overlays (About / Overview)
+   Overlays (About / Overview / Menu)
 ---------------------------- */
 function initPanels() {
   const overlays = document.querySelectorAll("[data-overlay]");
+
+  function closeAll() {
+    overlays.forEach((o) => (o.hidden = true));
+  }
 
   function open(name) {
     closeAll(); // ensure only one overlay at a time
     const el = document.querySelector(`[data-overlay="${name}"]`);
     if (el) el.hidden = false;
-  }
-
-
-  function closeAll() {
-    overlays.forEach((o) => (o.hidden = true));
   }
 
   document.addEventListener("click", (e) => {
@@ -94,7 +156,6 @@ function initCursorNav() {
     }
 
     const midX = window.innerWidth / 2;
-
     if (e.clientX < midX) show("previous");
     else show("next");
 
@@ -127,6 +188,7 @@ function initCase(caseEl) {
   const counterEl = caseEl.querySelector("[data-counter]");
 
   let idx = 0;
+  let renderToken = 0;
 
   function renderCounter() {
     if (!counterEl) return;
@@ -148,8 +210,8 @@ function initCase(caseEl) {
 
   function render() {
     const s = steps[idx] || {};
+
     if (headingEl) headingEl.textContent = s.heading || "";
-    if (bodyEl) bodyEl.textContent = s.body || "";
 
     if (imgEl) {
       if (s.image) {
@@ -159,6 +221,30 @@ function initCase(caseEl) {
         imgEl.removeAttribute("src");
         imgEl.style.visibility = "hidden";
       }
+    }
+
+    // Prefetch next & previous step bodies so navigation feels instant
+    const nextIdx = (idx + 1) % steps.length;
+    const prevIdx = Math.max(0, idx - 1);
+    prefetchMarkdown(steps[nextIdx]?.body);
+    prefetchMarkdown(steps[prevIdx]?.body);
+
+    // Load markdown body (intentionally no fallback: unmigrated cases will show error)
+    if (bodyEl) {
+      const token = ++renderToken;
+      const url = s.body;
+
+      loadMarkdown(url)
+        .then((html) => {
+          if (token !== renderToken) return; // ignore stale response
+          bodyEl.innerHTML = html;
+          setV2HeaderHeight();
+        })
+        .catch((err) => {
+          if (token !== renderToken) return;
+          bodyEl.innerHTML = "<p style='color:red'>Missing content</p>";
+          console.error(err);
+        });
     }
 
     renderCounter();
@@ -179,7 +265,6 @@ function initCase(caseEl) {
   // - Mobile: always NEXT (forward-only)
   // - Desktop: left half = prev, right half = next
   caseEl.addEventListener("click", (e) => {
-    // Don't hijack clicks on UI controls/links
     if (e.target.closest("button, a, input, textarea, select, label")) return;
 
     if (isMobileUI()) {
@@ -271,9 +356,7 @@ function initSnapPaging() {
     el.scrollTop = y;
   }
 
-  // -----------------------------
-  // Desktop: wheel paging (one gesture = one case)
-  // -----------------------------
+  // Desktop: wheel paging
   if (!mobile) {
     let wheelIdleTimer = null;
     let wheelAccum = 0;
@@ -295,7 +378,7 @@ function initSnapPaging() {
         const deltaY = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
         wheelAccum += deltaY;
 
-        const THRESH = 300; // deliberate, calm
+        const THRESH = 300;
 
         if (wheelAccum > THRESH) {
           gestureLocked = true;
@@ -313,15 +396,13 @@ function initSnapPaging() {
     return;
   }
 
-  // -----------------------------
   // Mobile: boundary-aware touch paging (decide on release)
-  // -----------------------------
   let startY = 0;
   let accum = 0;
   let intent = 0; // -1 prev, +1 next, 0 none
 
-  const ARM_PX = 12;   // ignore tiny jitter at boundary
-  const PAGE_PX = 120; // “slightly bigger/harder” swipe
+  const ARM_PX = 12;
+  const PAGE_PX = 120;
 
   scroller.addEventListener(
     "touchstart",
@@ -343,23 +424,18 @@ function initSnapPaging() {
       const el = currentCaseEl();
       const y = e.touches[0].clientY;
 
-      // dy > 0: user swiped up (wants to scroll DOWN)
-      // dy < 0: user swiped down (wants to scroll UP)
       const dy = startY - y;
 
       const atBottom = isNearBottom(el);
       const atTop = isNearTop(el);
 
-      // Not at a boundary: allow native scrolling
       if (!atBottom && !atTop) return;
 
       if (atBottom && dy > ARM_PX) {
-        // paging intent to NEXT
         e.preventDefault();
         accum += dy;
         intent = +1;
       } else if (atTop && dy < -ARM_PX) {
-        // paging intent to PREV
         e.preventDefault();
         accum += dy;
         intent = -1;
