@@ -9,19 +9,19 @@ hero_image: "/assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/afl
 steps:
 - heading: Problem
   body: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/steps/01-problem.md
-  image: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/images/aflossingsvrij-storyboard-full.png
+  image: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/images/aflossingsvrij-storyboard-end.png
 - heading: Customers, business, regulation
   body: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/steps/02-framing.md
-  image: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/images/aflossingsvrij-storyboard-full.png
+  image: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/images/customer-journey-1.png
 - heading: Why a design sprint?
   body: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/steps/03-approach.md
-  image: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/images/aflossingsvrij-storyboard-full.png
+  image: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/images/sprint-setup.png
 - heading: Design sprint
   body: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/steps/04-designsprint.md
-  image: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/images/aflossingsvrij-storyboard-full.png
+  image: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/images/problem-areas.png
 - heading: Creating a direction and concept
   body: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/steps/05-concept.md
-  image: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/images/aflossingsvrij-storyboard-full.png
+  image: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/images/tool-concept.png
 - heading: Outcome
   body: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/steps/06-outcome.md
   image: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/images/aflossingsvrij-storyboard-full.png
