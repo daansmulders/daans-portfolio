@@ -1,0 +1,3 @@
+The problem space was large, unclear, and spanned multiple departments. There was extensive internal documentation, strict regulatory requirements, and many assumptions about customer risk and behavior.
+
+We chose to start with a design sprint to quickly align stakeholders, build a shared understanding of the current journey, and uncover a strategic direction — not just UI improvements. Before the sprint, I deep-dived into all available materials and created a structured briefing deck to ensure the team started from the same baseline.

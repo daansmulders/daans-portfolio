@@ -7,18 +7,25 @@ role: "UX / Product Designer"
 summary: "Nationale-Nederlanden needed a strategy to inform people about the state of their interest only mortgage. I set-up and facilitated a design sprint with a colleague designer and worked on an implementation plan based on the results. "
 hero_image: "/assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/aflossingsvrij-storyboard-end.png"
 steps:
-  - heading: Context
-    body: (Write 1–2 sentences later.)
-    image: /assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/aflossingsvrij-storyboard-end.png
-  - heading: Problem
-    body: (What was the challenge?)
-    image: /assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/aflossingsvrij-storyboard-end.png
-  - heading: What I did
-    body: (Your role + key actions.)
-    image: /assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/aflossingsvrij-storyboard-end.png
-  - heading: Outcome
-    body: (Impact / result / learnings.)
-    image: /assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/aflossingsvrij-storyboard-end.png
+- heading: Problem
+  body: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/steps/01-problem.md
+  image: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/images/aflossingsvrij-storyboard-full.png
+- heading: Customers, business, regulation
+  body: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/steps/02-framing.md
+  image: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/images/aflossingsvrij-storyboard-full.png
+- heading: Why a design sprint?
+  body: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/steps/03-approach.md
+  image: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/images/aflossingsvrij-storyboard-full.png
+- heading: Design sprint
+  body: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/steps/04-designsprint.md
+  image: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/images/aflossingsvrij-storyboard-full.png
+- heading: Creating a direction and concept
+  body: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/steps/05-concept.md
+  image: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/images/aflossingsvrij-storyboard-full.png
+- heading: Outcome
+  body: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/steps/06-outcome.md
+  image: /case-content/nationale-nederlanden-aflossingsvrije-hypotheken/images/aflossingsvrij-storyboard-full.png
+
 
 ---
 <div class="project-intro-grid">

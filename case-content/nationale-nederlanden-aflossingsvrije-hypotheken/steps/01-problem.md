@@ -1,0 +1,3 @@
+Interest-only mortgages are a unique type of mortgage in which customers only pay interest during the term, leaving the full repayment for the end. This creates a high-risk moment: customers must either repay the full amount, sell their home, or apply for a new mortgage.
+
+Due to newer and stricter European and Dutch regulations, Nationale-Nederlanden is required to serve these customers more intensively. The existing journey relied heavily on letters and phone calls, was complex to manage internally, and risked leaving customers uncertain about their situation.
