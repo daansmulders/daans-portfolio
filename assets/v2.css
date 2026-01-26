@@ -1,53 +1,102 @@
-/* v2.css
-   - Each case = 2-row grid: content (1fr) + bottom (auto)
-   - Image always fits available height and stays centered
+/* v2.css - Refactored
+   - Reduced duplication using CSS custom properties
+   - Organized with logical sections
+   - Mobile-first approach with desktop overrides
 */
 
-:root{
+/* =============================================================================
+   CUSTOM PROPERTIES (CSS Variables)
+============================================================================= */
+:root {
+  /* Layout */
   --v2-header-h: 140px;
   --v2-pad-x: 48px;
   --v2-scrollbar-w: 0px; /* filled by JS */
+  --v2-snap-gap: 32px; /* increased from 24px */
+  --v2-grid-gap: 64px; /* increased from 32px */
+  
+  /* Spacing */
+  --v2-space-sm: 10px;
+  --v2-space-md: 16px;
+  --v2-space-lg: 24px;
+  --v2-space-xl: 28px;
+  
+  /* Content spacing */
+  --v2-content-pad-y: 32px; /* reduced from 48px for less space below header */
+  
+  /* Typography (define these in your main CSS if not already) */
+  --v2-font-body: inherit;
+  --v2-font-weight-bold: 700;
+  
+  /* Colors (assuming you have these defined elsewhere) */
+  /* --bg, --fg, --muted, --border-subtle should be defined in your theme */
+}
+
+/* =============================================================================
+   RESET & BASE
+============================================================================= */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
 html, body {
   height: 100%;
-  overflow: hidden; /* IMPORTANT: prevents body scrolling */
   margin: 0;
   padding: 0;
+  overflow: hidden; /* IMPORTANT: prevents body scrolling */
 }
 
-*, *::before, *::after { box-sizing: border-box; }
+/* =============================================================================
+   UTILITY CLASSES
+============================================================================= */
+.v2-onlyMobile {
+  display: none;
+}
 
-.v2-onlyMobile { display: none; }
-.v2-onlyDesktop { display: inline; }
+.v2-onlyDesktop {
+  display: inline;
+}
 
-/* Base */
-.v2 { background: var(--bg); color: var(--fg); }
+/* =============================================================================
+   LAYOUT: BASE CONTAINER
+============================================================================= */
+.v2 {
+  background: var(--bg);
+  color: var(--fg);
+}
 
-/* Header */
-.v2-header{
+/* =============================================================================
+   LAYOUT: HEADER
+============================================================================= */
+.v2-header {
   position: fixed;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  
   display: grid;
   grid-template-columns: 1fr 3fr 1fr;
-
-  /* key change: add scrollbar width to the RIGHT padding */
-  padding: 16px calc(var(--v2-pad-x) + var(--v2-scrollbar-w)) 72px var(--v2-pad-x);
-
-  z-index: 10;
+  padding: var(--v2-space-md) calc(var(--v2-pad-x) + var(--v2-scrollbar-w)) 72px var(--v2-pad-x);
+  
   pointer-events: none;
   box-sizing: border-box;
 }
 
 .v2-header__left,
 .v2-header__center,
-.v2-header__right{
+.v2-header__right {
   pointer-events: auto;
 }
 
-.v2-header__right{ text-align: right; }
+.v2-header__right {
+  text-align: right;
+}
 
-.v2-link{
+/* =============================================================================
+   COMPONENTS: LINKS & BUTTONS
+============================================================================= */
+.v2-link {
   background: transparent;
   border: 0;
   padding: 0;
@@ -57,77 +106,90 @@ html, body {
   text-decoration: underline;
 }
 
-/* Snap scrolling container (JS paging controls scroll) */
-.v2-snap{
+/* =============================================================================
+   LAYOUT: SNAP SCROLLING CONTAINER
+============================================================================= */
+.v2-snap {
   height: 100vh;
   height: 100dvh;
   overflow-y: auto;
   scroll-snap-type: none;
 }
 
-/* Case: 2-row grid (content + bottom) */
-.v2-case{
+/* =============================================================================
+   LAYOUT: CASE (MAIN CONTENT SECTIONS)
+============================================================================= */
+.v2-case {
   height: 100vh;
   height: 100dvh;
-
-  padding-top: var(--v2-header-h);
-
-  /* single source of horizontal padding for the whole case */
-  padding-left: var(--v2-pad-x);
-  padding-right: var(--v2-pad-x);
-
+  padding: var(--v2-header-h) var(--v2-pad-x) 0;
   box-sizing: border-box;
-
+  
   display: grid;
   grid-template-rows: 1fr auto;
-  row-gap: 24px;
-
+  row-gap: var(--v2-snap-gap);
+  
   position: relative;
 }
 
-/* Content row */
-.v2-grid{
+/* Content Grid (left text + right media) */
+.v2-grid {
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
-  column-gap: 32px;
-  align-items: start;
-
-  /* IMPORTANT: remove double padding */
-  padding-left: 0;
-  padding-right: 0;
+  column-gap: var(--v2-grid-gap);
+  align-items: start; /* align to top so text starts at same height as image */
+  
+  /* Add vertical padding to create breathing room */
+  padding: var(--v2-content-pad-y) 0;
 }
 
-/* Left */
-.v2-left{
+/* =============================================================================
+   COMPONENTS: CASE LEFT (TEXT CONTENT)
+============================================================================= */
+.v2-left {
   min-height: 0;
   overflow: hidden;
   cursor: none;
-  padding-left: 0; /* keep */
+  padding-right: 24px; /* add breathing room so text doesn't feel cramped against image */
 }
 
-.v2-kicker{ margin-bottom: 28px; }
-.v2-company{ font-weight: 700; }
-.v2-title{ font-style: italic; color: var(--muted); }
+.v2-kicker {
+  margin-bottom: var(--v2-space-xl);
+}
 
-.v2-stepHeading{ font-weight: 700; margin-bottom: 6px; }
-.v2-stepBody{ color: var(--fg); }
+.v2-company {
+  font-weight: var(--v2-font-weight-bold);
+}
 
-/* Right: image frame fills the content row height */
-/* ----------------------------
-   Right (media frame)
----------------------------- */
-.v2-right{
+.v2-title {
+  font-style: italic;
+  color: var(--muted);
+}
+
+.v2-stepHeading {
+  font-weight: var(--v2-font-weight-bold);
+  margin-bottom: 6px;
+}
+
+.v2-stepBody {
+  color: var(--fg);
+}
+
+/* =============================================================================
+   COMPONENTS: CASE RIGHT (MEDIA)
+============================================================================= */
+.v2-right {
   min-height: 0;
   height: 100%;
-  position: relative; /* required for absolute children */
+  position: relative;
   cursor: none;
   overflow: hidden;
 }
 
-/* Stack image + video on top of each other */
+/* Shared styles for image and video */
 .v2-right img,
-.v2-stepVideo{
+.v2-stepVideo {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -139,33 +201,34 @@ html, body {
 
 /* JS controls visibility using the hidden attribute */
 .v2-right img[hidden],
-.v2-stepVideo[hidden]{
+.v2-stepVideo[hidden] {
   display: none !important;
 }
 
-
-/* Bottom row */
-.v2-bottom{
-  padding-bottom: 24px;
+/* =============================================================================
+   COMPONENTS: CASE BOTTOM (COUNTER & CONTROLS)
+============================================================================= */
+.v2-bottom {
+  padding-bottom: 32px; /* increased from var(--v2-snap-gap) for more breathing room */
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: end;
 }
 
-.v2-bottom__left{
+.v2-bottom__left {
   display: flex;
-  gap: 16px;
+  gap: var(--v2-space-md);
   align-items: center;
 }
 
-.v2-bottom__center{
+.v2-bottom__center {
   display: inline-flex;
-  gap: 10px;
+  gap: var(--v2-space-sm);
   align-items: center;
   justify-content: center;
 }
 
-.v2-counterItem{
+.v2-counterItem {
   background: transparent;
   border: 0;
   padding: 0;
@@ -173,115 +236,163 @@ html, body {
   cursor: pointer;
   color: var(--muted);
 }
-.v2-counterItem[aria-current="true"]{
+
+.v2-counterItem[aria-current="true"] {
   color: var(--fg);
   text-decoration: underline;
 }
 
-/* Overlays */
-.v2-overlay{
+/* =============================================================================
+   COMPONENTS: OVERLAYS & PANELS
+============================================================================= */
+.v2-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.35);
+  background: rgba(0, 0, 0, 0.35);
   display: grid;
   place-items: center;
   z-index: 50;
 }
-.v2-overlay[hidden]{ display: none !important; }
-body.theme-dark .v2-overlay{ background: rgba(0,0,0,0.6); }
 
-.v2-panel{
+.v2-overlay[hidden] {
+  display: none !important;
+}
+
+body.theme-dark .v2-overlay {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.v2-panel {
   width: min(720px, calc(100% - 48px));
   background: var(--bg);
   color: var(--fg);
   border: 1px solid var(--border-subtle);
-  padding: 16px;
+  padding: var(--v2-space-md);
 }
-.v2-panel__head{
+
+.v2-panel__head {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-/* Fixed footer links (persistent across scroll/cases) */
-.v2-fixedFooter{
+/* =============================================================================
+   COMPONENTS: FIXED FOOTER
+============================================================================= */
+.v2-fixedFooter {
   position: fixed;
   left: var(--v2-pad-x);
-  bottom: 24px;
+  bottom: var(--v2-snap-gap);
   z-index: 20;
 }
 
-.v2-fixedFooter__left{
+.v2-fixedFooter__left {
   display: flex;
-  gap: 16px;
+  gap: var(--v2-space-md);
   align-items: center;
 }
 
-/* Cursor-follow label */
-.v2-cursorNext{
+/* =============================================================================
+   COMPONENTS: CURSOR NAVIGATION LABEL
+============================================================================= */
+.v2-cursorNext {
   position: fixed;
   left: 0;
   top: 0;
   transform: translate(-9999px, -9999px);
   z-index: 30;
   pointer-events: none;
-
+  
   color: var(--fg);
   background: transparent;
   text-decoration: underline;
   font-size: 0.95rem;
 }
 
-/* Mobile */
-@media (max-width: 700px){
-  :root{ --v2-pad-x: 20px; }
+/* =============================================================================
+   RESPONSIVE: MOBILE & TABLET
+============================================================================= */
+@media (max-width: 700px) {
+  :root {
+    --v2-pad-x: 20px;
+    --v2-content-pad-y: 32px; /* slightly less vertical padding on mobile */
+    --v2-grid-gap: 48px; /* keep decent spacing on mobile too */
+  }
 
-  .v2-header{
+  /* Utility classes */
+  .v2-onlyMobile {
+    display: inline;
+  }
+
+  .v2-onlyDesktop {
+    display: none;
+  }
+
+  /* Header adjustments */
+  .v2-header {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: var(--v2-space-sm);
     padding: 20px var(--v2-pad-x);
     pointer-events: auto;
     position: fixed;
   }
-  .v2-header__right{ 
+
+  .v2-header__right {
     text-align: left;
     position: absolute;
-    top: 16px;
+    top: var(--v2-space-md);
     right: var(--v2-pad-x);
-   }
- 
-  .v2-grid{
+  }
+
+  /* Case layout */
+  .v2-case {
+    height: auto;
+    min-height: 100dvh;
+    grid-template-rows: auto auto;
+  }
+
+  /* Grid to single column */
+  .v2-grid {
     grid-template-columns: 1fr;
-    row-gap: 16px;
+    row-gap: 32px; /* increased spacing between text and image on mobile */
+    padding: var(--v2-content-pad-y) 0;
   }
 
-   .v2-case{
-    height: auto;           /* allow content to be taller than viewport */
-    min-height: 100dvh;     /* still feels like a “chapter” */
-    grid-template-rows: auto auto; /* content row grows with text */
-  }
-
-  /* Optional: cursor stuff doesn’t matter on touch */
+  /* Reset cursor styles for touch */
   .v2-left,
-  .v2-right{
+  .v2-right {
     cursor: auto;
   }
 
-  /* Optional: don’t hide overflow on mobile text */
-  .v2-left{
+  .v2-left {
     overflow: visible;
   }
-  .v2-onlyMobile { display: inline; }
-  .v2-onlyDesktop { display: none; }
 
-  /* Hide fixed footer links on mobile */
-  .v2-fixedFooter { display: none; }
+  /* Hide fixed footer on mobile */
+  .v2-fixedFooter {
+    display: none;
+  }
 
-  /* Optional: menu list layout */
-  .v2-menuList{
+  /* Menu layout */
+  .v2-menuList {
     display: flex;
     flex-direction: column;
     gap: 14px;
-    margin-top: 16px;
+    margin-top: var(--v2-space-md);
+  }
+}
+
+/* =============================================================================
+   RESPONSIVE: MEDIUM SCREENS (TABLET LANDSCAPE)
+============================================================================= */
+@media (min-width: 701px) and (max-width: 900px) {
+  :root {
+    --v2-pad-x: 32px;
+    --v2-grid-gap: 48px; /* adjusted for medium screens */
+    --v2-content-pad-y: 40px;
+  }
+
+  .v2-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
   }
 }

@@ -1,83 +1,125 @@
-// assets/js/v2.js
+// assets/js/v2.js - Refactored
 // v2 paging + case carousel + cursor navigation
 
+/* =============================================================================
+   CONSTANTS & CONFIGURATION
+============================================================================= */
+const CONFIG = {
+  MOBILE_BREAKPOINT: 900,
+  WHEEL_THRESHOLD: 300,
+  WHEEL_IDLE_MS: 40,
+  TOUCH_ARM_PX: 12,
+  TOUCH_PAGE_PX: 120,
+  DESKTOP_ANIM_MS: 140,
+  MOBILE_ANIM_MS: 220,
+  GESTURE_LOCK_MS: 240,
+  SNAP_NEAR_TOP_PX: 40,
+  SNAP_NEAR_BOTTOM_PX: 56,
+  INTERSECTION_THRESHOLD: 0.15,
+};
+
+/* =============================================================================
+   UTILITIES
+============================================================================= */
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n));
 }
 
 function isMobileUI() {
   return (
-    window.matchMedia("(max-width: 900px)").matches ||
+    window.matchMedia(`(max-width: ${CONFIG.MOBILE_BREAKPOINT}px)`).matches ||
     (window.matchMedia("(pointer: coarse)").matches &&
       window.matchMedia("(hover: none)").matches)
   );
 }
 
-/* ----------------------------
-   Markdown loading + rendering
----------------------------- */
-const mdCache = new Map();
-
-async function loadMarkdown(url) {
+function normalizeUrl(url) {
   if (!url) return "";
-  if (mdCache.has(url)) return mdCache.get(url);
-
-  const p = (async () => {
-    const res = await fetch(url, { cache: "force-cache" });
-    if (!res.ok) throw new Error(`Failed to load ${url}`);
-    const text = await res.text();
-    return markdownToHtml(text);
-  })();
-
-  mdCache.set(url, p);
-  return p;
+  const trimmed = String(url).trim();
+  if (!trimmed) return "";
+  if (/^(https?:)?\/\//i.test(trimmed) || /^(data:|blob:)/i.test(trimmed)) {
+    return trimmed;
+  }
+  return new URL(trimmed, document.baseURI).toString();
 }
 
-function prefetchMarkdown(url) {
-  if (!url || mdCache.has(url)) return;
-  loadMarkdown(url).catch(() => {});
-}
-
-function markdownToHtml(md) {
-  const blocks = md.trim().split(/\n\s*\n/);
-  let html = "";
-
-  for (const block of blocks) {
-    if (/^-\s+/m.test(block)) {
-      const items = block
-        .split("\n")
-        .filter(line => line.trim().startsWith("- "))
-        .map(line => {
-          let text = line.replace(/^-+\s*/, "");
-          text = text
-            .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-            .replace(/\*(.+?)\*/g, "<em>$1</em>");
-          return `<li>${text}</li>`;
-        });
-
-      html += `<ul>${items.join("")}</ul>`;
-      continue;
-    }
-
-    let p = block
-      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-      .replace(/\*(.+?)\*/g, "<em>$1</em>")
-      .replace(/\n/g, "<br>");
-
-    html += `<p>${p}</p>`;
+/* =============================================================================
+   MARKDOWN LOADING & RENDERING
+============================================================================= */
+class MarkdownLoader {
+  constructor() {
+    this.cache = new Map();
   }
 
-  return html;
+  async load(url) {
+    if (!url) return "";
+    if (this.cache.has(url)) return this.cache.get(url);
+
+    const promise = (async () => {
+      try {
+        const res = await fetch(url, { cache: "force-cache" });
+        if (!res.ok) throw new Error(`Failed to load ${url}`);
+        const text = await res.text();
+        return this.toHtml(text);
+      } catch (error) {
+        console.error(`Markdown load error for ${url}:`, error);
+        throw error;
+      }
+    })();
+
+    this.cache.set(url, promise);
+    return promise;
+  }
+
+  prefetch(url) {
+    if (!url || this.cache.has(url)) return;
+    this.load(url).catch(() => {});
+  }
+
+  toHtml(markdown) {
+    const blocks = markdown.trim().split(/\n\s*\n/);
+    let html = "";
+
+    for (const block of blocks) {
+      if (/^-\s+/m.test(block)) {
+        const items = block
+          .split("\n")
+          .filter(line => line.trim().startsWith("- "))
+          .map(line => {
+            let text = line.replace(/^-+\s*/, "");
+            text = text
+              .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+              .replace(/\*(.+?)\*/g, "<em>$1</em>");
+            return `<li>${text}</li>`;
+          });
+
+        html += `<ul>${items.join("")}</ul>`;
+      } else {
+        let p = block
+          .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+          .replace(/\*(.+?)\*/g, "<em>$1</em>")
+          .replace(/\n/g, "<br>");
+
+        html += `<p>${p}</p>`;
+      }
+    }
+
+    return html;
+  }
 }
 
-/* ----------------------------
-   Header height measurement
----------------------------- */
+const markdownLoader = new MarkdownLoader();
+
+/* =============================================================================
+   HEADER HEIGHT & SCROLLBAR WIDTH MEASUREMENT
+============================================================================= */
 function setV2HeaderHeight() {
   const root = document.documentElement;
   const header = document.querySelector(".v2-header");
   const headerH = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
-  if (headerH > 0) root.style.setProperty("--v2-header-h", `${headerH}px`);
+  if (headerH > 0) {
+    root.style.setProperty("--v2-header-h", `${headerH}px`);
+  }
 }
 
 function setV2ScrollbarWidth() {
@@ -88,497 +130,626 @@ function setV2ScrollbarWidth() {
   document.documentElement.style.setProperty("--v2-scrollbar-w", `${scrollbarW}px`);
 }
 
-/* ----------------------------
-   Overlays
----------------------------- */
-function initPanels() {
-  const overlays = document.querySelectorAll("[data-overlay]");
-
-  function closeAll() {
-    overlays.forEach((o) => (o.hidden = true));
+/* =============================================================================
+   OVERLAY PANELS
+============================================================================= */
+class OverlayManager {
+  constructor() {
+    this.overlays = document.querySelectorAll("[data-overlay]");
+    this.init();
   }
 
-  function open(name) {
-    closeAll();
+  init() {
+    document.addEventListener("click", this.handleClick.bind(this));
+    document.addEventListener("keydown", this.handleKeydown.bind(this));
+  }
+
+  handleClick(e) {
+    const openBtn = e.target.closest("[data-open]");
+    if (openBtn) {
+      this.open(openBtn.getAttribute("data-open"));
+      return;
+    }
+
+    if (e.target.closest("[data-close]")) {
+      this.closeAll();
+      return;
+    }
+
+    const overlay = e.target.closest("[data-overlay]");
+    if (overlay && e.target === overlay) {
+      this.closeAll();
+    }
+  }
+
+  handleKeydown(e) {
+    if (e.key === "Escape") {
+      this.closeAll();
+    }
+  }
+
+  closeAll() {
+    this.overlays.forEach(overlay => overlay.hidden = true);
+  }
+
+  open(name) {
+    this.closeAll();
     const el = document.querySelector(`[data-overlay="${name}"]`);
     if (el) el.hidden = false;
   }
-
-  document.addEventListener("click", (e) => {
-    const openBtn = e.target.closest("[data-open]");
-    if (openBtn) open(openBtn.getAttribute("data-open"));
-
-    if (e.target.closest("[data-close]")) closeAll();
-
-    const overlay = e.target.closest("[data-overlay]");
-    if (overlay && e.target === overlay) closeAll();
-  });
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeAll();
-  });
 }
 
-/* ----------------------------
-   Cursor-follow label
----------------------------- */
-function initCursorNav() {
-  if (isMobileUI()) return;
+/* =============================================================================
+   CURSOR-FOLLOW NAVIGATION LABEL
+============================================================================= */
+class CursorNav {
+  constructor() {
+    if (isMobileUI()) return;
+    
+    this.el = document.querySelector(".v2-cursorNext");
+    if (!this.el) return;
 
-  const el = document.querySelector(".v2-cursorNext");
-  if (!el) return;
-
-  function show(text) {
-    el.textContent = text;
-    el.hidden = false;
+    this.init();
   }
 
-  function hide() {
-    el.hidden = true;
+  init() {
+    document.addEventListener("mousemove", this.handleMouseMove.bind(this));
+    document.addEventListener("mouseleave", this.hide.bind(this));
+    document.addEventListener("scroll", this.hide.bind(this), { passive: true });
   }
 
-  document.addEventListener("mousemove", (e) => {
+  handleMouseMove(e) {
     const isInsideCase = e.target.closest(".v2-case");
     if (!isInsideCase) {
-      hide();
+      this.hide();
       return;
     }
 
     const midX = window.innerWidth / 2;
-    if (e.clientX < midX) show("previous");
-    else show("next");
+    this.show(e.clientX < midX ? "previous" : "next");
+    this.el.style.transform = `translate(${e.clientX + 12}px, ${e.clientY + 10}px)`;
+  }
 
-    el.style.transform = `translate(${e.clientX + 12}px, ${e.clientY + 10}px)`;
-  });
+  show(text) {
+    this.el.textContent = text;
+    this.el.hidden = false;
+  }
 
-  document.addEventListener("mouseleave", () => hide());
-  document.addEventListener("scroll", () => hide(), { passive: true });
+  hide() {
+    this.el.hidden = true;
+  }
 }
 
-/* ----------------------------
-   Case carousel (per case)
----------------------------- */
-function initCase(caseEl) {
-  const stepsScript = caseEl.querySelector("script[data-steps]");
-  let steps = [];
-  try {
-    steps = JSON.parse(stepsScript?.textContent || "[]");
-  } catch {
-    steps = [];
+/* =============================================================================
+   VIDEO CONTROLLER
+============================================================================= */
+class VideoController {
+  constructor(videoEl, caseEl) {
+    this.videoEl = videoEl;
+    this.caseEl = caseEl;
+    this.currentUrl = "";
+    this.isVisible = true;
+    this.observer = null;
+
+    if (!videoEl) return;
+
+    this.initVideo();
+    this.setupVisibilityObserver();
+    this.setupPageVisibility();
   }
 
-  if (!Array.isArray(steps) || steps.length === 0) {
-    steps = [{ heading: "", body: "", image: "" }];
+  initVideo() {
+    this.videoEl.hidden = true;
+    this.videoEl.muted = true;
+    this.videoEl.loop = true;
+    this.videoEl.playsInline = true;
+    this.videoEl.autoplay = true;
+    this.videoEl.preload = "metadata";
   }
 
-  const headingEl = caseEl.querySelector("[data-step-heading]");
-  const bodyEl = caseEl.querySelector("[data-step-body]");
-  const imgEl = caseEl.querySelector("[data-step-image]");
-  const videoEl = caseEl.querySelector("[data-step-video]");
-  const counterEl = caseEl.querySelector("[data-counter]");
+  setupVisibilityObserver() {
+    if (!("IntersectionObserver" in window)) return;
 
-  // Keep stable state for video across renders
-  let activeVideoUrl = "";
-  let caseIsVisible = true; // controlled by IntersectionObserver
+    this.observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        this.isVisible = entry?.isIntersecting && entry.intersectionRatio > CONFIG.INTERSECTION_THRESHOLD;
+        
+        if (!this.isVisible) {
+          this.pause();
+        } else {
+          this.play();
+        }
+      },
+      { threshold: [0, CONFIG.INTERSECTION_THRESHOLD, 0.5] }
+    );
 
-  // Start predictable
-  if (videoEl) {
-    videoEl.hidden = true;
-    // autoplay requirements
-    videoEl.muted = true;
-    videoEl.loop = true;
-    videoEl.playsInline = true;
-    videoEl.autoplay = true;
-    videoEl.preload = "metadata";
+    this.observer.observe(this.caseEl);
   }
-  if (imgEl) imgEl.hidden = false;
 
-  let idx = 0;
-  let renderToken = 0;
-
-  function renderCounter() {
-    if (!counterEl) return;
-    counterEl.innerHTML = "";
-
-    steps.forEach((_, i) => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "v2-counterItem";
-      btn.textContent = String(i + 1);
-      btn.setAttribute("aria-current", i === idx ? "true" : "false");
-      btn.addEventListener("click", () => {
-        idx = i;
-        render();
-      });
-      counterEl.appendChild(btn);
+  setupPageVisibility() {
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        this.pause();
+      } else {
+        this.play();
+      }
     });
   }
 
-  function normalizeUrl(u) {
-    if (!u) return "";
-    const s = String(u).trim();
-    if (!s) return "";
-    if (/^(https?:)?\/\//i.test(s) || /^(data:|blob:)/i.test(s)) return s;
-    return new URL(s, document.baseURI).toString();
-  }
-
-  function pauseVideo() {
-    if (!videoEl) return;
-    try { videoEl.pause(); } catch {}
-  }
-
-  function resumeVideoIfAppropriate() {
-    if (!videoEl) return;
-    if (!caseIsVisible) return;
-
-    const s = steps[idx] || {};
-    if (!s.video) return;
-
-    // If it should be visible, ensure it is
-    videoEl.hidden = false;
-
-    // Try play (ignore failures)
-    const p = videoEl.play();
-    if (p && typeof p.catch === "function") p.catch(() => {});
-  }
-
-  // Pause/resume when the whole case goes out of view (helps paging + performance)
-  let io = null;
-  if ("IntersectionObserver" in window && videoEl) {
-    io = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        caseIsVisible = !!entry && entry.isIntersecting && entry.intersectionRatio > 0.15;
-        if (!caseIsVisible) pauseVideo();
-        else resumeVideoIfAppropriate();
-      },
-      { threshold: [0, 0.15, 0.5] }
-    );
-    io.observe(caseEl);
-  }
-
-  // Also pause when tab hidden
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) pauseVideo();
-    else resumeVideoIfAppropriate();
-  });
-
-  function render() {
-    const s = steps[idx] || {};
-
-    if (headingEl) headingEl.textContent = s.heading || "";
-
-    // Prefetch markdown bodies
-    const nextIdx = (idx + 1) % steps.length;
-    const prevIdx = Math.max(0, idx - 1);
-    prefetchMarkdown(steps[nextIdx]?.body);
-    prefetchMarkdown(steps[prevIdx]?.body);
-
-    // ----------------------------
-    // MEDIA (stable)
-    // ----------------------------
-    if (s.video && videoEl) {
-      const vUrl = normalizeUrl(s.video);
-
-      // Show video, hide image
-      if (imgEl) {
-        imgEl.hidden = true;
-        // IMPORTANT: don’t remove src on image here; not needed
-      }
-
-      videoEl.hidden = false;
-
-      // Only change src when it changes (prevents reload thrash)
-      if (vUrl && vUrl !== activeVideoUrl) {
-        activeVideoUrl = vUrl;
-        videoEl.setAttribute("src", vUrl);
-        // Don’t call load() repeatedly unless src changed
-        videoEl.load();
-        // start from beginning when switching video source
-        try { videoEl.currentTime = 0; } catch {}
-      }
-
-      resumeVideoIfAppropriate();
-    } else {
-      // Show image, hide (and pause) video
-      if (videoEl) {
-        videoEl.hidden = true;
-        pauseVideo();
-        // IMPORTANT: keep src (don’t remove) so it doesn’t “disappear” later
-      }
-
-      const iUrl = normalizeUrl(s.image || s.media || "");
-      if (imgEl) {
-        imgEl.hidden = false;
-        if (iUrl) imgEl.src = iUrl;
-        else imgEl.removeAttribute("src");
-      }
+  setSource(url) {
+    const normalizedUrl = normalizeUrl(url);
+    
+    if (!normalizedUrl) {
+      this.hide();
+      return;
     }
 
-    // Markdown body
-    if (bodyEl) {
-      const token = ++renderToken;
-      const url = s.body;
+    this.videoEl.hidden = false;
 
-      loadMarkdown(url)
-        .then((html) => {
-          if (token !== renderToken) return;
-          bodyEl.innerHTML = html;
-          setV2HeaderHeight();
-        })
-        .catch((err) => {
-          if (token !== renderToken) return;
-          bodyEl.innerHTML = "<p style='color:red'>Missing content</p>";
-          console.error(err);
-        });
+    // Only update src if it changed to prevent reload flicker
+    if (normalizedUrl !== this.currentUrl) {
+      this.currentUrl = normalizedUrl;
+      this.videoEl.src = normalizedUrl;
+      // Reset to beginning for new videos
+      this.videoEl.currentTime = 0;
     }
 
-    renderCounter();
-    setV2HeaderHeight();
+    this.play();
   }
 
-  function next() {
-    idx = (idx + 1) % steps.length;
-    render();
+  play() {
+    if (!this.isVisible || !this.currentUrl) return;
+    
+    const playPromise = this.videoEl.play();
+    if (playPromise) {
+      playPromise.catch(error => {
+        console.warn("Video play failed:", error);
+      });
+    }
   }
 
-  function prev() {
-    idx = clamp(idx - 1, 0, steps.length - 1);
-    render();
+  pause() {
+    try {
+      this.videoEl.pause();
+    } catch (error) {
+      console.warn("Video pause failed:", error);
+    }
   }
 
-  // Click/tap anywhere on the case advances steps (including video)
-  caseEl.addEventListener("click", (e) => {
+  hide() {
+    this.videoEl.hidden = true;
+    this.pause();
+  }
+
+  show() {
+    this.videoEl.hidden = false;
+    this.play();
+  }
+
+  destroy() {
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
+    }
+    this.pause();
+  }
+}
+
+/* =============================================================================
+   CASE CAROUSEL
+============================================================================= */
+class CaseCarousel {
+  constructor(caseEl) {
+    this.caseEl = caseEl;
+    this.steps = this.loadSteps();
+    this.currentIndex = 0;
+    this.renderToken = 0;
+
+    // DOM elements
+    this.headingEl = caseEl.querySelector("[data-step-heading]");
+    this.bodyEl = caseEl.querySelector("[data-step-body]");
+    this.imgEl = caseEl.querySelector("[data-step-image]");
+    this.videoEl = caseEl.querySelector("[data-step-video]");
+    this.counterEl = caseEl.querySelector("[data-counter]");
+
+    // Video controller
+    this.videoController = new VideoController(this.videoEl, caseEl);
+
+    this.init();
+  }
+
+  loadSteps() {
+    const stepsScript = this.caseEl.querySelector("script[data-steps]");
+    try {
+      const steps = JSON.parse(stepsScript?.textContent || "[]");
+      return Array.isArray(steps) && steps.length > 0 
+        ? steps 
+        : [{ heading: "", body: "", image: "" }];
+    } catch (error) {
+      console.error("Failed to parse steps:", error);
+      return [{ heading: "", body: "", image: "" }];
+    }
+  }
+
+  init() {
+    this.caseEl.addEventListener("click", this.handleClick.bind(this));
+    this.render();
+  }
+
+  handleClick(e) {
+    // Don't interfere with interactive elements
     if (e.target.closest("button, a, input, textarea, select, label")) return;
 
     if (isMobileUI()) {
-      next();
+      this.next();
       return;
     }
 
     const midX = window.innerWidth / 2;
-    if (e.clientX < midX) prev();
-    else next();
-  });
-
-  render();
-}
-
-/* ----------------------------
-   Paging between cases
----------------------------- */
-function initSnapPaging() {
-  const scroller = document.querySelector(".v2-snap");
-  if (!scroller) return;
-
-  const cases = Array.from(scroller.querySelectorAll(".v2-case"));
-  if (cases.length < 2) return;
-
-  const mobile = isMobileUI();
-
-  let isAnimating = false;
-  let gestureLocked = false;
-
-  function findNearestIndex() {
-    const st = scroller.scrollTop;
-    let best = 0;
-    let bestDist = Infinity;
-    for (let i = 0; i < cases.length; i++) {
-      const d = Math.abs(cases[i].offsetTop - st);
-      if (d < bestDist) {
-        bestDist = d;
-        best = i;
-      }
+    if (e.clientX < midX) {
+      this.prev();
+    } else {
+      this.next();
     }
-    return best;
   }
 
-  function animateTo(targetTop, durationMs) {
-    const startTop = scroller.scrollTop;
+  next() {
+    this.currentIndex = (this.currentIndex + 1) % this.steps.length;
+    this.render();
+  }
+
+  prev() {
+    this.currentIndex = clamp(this.currentIndex - 1, 0, this.steps.length - 1);
+    this.render();
+  }
+
+  async render() {
+    const step = this.steps[this.currentIndex] || {};
+
+    // Update heading immediately
+    if (this.headingEl) {
+      this.headingEl.textContent = step.heading || "";
+    }
+
+    // Prefetch adjacent content
+    this.prefetchAdjacent();
+
+    // Handle media (image vs video)
+    this.renderMedia(step);
+
+    // Handle markdown body
+    await this.renderBody(step.body);
+
+    // Update counter
+    this.renderCounter();
+
+    // Recalculate header height in case content changed
+    setV2HeaderHeight();
+  }
+
+  prefetchAdjacent() {
+    const nextIdx = (this.currentIndex + 1) % this.steps.length;
+    const prevIdx = Math.max(0, this.currentIndex - 1);
+    
+    markdownLoader.prefetch(this.steps[nextIdx]?.body);
+    markdownLoader.prefetch(this.steps[prevIdx]?.body);
+  }
+
+  renderMedia(step) {
+    if (step.video) {
+      // Show video, hide image
+      if (this.imgEl) this.imgEl.hidden = true;
+      this.videoController.setSource(step.video);
+    } else {
+      // Show image, hide video
+      this.videoController.hide();
+      
+      if (this.imgEl) {
+        this.imgEl.hidden = false;
+        const imageUrl = normalizeUrl(step.image || step.media || "");
+        
+        if (imageUrl) {
+          this.imgEl.src = imageUrl;
+        } else {
+          this.imgEl.removeAttribute("src");
+        }
+      }
+    }
+  }
+
+  async renderBody(bodyUrl) {
+    if (!this.bodyEl) return;
+
+    const token = ++this.renderToken;
+
+    try {
+      const html = await markdownLoader.load(bodyUrl);
+      
+      // Check if we're still on the same step
+      if (token !== this.renderToken) return;
+      
+      this.bodyEl.innerHTML = html;
+      setV2HeaderHeight();
+    } catch (error) {
+      if (token !== this.renderToken) return;
+      
+      this.bodyEl.innerHTML = "<p style='color:red'>Missing content</p>";
+      console.error("Failed to render body:", error);
+    }
+  }
+
+  renderCounter() {
+    if (!this.counterEl) return;
+
+    this.counterEl.innerHTML = "";
+
+    this.steps.forEach((_, index) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "v2-counterItem";
+      btn.textContent = String(index + 1);
+      btn.setAttribute("aria-current", index === this.currentIndex ? "true" : "false");
+      btn.addEventListener("click", () => {
+        this.currentIndex = index;
+        this.render();
+      });
+      this.counterEl.appendChild(btn);
+    });
+  }
+
+  destroy() {
+    this.videoController.destroy();
+  }
+}
+
+/* =============================================================================
+   SNAP PAGING
+============================================================================= */
+class SnapPaging {
+  constructor(scroller) {
+    this.scroller = scroller;
+    this.cases = Array.from(scroller.querySelectorAll(".v2-case"));
+    
+    if (this.cases.length < 2) return;
+
+    this.isMobile = isMobileUI();
+    this.isAnimating = false;
+    this.gestureLocked = false;
+
+    this.init();
+  }
+
+  init() {
+    if (this.isMobile) {
+      this.initTouchPaging();
+    } else {
+      this.initWheelPaging();
+    }
+  }
+
+  findNearestIndex() {
+    const scrollTop = this.scroller.scrollTop;
+    let bestIndex = 0;
+    let bestDistance = Infinity;
+
+    for (let i = 0; i < this.cases.length; i++) {
+      const distance = Math.abs(this.cases[i].offsetTop - scrollTop);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestIndex = i;
+      }
+    }
+
+    return bestIndex;
+  }
+
+  animateTo(targetTop, durationMs) {
+    const startTop = this.scroller.scrollTop;
     const delta = targetTop - startTop;
+    
     if (delta === 0) return;
 
-    const start = performance.now();
+    const startTime = performance.now();
     const easeOut = (x) => 1 - Math.pow(1 - x, 3);
-    isAnimating = true;
+    this.isAnimating = true;
 
-    function frame(now) {
-      const t = Math.min(1, (now - start) / durationMs);
-      scroller.scrollTop = startTop + delta * easeOut(t);
-      if (t < 1) requestAnimationFrame(frame);
-      else isAnimating = false;
-    }
+    const frame = (now) => {
+      const progress = Math.min(1, (now - startTime) / durationMs);
+      this.scroller.scrollTop = startTop + delta * easeOut(progress);
+      
+      if (progress < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        this.isAnimating = false;
+      }
+    };
 
     requestAnimationFrame(frame);
   }
 
-  function go(step) {
-    const idx = findNearestIndex();
-    const next = Math.max(0, Math.min(cases.length - 1, idx + step));
-    animateTo(cases[next].offsetTop, mobile ? 220 : 140);
+  go(direction) {
+    const currentIdx = this.findNearestIndex();
+    const nextIdx = clamp(currentIdx + direction, 0, this.cases.length - 1);
+    const duration = this.isMobile ? CONFIG.MOBILE_ANIM_MS : CONFIG.DESKTOP_ANIM_MS;
+    
+    this.animateTo(this.cases[nextIdx].offsetTop, duration);
   }
 
-  function currentCaseEl() {
-    return cases[findNearestIndex()];
-  }
-
-  function isNearTop(el, px = 40) {
-    const top = el.offsetTop;
-    return scroller.scrollTop <= top + px;
-  }
-
-  function isNearBottom(el, px = 56) {
-    const bottom = el.offsetTop + el.offsetHeight;
-    const viewportBottom = scroller.scrollTop + scroller.clientHeight;
-    return viewportBottom >= bottom - px;
-  }
-
-  function forceStopScroll(el) {
-    const y = el.scrollTop;
-    el.scrollTop = y + 1;
-    el.scrollTop = y;
-  }
-
-  if (!mobile) {
+  initWheelPaging() {
     let wheelIdleTimer = null;
     let wheelAccum = 0;
 
-    scroller.addEventListener(
+    this.scroller.addEventListener(
       "wheel",
       (e) => {
         if (e.ctrlKey) return;
         e.preventDefault();
 
         if (wheelIdleTimer) clearTimeout(wheelIdleTimer);
+        
         wheelIdleTimer = setTimeout(() => {
-          gestureLocked = false;
+          this.gestureLocked = false;
           wheelAccum = 0;
-        }, 40);
+        }, CONFIG.WHEEL_IDLE_MS);
 
-        if (gestureLocked || isAnimating) return;
+        if (this.gestureLocked || this.isAnimating) return;
 
         const deltaY = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
         wheelAccum += deltaY;
 
-        const THRESH = 300;
+        if (wheelAccum > CONFIG.WHEEL_THRESHOLD) {
+          this.gestureLocked = true;
+          wheelAccum = 0;
+          this.go(+1);
+        } else if (wheelAccum < -CONFIG.WHEEL_THRESHOLD) {
+          this.gestureLocked = true;
+          wheelAccum = 0;
+          this.go(-1);
+        }
+      },
+      { passive: false }
+    );
+  }
 
-        if (wheelAccum > THRESH) {
-          gestureLocked = true;
-          wheelAccum = 0;
-          go(+1);
-        } else if (wheelAccum < -THRESH) {
-          gestureLocked = true;
-          wheelAccum = 0;
-          go(-1);
+  initTouchPaging() {
+    let startY = 0;
+    let accum = 0;
+    let intent = 0;
+
+    const getCurrentCase = () => this.cases[this.findNearestIndex()];
+    
+    const isNearTop = (el) => {
+      return this.scroller.scrollTop <= el.offsetTop + CONFIG.SNAP_NEAR_TOP_PX;
+    };
+    
+    const isNearBottom = (el) => {
+      const bottom = el.offsetTop + el.offsetHeight;
+      const viewportBottom = this.scroller.scrollTop + this.scroller.clientHeight;
+      return viewportBottom >= bottom - CONFIG.SNAP_NEAR_BOTTOM_PX;
+    };
+
+    const forceStopScroll = (el) => {
+      const y = el.scrollTop;
+      el.scrollTop = y + 1;
+      el.scrollTop = y;
+    };
+
+    this.scroller.addEventListener(
+      "touchstart",
+      (e) => {
+        if (e.touches?.length !== 1) return;
+        startY = e.touches[0].clientY;
+        accum = 0;
+        intent = 0;
+      },
+      { passive: true }
+    );
+
+    this.scroller.addEventListener(
+      "touchmove",
+      (e) => {
+        if (this.gestureLocked || this.isAnimating) return;
+        if (e.touches?.length !== 1) return;
+
+        const currentCase = getCurrentCase();
+        const currentY = e.touches[0].clientY;
+        const deltaY = startY - currentY;
+
+        const atBottom = isNearBottom(currentCase);
+        const atTop = isNearTop(currentCase);
+
+        if (!atBottom && !atTop) return;
+
+        if (atBottom && deltaY > CONFIG.TOUCH_ARM_PX) {
+          e.preventDefault();
+          accum += deltaY;
+          intent = +1;
+        } else if (atTop && deltaY < -CONFIG.TOUCH_ARM_PX) {
+          e.preventDefault();
+          accum += deltaY;
+          intent = -1;
         }
       },
       { passive: false }
     );
 
-    return;
+    this.scroller.addEventListener(
+      "touchend",
+      () => {
+        if (this.gestureLocked || this.isAnimating) return;
+        if (intent === 0) return;
+
+        if (intent === +1 && accum > CONFIG.TOUCH_PAGE_PX) {
+          this.gestureLocked = true;
+          forceStopScroll(this.scroller);
+          this.go(+1);
+        } else if (intent === -1 && accum < -CONFIG.TOUCH_PAGE_PX) {
+          this.gestureLocked = true;
+          forceStopScroll(this.scroller);
+          this.go(-1);
+        }
+
+        intent = 0;
+        accum = 0;
+
+        setTimeout(() => {
+          this.gestureLocked = false;
+        }, CONFIG.GESTURE_LOCK_MS);
+      },
+      { passive: true }
+    );
   }
-
-  // Mobile touch paging
-  let startY = 0;
-  let accum = 0;
-  let intent = 0;
-
-  const ARM_PX = 12;
-  const PAGE_PX = 120;
-
-  scroller.addEventListener(
-    "touchstart",
-    (e) => {
-      if (!e.touches || e.touches.length !== 1) return;
-      startY = e.touches[0].clientY;
-      accum = 0;
-      intent = 0;
-    },
-    { passive: true }
-  );
-
-  scroller.addEventListener(
-    "touchmove",
-    (e) => {
-      if (gestureLocked || isAnimating) return;
-      if (!e.touches || e.touches.length !== 1) return;
-
-      const el = currentCaseEl();
-      const y = e.touches[0].clientY;
-
-      const dy = startY - y;
-
-      const atBottom = isNearBottom(el);
-      const atTop = isNearTop(el);
-
-      if (!atBottom && !atTop) return;
-
-      if (atBottom && dy > ARM_PX) {
-        e.preventDefault();
-        accum += dy;
-        intent = +1;
-      } else if (atTop && dy < -ARM_PX) {
-        e.preventDefault();
-        accum += dy;
-        intent = -1;
-      }
-    },
-    { passive: false }
-  );
-
-  scroller.addEventListener(
-    "touchend",
-    () => {
-      if (gestureLocked || isAnimating) return;
-      if (intent === 0) return;
-
-      if (intent === +1 && accum > PAGE_PX) {
-        gestureLocked = true;
-        forceStopScroll(scroller);
-        go(+1);
-      } else if (intent === -1 && accum < -PAGE_PX) {
-        gestureLocked = true;
-        forceStopScroll(scroller);
-        go(-1);
-      }
-
-      intent = 0;
-      accum = 0;
-
-      window.setTimeout(() => {
-        gestureLocked = false;
-      }, 240);
-    },
-    { passive: true }
-  );
 }
 
-/* ----------------------------
-   Main
----------------------------- */
-(function main() {
-  initPanels();
-  initCursorNav();
+/* =============================================================================
+   INITIALIZATION
+============================================================================= */
+function main() {
+  // Initialize UI components
+  new OverlayManager();
+  new CursorNav();
 
+  // Set initial measurements
   setV2HeaderHeight();
   setV2ScrollbarWidth();
 
-  const onResize = () => {
-    window.requestAnimationFrame(() => {
+  // Handle resize events
+  const handleResize = () => {
+    requestAnimationFrame(() => {
       setV2HeaderHeight();
       setV2ScrollbarWidth();
     });
   };
 
-  window.addEventListener("resize", onResize);
-  window.addEventListener("orientationchange", onResize);
+  window.addEventListener("resize", handleResize);
+  window.addEventListener("orientationchange", handleResize);
 
-  initSnapPaging();
+  // Initialize snap paging
+  const scroller = document.querySelector(".v2-snap");
+  if (scroller) {
+    new SnapPaging(scroller);
+  }
 
-  const caseEls = Array.from(document.querySelectorAll("[data-case]"));
-  caseEls.forEach(initCase);
+  // Initialize all cases
+  const caseElements = document.querySelectorAll("[data-case]");
+  caseElements.forEach(caseEl => {
+    try {
+      new CaseCarousel(caseEl);
+    } catch (error) {
+      console.error("Failed to initialize case:", error);
+    }
+  });
 
-  if (document.fonts && document.fonts.ready) {
+  // Recalculate after fonts load
+  if (document.fonts?.ready) {
     document.fonts.ready.then(setV2HeaderHeight);
   }
-})();
+}
+
+// Start the application
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", main);
+} else {
+  main();
+}
