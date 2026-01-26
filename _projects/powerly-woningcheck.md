@@ -7,24 +7,24 @@ role: "UX / Product Designer"
 summary: "By combining a few key details from the homeowner with external housing data, the Woningcheck generates a personalized set of sustainable measures, expected savings, and a clear next step: scheduling an appointment with a sustainability expert.  I executed research and identified problems with the Woningcheck for different user groups. I designed and guided implementation of improvements which increased the amount of customers and customer satisfaction."
 hero_image: "/assets/images/powerly-woningcheck/form-step-energy-costs.png"
 steps:
-  - heading: Problem, incomplete and unconvincing
+  - heading: Incomplete and unconvincing
     body: /case-content/powerly-woningcheck/steps/01-context.md
-    image: /case-content/powerly-woningcheck/images/01.png
+    image: /case-content/powerly-woningcheck/images/problem.png
   - heading: Approach
     body: /case-content/powerly-woningcheck/steps/02-approach.md
-    image: /case-content/powerly-woningcheck/images/02.png
+    image: /case-content/powerly-woningcheck/images/approach.png
   - heading: Making results easier to understand
     body: /case-content/powerly-woningcheck/steps/03-clarity.md
-    image: /case-content/powerly-woningcheck/images/02.png
+    image: /case-content/powerly-woningcheck/images/results.png
   - heading: Improving the reliability of the advice
     body: /case-content/powerly-woningcheck/steps/04-accuracy.md
-    image: /case-content/powerly-woningcheck/images/02.png
-  - heading: Turning insight into a clear next step
-    body: /case-content/powerly-woningcheck/steps/05-foundation.md
-    image: /case-content/powerly-woningcheck/images/02.png
+    image: /case-content/powerly-woningcheck/images/reliability.png
+  # - heading: Turning insight into a clear next step
+  #   body: /case-content/powerly-woningcheck/steps/05-foundation.md
+  #   image: /case-content/powerly-woningcheck/images/next-steps.png
   - heading: Outcome
     body: /case-content/powerly-woningcheck/steps/06-outcome.md
-    image: /case-content/powerly-woningcheck/images/02.png
+    image: /case-content/powerly-woningcheck/images/next-steps.png
 ---
 
 <div class="project-intro-grid">
