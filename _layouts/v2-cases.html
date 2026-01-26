@@ -104,6 +104,47 @@
       </div>
     </div>
 
+    <div class="v2-overlay" data-overlay="about" hidden>
+      <div class="v2-panel" role="dialog" aria-modal="true" aria-label="About">
+        <div class="v2-panel__head">
+          <strong>about</strong>
+          <button class="v2-link" type="button" data-close>close</button>
+        </div>
+
+        <div class="v2-panel__content">
+          <p>Daan Smulders is a UX and digital product designer based in The Hague, The Netherlands.</p>
+
+          <p>For the past 10+ years, he has designed digital experiences for platforms in finance, sustainability, marketplaces and retail. He turns complex journeys into human-friendly products and enjoys bringing positive energy to the teams he works with.</p>
+
+          <p><strong>Previously at:</strong> funda, Ace & Tate, Werkspot, Powerly</p>
+
+          <p><strong>Currently at:</strong> Nationale-Nederlanden</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="v2-overlay" data-overlay="overview" hidden>
+      <div class="v2-panel" role="dialog" aria-modal="true" aria-label="Case Study Overview">
+        <div class="v2-panel__head">
+          <strong>case study overview</strong>
+          <button class="v2-link" type="button" data-close>close</button>
+        </div>
+
+        <div class="v2-panel__content">
+          {% assign cases = site.projects | sort: "date" | reverse %}
+          <ul class="v2-caseList">
+            {% for project in cases %}
+              <li>
+                <strong>{{ project.company }}</strong> · {{ project.year }}<br>
+                <em>{{ project.title }}</em><br>
+                {{ project.summary }}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
 
 
     <script src="{{ '/assets/js/v2.js' | relative_url }}"></script>
