@@ -131,11 +131,17 @@ function setV2ScrollbarWidth() {
 }
 
 /* =============================================================================
-   OVERLAY PANELS
+   OVERLAY PANELS & HEADER EXPANSION
 ============================================================================= */
 class OverlayManager {
   constructor() {
     this.overlays = document.querySelectorAll("[data-overlay]");
+    this.header = document.querySelector(".v2-header");
+    this.headerExpanded = document.querySelector(".v2-header__expanded");
+    this.typewriterEl = document.querySelector(".v2-typewriter");
+    this.aboutButtons = document.querySelectorAll('[data-open="about"]');
+    this.overviewButtons = document.querySelectorAll('[data-open="overview"]');
+    this.isAboutExpanded = false;
     this.init();
   }
 
@@ -147,12 +153,34 @@ class OverlayManager {
   handleClick(e) {
     const openBtn = e.target.closest("[data-open]");
     if (openBtn) {
-      this.open(openBtn.getAttribute("data-open"));
+      const target = openBtn.getAttribute("data-open");
+
+      // Special handling for "about"
+      if (target === "about") {
+        this.toggleAbout();
+        return;
+      }
+
+      this.open(target);
       return;
     }
 
     if (e.target.closest("[data-close]")) {
       this.closeAll();
+      return;
+    }
+
+    // Handle thumbnail clicks
+    const thumbnail = e.target.closest(".v2-overview__thumb");
+    if (thumbnail) {
+      const stepIndex = parseInt(thumbnail.getAttribute("data-step-index"), 10);
+      const caseContainer = thumbnail.closest(".v2-overview__case");
+      const caseIndex = parseInt(caseContainer?.getAttribute("data-case-index"), 10);
+
+      if (!isNaN(caseIndex) && !isNaN(stepIndex)) {
+        this.closeAll();
+        navigateToCaseStep(caseIndex, stepIndex);
+      }
       return;
     }
 
@@ -165,17 +193,101 @@ class OverlayManager {
   handleKeydown(e) {
     if (e.key === "Escape") {
       this.closeAll();
+      if (this.isAboutExpanded) {
+        this.toggleAbout();
+      }
     }
   }
 
   closeAll() {
     this.overlays.forEach(overlay => overlay.hidden = true);
+
+    // Reset overview button text
+    this.overviewButtons.forEach(btn => {
+      btn.textContent = "overview";
+      btn.setAttribute("aria-pressed", "false");
+    });
   }
 
   open(name) {
     this.closeAll();
     const el = document.querySelector(`[data-overlay="${name}"]`);
-    if (el) el.hidden = false;
+    if (el) {
+      el.hidden = false;
+
+      // Handle overview-specific actions
+      if (name === 'overview') {
+        setTimeout(initOverviewVideos, 100);
+
+        // Update button text
+        this.overviewButtons.forEach(btn => {
+          btn.textContent = "close";
+          btn.setAttribute("aria-pressed", "true");
+        });
+      }
+    }
+  }
+
+  toggleAbout() {
+    this.isAboutExpanded = !this.isAboutExpanded;
+
+    if (this.isAboutExpanded) {
+      this.expandAbout();
+    } else {
+      this.collapseAbout();
+    }
+  }
+
+  expandAbout() {
+    if (!this.header || !this.headerExpanded || !this.typewriterEl) return;
+
+    this.header.classList.add("is-expanded");
+    this.headerExpanded.hidden = false;
+
+    // Update button text
+    this.aboutButtons.forEach(btn => {
+      btn.textContent = "close";
+      btn.setAttribute("aria-pressed", "true");
+    });
+
+    // Update header height
+    setTimeout(() => setV2HeaderHeight(), 50);
+
+    const text = "He turns complex journeys into human-friendly products and enjoys bringing positive energy to the teams he works with. Previously at funda, Ace & Tate, Werkspot, and Powerly — now at Nationale-Nederlanden.";
+
+    this.typewriterEl.textContent = "";
+    let index = 0;
+
+    const type = () => {
+      if (index < text.length) {
+        this.typewriterEl.textContent += text.charAt(index);
+        index++;
+        setTimeout(type, 20);
+      } else {
+        this.typewriterEl.classList.add("typing-done");
+      }
+    };
+
+    setTimeout(type, 200);
+  }
+
+  collapseAbout() {
+    if (!this.header || !this.headerExpanded) return;
+
+    this.header.classList.remove("is-expanded");
+    this.typewriterEl.classList.remove("typing-done");
+
+    // Update button text
+    this.aboutButtons.forEach(btn => {
+      btn.textContent = "about";
+      btn.setAttribute("aria-pressed", "false");
+    });
+
+    setTimeout(() => {
+      this.headerExpanded.hidden = true;
+      this.typewriterEl.textContent = "";
+      setV2HeaderHeight();
+    }, 400);
   }
 }
 
@@ -815,12 +927,63 @@ class SnapPaging {
 }
 
 /* =============================================================================
+   OVERVIEW VIDEO THUMBNAILS
+============================================================================= */
+function initOverviewVideos() {
+  const videoThumbs = document.querySelectorAll('.v2-overview__thumb--video video');
+
+  videoThumbs.forEach(video => {
+    video.addEventListener('mouseenter', () => {
+      video.play().catch(() => {});
+    });
+
+    video.addEventListener('mouseleave', () => {
+      video.pause();
+      video.currentTime = 0;
+    });
+  });
+}
+
+/* =============================================================================
+   OVERVIEW THUMBNAIL NAVIGATION
+============================================================================= */
+function navigateToCaseStep(caseIndex, stepIndex) {
+  // Get the carousel for this case
+  const carousel = window.caseCarousels?.[caseIndex];
+  if (!carousel) {
+    console.error('Case carousel not found:', caseIndex);
+    return;
+  }
+
+  // Get the case element
+  const caseEl = carousel.caseEl;
+  if (!caseEl) {
+    console.error('Case element not found');
+    return;
+  }
+
+  // Scroll to the case
+  const scroller = document.querySelector('.v2-snap');
+  if (scroller) {
+    scroller.scrollTo({
+      top: caseEl.offsetTop,
+      behavior: 'smooth'
+    });
+  }
+
+  // Set the step index and render
+  carousel.currentIndex = stepIndex;
+  carousel.render();
+}
+
+/* =============================================================================
    INITIALIZATION
 ============================================================================= */
 function main() {
   // Initialize UI components
   new OverlayManager();
   new CursorNav();
+  initOverviewVideos();
 
   // Set initial measurements
   setV2HeaderHeight();
@@ -843,11 +1006,13 @@ function main() {
     new SnapPaging(scroller);
   }
 
-  // Initialize all cases
+  // Initialize all cases and store them globally
+  window.caseCarousels = [];
   const caseElements = document.querySelectorAll("[data-case]");
   caseElements.forEach(caseEl => {
     try {
-      new CaseCarousel(caseEl);
+      const carousel = new CaseCarousel(caseEl);
+      window.caseCarousels.push(carousel);
     } catch (error) {
       console.error("Failed to initialize case:", error);
     }

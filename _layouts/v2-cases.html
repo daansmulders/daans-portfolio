@@ -12,7 +12,12 @@
       <div class="v2-header__left">Daan Smulders</div>
 
       <div class="v2-header__center">
-        Daan is a UX and digital product designer who has designed digital experiences for platforms in finance, sustainability, marketplaces and retail over the past 10 years.
+        <div class="v2-header__intro">
+          Daan is a UX and digital product designer who has designed digital experiences for platforms in finance, sustainability, marketplaces and retail over the past 10 years.
+        </div>
+        <div class="v2-header__expanded" hidden>
+          <span class="v2-typewriter"></span>
+        </div>
       </div>
 
       <div class="v2-header__right">
@@ -79,7 +84,7 @@
 
     <footer class="v2-fixedFooter" aria-label="Site links">
     <div class="v2-fixedFooter__left">
-        <button type="button" class="v2-link" data-open="overview">case study overview</button>
+        <button type="button" class="v2-link" data-open="overview">overview</button>
         <button type="button" class="v2-link" data-open="about">about</button>
     </div>
     <div class="v2-fixedFooter__right">
@@ -98,7 +103,7 @@
 
         <div class="v2-menuList">
           <button class="v2-link" type="button" data-open="overview">
-            case study overview
+            overview
           </button>
           <button class="v2-link" type="button" data-open="about">
             about
@@ -111,44 +116,37 @@
       </div>
     </div>
 
-    <div class="v2-overlay" data-overlay="about" hidden>
-      <div class="v2-panel" role="dialog" aria-modal="true" aria-label="About">
-        <div class="v2-panel__head">
-          <strong>about</strong>
-          <button class="v2-link" type="button" data-close>close</button>
-        </div>
 
-        <div class="v2-panel__content">
-          <p>Daan Smulders is a UX and digital product designer based in The Hague, The Netherlands.</p>
+    <div class="v2-overview" data-overlay="overview" hidden>
+      <button class="v2-overview__close" type="button" data-close aria-label="Close overview">close</button>
 
-          <p>For the past 10+ years, he has designed digital experiences for platforms in finance, sustainability, marketplaces and retail. He turns complex journeys into human-friendly products and enjoys bringing positive energy to the teams he works with.</p>
-
-          <p><strong>Previously at:</strong> funda, Ace & Tate, Werkspot, Powerly</p>
-
-          <p><strong>Currently at:</strong> Nationale-Nederlanden</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="v2-overlay" data-overlay="overview" hidden>
-      <div class="v2-panel" role="dialog" aria-modal="true" aria-label="Case Study Overview">
-        <div class="v2-panel__head">
-          <strong>case study overview</strong>
-          <button class="v2-link" type="button" data-close>close</button>
-        </div>
-
-        <div class="v2-panel__content">
-          {% assign cases = site.projects | sort: "date" | reverse %}
-          <ul class="v2-caseList">
-            {% for project in cases %}
-              <li>
-                <strong>{{ project.company }}</strong> · {{ project.year }}<br>
-                <em>{{ project.title }}</em><br>
-                {{ project.summary }}
-              </li>
-            {% endfor %}
-          </ul>
-        </div>
+      <div class="v2-overview__grid">
+        {% assign cases = site.projects | sort: "date" | reverse %}
+        {% for project in cases %}
+          {% assign steps = project.steps | default: empty %}
+          {% if steps and steps.size > 0 %}
+            <div class="v2-overview__case" data-case-index="{{ forloop.index0 }}">
+              <div class="v2-overview__info">
+                <div class="v2-overview__company">{{ project.company }}</div>
+                <div class="v2-overview__title">{{ project.title }}</div>
+                <div class="v2-overview__year">{{ project.year }}</div>
+              </div>
+              <div class="v2-overview__thumbnails">
+                {% for step in steps %}
+                  {% if step.image %}
+                    <div class="v2-overview__thumb" data-step-index="{{ forloop.index0 }}" role="button" tabindex="0">
+                      <img src="{{ step.image | relative_url }}" alt="{{ step.heading }}" loading="lazy">
+                    </div>
+                  {% elsif step.video %}
+                    <div class="v2-overview__thumb v2-overview__thumb--video" data-step-index="{{ forloop.index0 }}" role="button" tabindex="0">
+                      <video src="{{ step.video | relative_url }}" muted playsinline></video>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
       </div>
     </div>
 
