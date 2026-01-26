@@ -82,6 +82,9 @@
         <button type="button" class="v2-link" data-open="overview">case study overview</button>
         <button type="button" class="v2-link" data-open="about">about</button>
     </div>
+    <div class="v2-fixedFooter__right">
+        <button id="theme-toggle" class="v2-link" type="button" aria-pressed="false">🌙 Dark</button>
+    </div>
     </footer>
 
     <div class="v2-cursorNext" aria-hidden="true" hidden>next</div>
@@ -100,6 +103,10 @@
           <button class="v2-link" type="button" data-open="about">
             about
           </button>
+        </div>
+
+        <div class="v2-menuList v2-menuPreferences">
+          <button id="theme-toggle-mobile" class="v2-link" type="button" aria-pressed="false">🌙 Dark</button>
         </div>
       </div>
     </div>
@@ -148,5 +155,6 @@
 
 
     <script src="{{ '/assets/js/v2.js' | relative_url }}"></script>
+    <script src="{{ '/assets/js/preferences.js' | relative_url }}"></script>
   </body>
 </html>

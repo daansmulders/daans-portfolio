@@ -24,13 +24,35 @@
 
   /* Content spacing */
   --v2-content-pad-y: 32px; /* reduced from 48px for less space below header */
-  
-  /* Typography (define these in your main CSS if not already) */
+
+  /* Typography */
   --v2-font-body: inherit;
   --v2-font-weight-bold: 700;
-  
-  /* Colors (assuming you have these defined elsewhere) */
-  /* --bg, --fg, --muted, --border-subtle should be defined in your theme */
+
+  /* Colors - Light theme (default) */
+  --bg: #faf9f5;
+  --fg: #1f1f1f;
+  --muted: #6f6f6f;
+  --border-subtle: rgba(0, 0, 0, 0.1);
+  --link: #0000ee;
+}
+
+/* =============================================================================
+   THEME & FONT OVERRIDES
+============================================================================= */
+/* Dark theme overrides */
+body.theme-dark {
+  --bg: #111111;
+  --fg: #f4f1ea;
+  --muted: #aaa7a0;
+  --border-subtle: rgba(255, 255, 255, 0.16);
+  --link: #E8D7C5;
+}
+
+/* Font family */
+body {
+  font-family: 'TimesTen LT Std', 'Times New Roman', Times, serif;
+  transition: background-color 180ms ease, color 180ms ease;
 }
 
 /* =============================================================================
@@ -45,6 +67,8 @@ html, body {
   margin: 0;
   padding: 0;
   overflow: hidden; /* IMPORTANT: prevents body scrolling */
+  background: var(--bg);
+  color: var(--fg);
 }
 
 /* =============================================================================
@@ -265,9 +289,9 @@ body.theme-dark .v2-overlay {
 
 .v2-panel {
   width: min(720px, calc(100% - 48px));
-  background: #1a1a1a;
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border-subtle);
   padding: var(--v2-space-lg);
 }
 
@@ -278,31 +302,17 @@ body.theme-dark .v2-overlay {
   margin-bottom: var(--v2-space-lg);
 }
 
-.v2-panel__head strong {
-  color: #ffffff;
-}
-
-.v2-panel .v2-link {
-  color: #ffffff;
-}
-
 .v2-panel__content {
   margin-top: var(--v2-space-lg);
-  color: #ffffff;
 }
 
 .v2-panel__content p {
   margin-top: 0;
   margin-bottom: var(--v2-space-md);
-  color: #ffffff;
 }
 
 .v2-panel__content p:last-child {
   margin-bottom: 0;
-}
-
-.v2-panel__content strong {
-  color: #ffffff;
 }
 
 .v2-caseList {
@@ -314,8 +324,7 @@ body.theme-dark .v2-overlay {
 .v2-caseList li {
   margin-bottom: var(--v2-space-lg);
   padding-bottom: var(--v2-space-lg);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .v2-caseList li:last-child {
@@ -324,12 +333,8 @@ body.theme-dark .v2-overlay {
   border-bottom: none;
 }
 
-.v2-caseList strong {
-  color: #ffffff;
-}
-
 .v2-caseList em {
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--muted);
 }
 
 /* =============================================================================
@@ -340,6 +345,12 @@ body.theme-dark .v2-overlay {
   flex-direction: column;
   gap: var(--v2-space-md);
   margin-top: var(--v2-space-lg);
+}
+
+.v2-menuPreferences {
+  margin-top: var(--v2-space-xl);
+  font-size: 0.9rem;
+  opacity: 0.85;
 }
 
 /* =============================================================================
@@ -356,6 +367,21 @@ body.theme-dark .v2-overlay {
   display: flex;
   gap: var(--v2-space-md);
   align-items: center;
+}
+
+.v2-fixedFooter__right {
+  position: fixed;
+  right: var(--v2-pad-x);
+  bottom: var(--v2-snap-gap);
+  display: flex;
+  gap: var(--v2-space-md);
+  align-items: center;
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+.v2-fixedFooter__right:hover {
+  opacity: 1;
 }
 
 /* =============================================================================
@@ -451,7 +477,8 @@ body.theme-dark .v2-overlay {
   }
 
   /* Hide fixed footer on mobile */
-  .v2-fixedFooter {
+  .v2-fixedFooter,
+  .v2-fixedFooter__right {
     display: none;
   }
 
