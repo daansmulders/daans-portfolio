@@ -114,21 +114,35 @@ html, body {
 .v2-stepBody{ color: var(--fg); }
 
 /* Right: image frame fills the content row height */
+/* ----------------------------
+   Right (media frame)
+---------------------------- */
 .v2-right{
   min-height: 0;
   height: 100%;
-  position: relative;
-  cursor: none; /* match left side because cursor label is used */
+  position: relative; /* required for absolute children */
+  cursor: none;
   overflow: hidden;
 }
 
-.v2-right img{
+/* Stack image + video on top of each other */
+.v2-right img,
+.v2-stepVideo{
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  display: block;
   object-fit: contain;
   object-position: center;
+  display: block;
 }
+
+/* JS controls visibility using the hidden attribute */
+.v2-right img[hidden],
+.v2-stepVideo[hidden]{
+  display: none !important;
+}
+
 
 /* Bottom row */
 .v2-bottom{

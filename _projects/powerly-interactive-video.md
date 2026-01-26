@@ -9,7 +9,7 @@ hero_image: "/assets/images/powerly-interactive-video/interactive-video-hero.png
 steps:
   - heading: Problem, expert knowledge didn’t scale
     body: /case-content/powerly-interactive-video/steps/01-problem.md
-    image: /case-content/powerly-interactive-video/images/01.png
+    video: /assets/images/powerly-interactive-video/prototype-1.mp4
   - heading: Finding a way to offer trustworthy advice at scale
     body: /case-content/powerly-interactive-video/steps/02-approach.md
     image: /case-content/powerly-interactive-video/images/02.png

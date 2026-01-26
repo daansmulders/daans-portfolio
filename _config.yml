@@ -8,5 +8,9 @@ collections:
     output: true
     permalink: /projects/:title/
 
+include:
+  - case-content
+
+
 markdown: kramdown
 

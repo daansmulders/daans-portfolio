@@ -1,9 +1,5 @@
 // assets/js/v2.js
 // v2 paging + case carousel + cursor navigation
-// - Desktop: wheel = one case per gesture
-// - Mobile: scroll reads within a case; only at top/bottom + harder swipe (on release) pages
-// - Mobile: tap anywhere advances step (forward only)
-// - Step bodies are loaded from Markdown files via fetch(), with caching + prefetching
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n));
@@ -19,13 +15,11 @@ function isMobileUI() {
 
 /* ----------------------------
    Markdown loading + rendering
-   (cached + prefetched)
 ---------------------------- */
-const mdCache = new Map(); // url -> Promise<string> (HTML)
+const mdCache = new Map();
 
 async function loadMarkdown(url) {
   if (!url) return "";
-
   if (mdCache.has(url)) return mdCache.get(url);
 
   const p = (async () => {
@@ -49,7 +43,6 @@ function markdownToHtml(md) {
   let html = "";
 
   for (const block of blocks) {
-    // Detect simple bullet list
     if (/^-\s+/m.test(block)) {
       const items = block
         .split("\n")
@@ -66,7 +59,6 @@ function markdownToHtml(md) {
       continue;
     }
 
-    // Regular paragraph
     let p = block
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
       .replace(/\*(.+?)\*/g, "<em>$1</em>")
@@ -77,7 +69,6 @@ function markdownToHtml(md) {
 
   return html;
 }
-
 
 /* ----------------------------
    Header height measurement
@@ -98,7 +89,7 @@ function setV2ScrollbarWidth() {
 }
 
 /* ----------------------------
-   Overlays (About / Overview / Menu)
+   Overlays
 ---------------------------- */
 function initPanels() {
   const overlays = document.querySelectorAll("[data-overlay]");
@@ -108,7 +99,7 @@ function initPanels() {
   }
 
   function open(name) {
-    closeAll(); // ensure only one overlay at a time
+    closeAll();
     const el = document.querySelector(`[data-overlay="${name}"]`);
     if (el) el.hidden = false;
   }
@@ -130,10 +121,8 @@ function initPanels() {
 
 /* ----------------------------
    Cursor-follow label
-   (previous / next)
 ---------------------------- */
 function initCursorNav() {
-  // Don’t show cursor label on touch devices
   if (isMobileUI()) return;
 
   const el = document.querySelector(".v2-cursorNext");
@@ -185,7 +174,24 @@ function initCase(caseEl) {
   const headingEl = caseEl.querySelector("[data-step-heading]");
   const bodyEl = caseEl.querySelector("[data-step-body]");
   const imgEl = caseEl.querySelector("[data-step-image]");
+  const videoEl = caseEl.querySelector("[data-step-video]");
   const counterEl = caseEl.querySelector("[data-counter]");
+
+  // Keep stable state for video across renders
+  let activeVideoUrl = "";
+  let caseIsVisible = true; // controlled by IntersectionObserver
+
+  // Start predictable
+  if (videoEl) {
+    videoEl.hidden = true;
+    // autoplay requirements
+    videoEl.muted = true;
+    videoEl.loop = true;
+    videoEl.playsInline = true;
+    videoEl.autoplay = true;
+    videoEl.preload = "metadata";
+  }
+  if (imgEl) imgEl.hidden = false;
 
   let idx = 0;
   let renderToken = 0;
@@ -208,35 +214,115 @@ function initCase(caseEl) {
     });
   }
 
+  function normalizeUrl(u) {
+    if (!u) return "";
+    const s = String(u).trim();
+    if (!s) return "";
+    if (/^(https?:)?\/\//i.test(s) || /^(data:|blob:)/i.test(s)) return s;
+    return new URL(s, document.baseURI).toString();
+  }
+
+  function pauseVideo() {
+    if (!videoEl) return;
+    try { videoEl.pause(); } catch {}
+  }
+
+  function resumeVideoIfAppropriate() {
+    if (!videoEl) return;
+    if (!caseIsVisible) return;
+
+    const s = steps[idx] || {};
+    if (!s.video) return;
+
+    // If it should be visible, ensure it is
+    videoEl.hidden = false;
+
+    // Try play (ignore failures)
+    const p = videoEl.play();
+    if (p && typeof p.catch === "function") p.catch(() => {});
+  }
+
+  // Pause/resume when the whole case goes out of view (helps paging + performance)
+  let io = null;
+  if ("IntersectionObserver" in window && videoEl) {
+    io = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        caseIsVisible = !!entry && entry.isIntersecting && entry.intersectionRatio > 0.15;
+        if (!caseIsVisible) pauseVideo();
+        else resumeVideoIfAppropriate();
+      },
+      { threshold: [0, 0.15, 0.5] }
+    );
+    io.observe(caseEl);
+  }
+
+  // Also pause when tab hidden
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) pauseVideo();
+    else resumeVideoIfAppropriate();
+  });
+
   function render() {
     const s = steps[idx] || {};
 
     if (headingEl) headingEl.textContent = s.heading || "";
 
-    if (imgEl) {
-      if (s.image) {
-        imgEl.src = s.image;
-        imgEl.style.visibility = "visible";
-      } else {
-        imgEl.removeAttribute("src");
-        imgEl.style.visibility = "hidden";
-      }
-    }
-
-    // Prefetch next & previous step bodies so navigation feels instant
+    // Prefetch markdown bodies
     const nextIdx = (idx + 1) % steps.length;
     const prevIdx = Math.max(0, idx - 1);
     prefetchMarkdown(steps[nextIdx]?.body);
     prefetchMarkdown(steps[prevIdx]?.body);
 
-    // Load markdown body (intentionally no fallback: unmigrated cases will show error)
+    // ----------------------------
+    // MEDIA (stable)
+    // ----------------------------
+    if (s.video && videoEl) {
+      const vUrl = normalizeUrl(s.video);
+
+      // Show video, hide image
+      if (imgEl) {
+        imgEl.hidden = true;
+        // IMPORTANT: don’t remove src on image here; not needed
+      }
+
+      videoEl.hidden = false;
+
+      // Only change src when it changes (prevents reload thrash)
+      if (vUrl && vUrl !== activeVideoUrl) {
+        activeVideoUrl = vUrl;
+        videoEl.setAttribute("src", vUrl);
+        // Don’t call load() repeatedly unless src changed
+        videoEl.load();
+        // start from beginning when switching video source
+        try { videoEl.currentTime = 0; } catch {}
+      }
+
+      resumeVideoIfAppropriate();
+    } else {
+      // Show image, hide (and pause) video
+      if (videoEl) {
+        videoEl.hidden = true;
+        pauseVideo();
+        // IMPORTANT: keep src (don’t remove) so it doesn’t “disappear” later
+      }
+
+      const iUrl = normalizeUrl(s.image || s.media || "");
+      if (imgEl) {
+        imgEl.hidden = false;
+        if (iUrl) imgEl.src = iUrl;
+        else imgEl.removeAttribute("src");
+      }
+    }
+
+    // Markdown body
     if (bodyEl) {
       const token = ++renderToken;
       const url = s.body;
 
       loadMarkdown(url)
         .then((html) => {
-          if (token !== renderToken) return; // ignore stale response
+          if (token !== renderToken) return;
           bodyEl.innerHTML = html;
           setV2HeaderHeight();
         })
@@ -261,9 +347,7 @@ function initCase(caseEl) {
     render();
   }
 
-  // Click/tap anywhere on the case:
-  // - Mobile: always NEXT (forward-only)
-  // - Desktop: left half = prev, right half = next
+  // Click/tap anywhere on the case advances steps (including video)
   caseEl.addEventListener("click", (e) => {
     if (e.target.closest("button, a, input, textarea, select, label")) return;
 
@@ -349,14 +433,12 @@ function initSnapPaging() {
     return viewportBottom >= bottom - px;
   }
 
-  // Safari momentum cancel trick: stops native scrolling before we animate
   function forceStopScroll(el) {
     const y = el.scrollTop;
     el.scrollTop = y + 1;
     el.scrollTop = y;
   }
 
-  // Desktop: wheel paging
   if (!mobile) {
     let wheelIdleTimer = null;
     let wheelAccum = 0;
@@ -396,10 +478,10 @@ function initSnapPaging() {
     return;
   }
 
-  // Mobile: boundary-aware touch paging (decide on release)
+  // Mobile touch paging
   let startY = 0;
   let accum = 0;
-  let intent = 0; // -1 prev, +1 next, 0 none
+  let intent = 0;
 
   const ARM_PX = 12;
   const PAGE_PX = 120;
