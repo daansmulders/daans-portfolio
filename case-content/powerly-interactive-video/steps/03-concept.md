@@ -1,3 +1,3 @@
-I explored whether a short, interactive video format could help homeowners understand their options at their own pace. The idea was to combine lightweight questions with tailored video content, allowing users to dive deeper into topics that were relevant to their situation.
+I explored through rapid prototyping and testing whether a short, interactive video format could help homeowners understand their options at their own pace. The idea was to combine lightweight questions with tailored video content, allowing users to dive deeper into topics that were relevant to their situation.
 
 I built an interactive prototype that used branching logic to guide users through different sustainability measures, such as insulation or heat pumps. At key moments, users could continue exploring or move directly into the Woningcheck or complete advice.

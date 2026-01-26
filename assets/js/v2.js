@@ -223,6 +223,28 @@ class CursorNav {
 /* =============================================================================
    VIDEO CONTROLLER
 ============================================================================= */
+
+// Global video preload cache to prevent duplicate requests
+const videoPreloadCache = new Map();
+
+function preloadVideo(url) {
+  if (!url || videoPreloadCache.has(url)) {
+    return videoPreloadCache.get(url);
+  }
+
+  const video = document.createElement('video');
+  video.preload = 'auto';
+  video.src = url;
+  
+  const promise = new Promise((resolve, reject) => {
+    video.addEventListener('loadeddata', () => resolve(url), { once: true });
+    video.addEventListener('error', () => reject(new Error(`Failed to load ${url}`)), { once: true });
+  });
+
+  videoPreloadCache.set(url, promise);
+  return promise;
+}
+
 class VideoController {
   constructor(videoEl, caseEl) {
     this.videoEl = videoEl;
@@ -230,12 +252,16 @@ class VideoController {
     this.currentUrl = "";
     this.isVisible = true;
     this.observer = null;
+    this.isActive = false; // Track if this video should be playing
+    this.loadAttempts = 0;
+    this.maxLoadAttempts = 3;
 
     if (!videoEl) return;
 
     this.initVideo();
     this.setupVisibilityObserver();
     this.setupPageVisibility();
+    this.setupVideoEvents();
   }
 
   initVideo() {
@@ -244,7 +270,40 @@ class VideoController {
     this.videoEl.loop = true;
     this.videoEl.playsInline = true;
     this.videoEl.autoplay = true;
-    this.videoEl.preload = "metadata";
+    this.videoEl.preload = "auto"; // Changed from "metadata" for more reliable loading
+  }
+
+  setupVideoEvents() {
+    // Detect when video is ready to play
+    this.videoEl.addEventListener("loadeddata", () => {
+      console.log("Video loaded:", this.currentUrl);
+      this.loadAttempts = 0;
+      if (this.isActive && this.isVisible) {
+        this.play();
+      }
+    });
+
+    // Handle loading errors
+    this.videoEl.addEventListener("error", (e) => {
+      console.error("Video error:", this.currentUrl, e);
+      this.loadAttempts++;
+      
+      if (this.loadAttempts < this.maxLoadAttempts) {
+        console.log(`Retrying video load (attempt ${this.loadAttempts + 1})`);
+        setTimeout(() => {
+          if (this.currentUrl) {
+            this.videoEl.load();
+          }
+        }, 500);
+      }
+    });
+
+    // Detect when video can start playing
+    this.videoEl.addEventListener("canplay", () => {
+      if (this.isActive && this.isVisible && this.videoEl.paused) {
+        this.play();
+      }
+    });
   }
 
   setupVisibilityObserver() {
@@ -257,8 +316,9 @@ class VideoController {
         
         if (!this.isVisible) {
           this.pause();
-        } else {
-          this.play();
+        } else if (this.isActive) {
+          // Give the browser a moment to render before playing
+          setTimeout(() => this.play(), 100);
         }
       },
       { threshold: [0, CONFIG.INTERSECTION_THRESHOLD, 0.5] }
@@ -268,13 +328,15 @@ class VideoController {
   }
 
   setupPageVisibility() {
-    document.addEventListener("visibilitychange", () => {
+    const handleVisibilityChange = () => {
       if (document.hidden) {
         this.pause();
-      } else {
+      } else if (this.isActive) {
         this.play();
       }
-    });
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
   }
 
   setSource(url) {
@@ -282,57 +344,107 @@ class VideoController {
     
     if (!normalizedUrl) {
       this.hide();
+      this.isActive = false;
       return;
     }
 
+    this.isActive = true;
     this.videoEl.hidden = false;
 
     // Only update src if it changed to prevent reload flicker
     if (normalizedUrl !== this.currentUrl) {
       this.currentUrl = normalizedUrl;
-      this.videoEl.src = normalizedUrl;
-      // Reset to beginning for new videos
-      this.videoEl.currentTime = 0;
+      this.loadAttempts = 0;
+      
+      // Preload the video to prevent duplicate network requests
+      preloadVideo(normalizedUrl)
+        .then(() => {
+          // Only set src if this is still the active video
+          if (this.currentUrl === normalizedUrl) {
+            this.videoEl.src = normalizedUrl;
+            this.videoEl.load();
+            
+            // Reset to beginning for new videos
+            try {
+              this.videoEl.currentTime = 0;
+            } catch (e) {
+              // Ignore - video might not be loaded yet
+            }
+          }
+        })
+        .catch((error) => {
+          console.error("Video preload failed:", error);
+          // Fallback: try loading directly anyway
+          this.videoEl.src = normalizedUrl;
+          this.videoEl.load();
+        });
     }
 
-    this.play();
+    // Try to play immediately if already loaded
+    if (this.videoEl.readyState >= 3) { // HAVE_FUTURE_DATA
+      this.play();
+    }
   }
 
   play() {
-    if (!this.isVisible || !this.currentUrl) return;
+    if (!this.isVisible || !this.currentUrl || !this.isActive) return;
     
+    // Check if video is ready
+    if (this.videoEl.readyState < 2) { // Less than HAVE_CURRENT_DATA
+      console.log("Video not ready yet, waiting...");
+      return;
+    }
+
     const playPromise = this.videoEl.play();
     if (playPromise) {
-      playPromise.catch(error => {
-        console.warn("Video play failed:", error);
-      });
+      playPromise
+        .then(() => {
+          console.log("Video playing:", this.currentUrl);
+        })
+        .catch(error => {
+          console.warn("Video play failed:", error.name, error.message);
+          
+          // If autoplay was blocked, try again after a short delay
+          if (error.name === "NotAllowedError") {
+            setTimeout(() => this.play(), 200);
+          }
+        });
     }
   }
 
   pause() {
     try {
-      this.videoEl.pause();
+      if (!this.videoEl.paused) {
+        this.videoEl.pause();
+      }
     } catch (error) {
       console.warn("Video pause failed:", error);
     }
   }
 
   hide() {
+    this.isActive = false;
     this.videoEl.hidden = true;
     this.pause();
+    // Keep the src so it doesn't need to reload later
   }
 
   show() {
+    this.isActive = true;
     this.videoEl.hidden = false;
     this.play();
   }
 
   destroy() {
+    this.isActive = false;
     if (this.observer) {
       this.observer.disconnect();
       this.observer = null;
     }
     this.pause();
+    // Clear the source to free memory
+    this.videoEl.src = "";
+    this.currentUrl = "";
   }
 }
 
