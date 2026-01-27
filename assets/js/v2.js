@@ -138,10 +138,13 @@ class OverlayManager {
     this.overlays = document.querySelectorAll("[data-overlay]");
     this.header = document.querySelector(".v2-header");
     this.headerExpanded = document.querySelector(".v2-header__expanded");
+    this.headerMenu = document.querySelector(".v2-header__menu");
     this.typewriterEl = document.querySelector(".v2-typewriter");
     this.aboutButtons = document.querySelectorAll('[data-open="about"]');
     this.overviewButtons = document.querySelectorAll('[data-open="overview"]');
+    this.menuToggleBtn = document.querySelector('[data-toggle-menu]');
     this.isAboutExpanded = false;
+    this.isMenuOpen = false;
     this.init();
   }
 
@@ -151,17 +154,26 @@ class OverlayManager {
   }
 
   handleClick(e) {
+    // Handle menu toggle button
+    const menuToggle = e.target.closest("[data-toggle-menu]");
+    if (menuToggle) {
+      this.toggleMenu();
+      return;
+    }
+
     const openBtn = e.target.closest("[data-open]");
     if (openBtn) {
       const target = openBtn.getAttribute("data-open");
 
       // Special handling for "about"
       if (target === "about") {
-        this.closeAll(); // Close menu if open
+        this.closeMenu(); // Close menu if open
+        this.closeAll(); // Close overlays if open
         this.toggleAbout();
         return;
       }
 
+      this.closeMenu(); // Close menu when opening overlay
       this.open(target);
       return;
     }
@@ -208,6 +220,9 @@ class OverlayManager {
       btn.textContent = "overview";
       btn.setAttribute("aria-pressed", "false");
     });
+
+    // Close menu if open
+    this.closeMenu();
   }
 
   open(name) {
@@ -282,6 +297,45 @@ class OverlayManager {
     setTimeout(() => {
       this.headerExpanded.hidden = true;
       this.typewriterEl.textContent = "";
+      setV2HeaderHeight();
+    }, 400);
+  }
+
+  toggleMenu() {
+    this.isMenuOpen = !this.isMenuOpen;
+
+    if (this.isMenuOpen) {
+      this.openMenu();
+    } else {
+      this.closeMenu();
+    }
+  }
+
+  openMenu() {
+    if (!this.header || !this.headerMenu || !this.menuToggleBtn) return;
+
+    this.header.classList.add("is-menu-open");
+    this.headerMenu.hidden = false;
+
+    // Update button text
+    this.menuToggleBtn.textContent = "close";
+
+    // Update header height
+    setTimeout(() => setV2HeaderHeight(), 50);
+  }
+
+  closeMenu() {
+    if (!this.header || !this.headerMenu || !this.menuToggleBtn) return;
+    if (!this.isMenuOpen) return;
+
+    this.isMenuOpen = false;
+    this.header.classList.remove("is-menu-open");
+
+    // Update button text
+    this.menuToggleBtn.textContent = "menu";
+
+    setTimeout(() => {
+      this.headerMenu.hidden = true;
       setV2HeaderHeight();
     }, 400);
   }

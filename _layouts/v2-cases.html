@@ -18,13 +18,20 @@
         <div class="v2-header__expanded" hidden>
           <span class="v2-typewriter"></span>
         </div>
+        <div class="v2-header__menu" hidden>
+          <div class="v2-header__menuLinks">
+            <button class="v2-link" type="button" data-open="overview">overview</button>
+            <button class="v2-link" type="button" data-open="about">about</button>
+            <button id="theme-toggle-menu" class="v2-link" type="button" aria-pressed="false">🌙 Dark</button>
+          </div>
+        </div>
       </div>
 
       <div class="v2-header__right">
         <button
           type="button"
           class="v2-link v2-onlyMobile"
-          data-open="menu">
+          data-toggle-menu>
           menu
         </button>
       </div>
@@ -93,27 +100,6 @@
     </footer>
 
     <div class="v2-cursorNext" aria-hidden="true" hidden>next</div>
-
-    <div class="v2-overlay" data-overlay="menu" hidden>
-      <div class="v2-panel" role="dialog" aria-modal="true" aria-label="Menu">
-        <div class="v2-panel__head">
-          <button class="v2-link" type="button" data-close>close</button>
-        </div>
-
-        <div class="v2-menuList">
-          <button class="v2-link" type="button" data-open="overview">
-            overview
-          </button>
-          <button class="v2-link" type="button" data-open="about">
-            about
-          </button>
-        </div>
-
-        <div class="v2-menuList v2-menuPreferences">
-          <button id="theme-toggle-mobile" class="v2-link" type="button" aria-pressed="false">🌙 Dark</button>
-        </div>
-      </div>
-    </div>
 
 
     <div class="v2-overview" data-overlay="overview" hidden>

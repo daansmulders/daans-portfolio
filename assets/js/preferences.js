@@ -2,9 +2,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const body = document.body;
   const themeToggle = document.getElementById("theme-toggle");
   const themeToggleMobile = document.getElementById("theme-toggle-mobile");
+  const themeToggleMenu = document.getElementById("theme-toggle-menu");
 
   // Get all toggle buttons that exist
-  const themeToggles = [themeToggle, themeToggleMobile].filter(Boolean);
+  const themeToggles = [themeToggle, themeToggleMobile, themeToggleMenu].filter(Boolean);
 
   if (themeToggles.length === 0) {
     // No buttons found, nothing to wire up

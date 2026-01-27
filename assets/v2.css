@@ -151,6 +151,25 @@ html, body {
   transform: translateY(0);
 }
 
+.v2-header__menu {
+  margin-top: var(--v2-space-lg);
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 400ms ease, max-height 400ms ease;
+}
+
+.v2-header.is-menu-open .v2-header__menu {
+  opacity: 1;
+  max-height: 200px;
+}
+
+.v2-header__menuLinks {
+  display: flex;
+  gap: var(--v2-space-md);
+  align-items: center;
+}
+
 /* =============================================================================
    COMPONENTS: LINKS & BUTTONS
 ============================================================================= */
