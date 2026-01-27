@@ -157,6 +157,7 @@ class OverlayManager {
 
       // Special handling for "about"
       if (target === "about") {
+        this.closeAll(); // Close menu if open
         this.toggleAbout();
         return;
       }
