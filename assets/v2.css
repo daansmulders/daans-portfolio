@@ -621,27 +621,44 @@ body.theme-dark .v2-overlay {
     grid-template-rows: auto auto;
   }
 
-  /* Grid to single column */
+  /* Grid to single column with custom stacking order */
   .v2-grid {
     grid-template-columns: 1fr;
     row-gap: var(--v2-grid-row-gap);
     padding: var(--v2-content-pad-y) 0;
+    display: grid;
+    grid-auto-rows: auto;
   }
 
-  /* Reset cursor styles for touch */
-  .v2-left,
-  .v2-right {
-    cursor: auto;
-  }
-
+  /* Make left section children become direct grid children */
   .v2-left {
-    overflow: visible;
+    display: contents;
   }
 
-  /* Ensure images/videos have proper size on mobile */
+  /* Order: 1. kicker, 2. media, 3. copy (heading + body together) */
+  .v2-kicker {
+    order: 1;
+    margin-bottom: var(--v2-space-lg);
+  }
+
   .v2-right {
+    order: 2;
     height: auto;
     min-height: auto;
+    cursor: auto;
+    margin-bottom: var(--v2-space-lg);
+  }
+
+  .v2-copy {
+    order: 3;
+  }
+
+  .v2-stepHeading {
+    margin-bottom: var(--v2-space-lg);
+  }
+
+  .v2-stepBody {
+    margin-top: 0;
   }
 
   /* Make images/videos fill width on mobile */

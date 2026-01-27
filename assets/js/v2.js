@@ -8,13 +8,13 @@ const CONFIG = {
   MOBILE_BREAKPOINT: 900,
   WHEEL_THRESHOLD: 300,
   WHEEL_IDLE_MS: 40,
-  TOUCH_ARM_PX: 12,
-  TOUCH_PAGE_PX: 120,
+  TOUCH_ARM_PX: 20,        // Increased from 12: requires more deliberate initial swipe
+  TOUCH_PAGE_PX: 160,      // Increased from 120: requires longer swipe to trigger page transition
   DESKTOP_ANIM_MS: 140,
   MOBILE_ANIM_MS: 220,
   GESTURE_LOCK_MS: 240,
   SNAP_NEAR_TOP_PX: 40,
-  SNAP_NEAR_BOTTOM_PX: 56,
+  SNAP_NEAR_BOTTOM_PX: 40, // Decreased from 56: only triggers when closer to bottom
   INTERSECTION_THRESHOLD: 0.15,
 };
 
@@ -167,8 +167,12 @@ class OverlayManager {
 
       // Special handling for "about"
       if (target === "about") {
-        this.closeMenu(); // Close menu if open
-        this.closeAll(); // Close overlays if open
+        // Close overlays but keep menu open
+        this.overlays.forEach(overlay => overlay.hidden = true);
+        this.overviewButtons.forEach(btn => {
+          btn.textContent = "overview";
+          btn.setAttribute("aria-pressed", "false");
+        });
         this.toggleAbout();
         return;
       }
@@ -430,17 +434,17 @@ class VideoController {
     this.videoEl.muted = true;
     this.videoEl.loop = true;
     this.videoEl.playsInline = true;
-    this.videoEl.autoplay = true;
-    this.videoEl.preload = "auto"; // Changed from "metadata" for more reliable loading
+    this.videoEl.autoplay = false; // Disable autoplay, we'll manually trigger
+    this.videoEl.preload = "auto";
   }
 
   setupVideoEvents() {
     // Detect when video is ready to play
     this.videoEl.addEventListener("loadeddata", () => {
-      console.log("Video loaded:", this.currentUrl);
       this.loadAttempts = 0;
-      if (this.isActive && this.isVisible) {
-        this.play();
+      // Try to play on load
+      if (this.isActive) {
+        setTimeout(() => this.play(), 50);
       }
     });
 
@@ -448,9 +452,8 @@ class VideoController {
     this.videoEl.addEventListener("error", (e) => {
       console.error("Video error:", this.currentUrl, e);
       this.loadAttempts++;
-      
+
       if (this.loadAttempts < this.maxLoadAttempts) {
-        console.log(`Retrying video load (attempt ${this.loadAttempts + 1})`);
         setTimeout(() => {
           if (this.currentUrl) {
             this.videoEl.load();
@@ -461,8 +464,8 @@ class VideoController {
 
     // Detect when video can start playing
     this.videoEl.addEventListener("canplay", () => {
-      if (this.isActive && this.isVisible && this.videoEl.paused) {
-        this.play();
+      if (this.isActive && this.videoEl.paused) {
+        setTimeout(() => this.play(), 50);
       }
     });
   }
@@ -473,8 +476,8 @@ class VideoController {
     this.observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
-        this.isVisible = entry?.isIntersecting && entry.intersectionRatio > CONFIG.INTERSECTION_THRESHOLD;
-        
+        this.isVisible = entry?.isIntersecting && entry.intersectionRatio >= CONFIG.INTERSECTION_THRESHOLD;
+
         if (!this.isVisible) {
           this.pause();
         } else if (this.isActive) {
@@ -482,7 +485,7 @@ class VideoController {
           setTimeout(() => this.play(), 100);
         }
       },
-      { threshold: [0, CONFIG.INTERSECTION_THRESHOLD, 0.5] }
+      { threshold: [0, CONFIG.INTERSECTION_THRESHOLD, 0.5, 1.0] }
     );
 
     this.observer.observe(this.caseEl);
@@ -502,7 +505,7 @@ class VideoController {
 
   setSource(url) {
     const normalizedUrl = normalizeUrl(url);
-    
+
     if (!normalizedUrl) {
       this.hide();
       this.isActive = false;
@@ -510,66 +513,61 @@ class VideoController {
     }
 
     this.isActive = true;
+    // IMPORTANT: Make video visible BEFORE setting source
+    // Mobile browsers may not load videos that are hidden
     this.videoEl.hidden = false;
 
     // Only update src if it changed to prevent reload flicker
     if (normalizedUrl !== this.currentUrl) {
       this.currentUrl = normalizedUrl;
       this.loadAttempts = 0;
-      
-      // Preload the video to prevent duplicate network requests
-      preloadVideo(normalizedUrl)
-        .then(() => {
-          // Only set src if this is still the active video
-          if (this.currentUrl === normalizedUrl) {
-            this.videoEl.src = normalizedUrl;
-            this.videoEl.load();
-            
-            // Reset to beginning for new videos
-            try {
-              this.videoEl.currentTime = 0;
-            } catch (e) {
-              // Ignore - video might not be loaded yet
-            }
-          }
-        })
-        .catch((error) => {
-          console.error("Video preload failed:", error);
-          // Fallback: try loading directly anyway
-          this.videoEl.src = normalizedUrl;
-          this.videoEl.load();
-        });
-    }
 
-    // Try to play immediately if already loaded
-    if (this.videoEl.readyState >= 3) { // HAVE_FUTURE_DATA
+      // Set source and force load
+      this.videoEl.src = normalizedUrl;
+      this.videoEl.load();
+
+      // Force another load after a tiny delay (helps on some mobile browsers)
+      setTimeout(() => {
+        this.videoEl.load();
+      }, 50);
+
+      // Try to play after a delay
+      setTimeout(() => {
+        this.play();
+      }, 200);
+    } else {
+      // Video source hasn't changed, try to play if it's ready
       this.play();
     }
   }
 
   play() {
-    if (!this.isVisible || !this.currentUrl || !this.isActive) return;
-    
+    if (!this.currentUrl || !this.isActive) return;
+
+    // On mobile, IntersectionObserver can be unreliable on initial load
+    // So we skip the visibility check if on mobile
+    if (!this.isVisible && !isMobileUI()) return;
+
     // Check if video is ready
     if (this.videoEl.readyState < 2) { // Less than HAVE_CURRENT_DATA
-      console.log("Video not ready yet, waiting...");
+      // Wait for it to be ready and try again
+      const retryPlay = () => {
+        if (this.isActive && this.isVisible) {
+          this.play();
+        }
+      };
+      this.videoEl.addEventListener("canplay", retryPlay, { once: true });
       return;
     }
 
     const playPromise = this.videoEl.play();
     if (playPromise) {
-      playPromise
-        .then(() => {
-          console.log("Video playing:", this.currentUrl);
-        })
-        .catch(error => {
-          console.warn("Video play failed:", error.name, error.message);
-          
-          // If autoplay was blocked, try again after a short delay
-          if (error.name === "NotAllowedError") {
-            setTimeout(() => this.play(), 200);
-          }
-        });
+      playPromise.catch(error => {
+        // If autoplay was blocked, try again after a short delay
+        if (error.name === "NotAllowedError") {
+          setTimeout(() => this.play(), 200);
+        }
+      });
     }
   }
 
@@ -717,11 +715,11 @@ class CaseCarousel {
     } else {
       // Show image, hide video
       this.videoController.hide();
-      
+
       if (this.imgEl) {
         this.imgEl.hidden = false;
         const imageUrl = normalizeUrl(step.image || step.media || "");
-        
+
         if (imageUrl) {
           this.imgEl.src = imageUrl;
         } else {
@@ -783,7 +781,7 @@ class SnapPaging {
   constructor(scroller) {
     this.scroller = scroller;
     this.cases = Array.from(scroller.querySelectorAll(".v2-case"));
-    
+
     if (this.cases.length < 2) return;
 
     this.isMobile = isMobileUI();
@@ -798,6 +796,16 @@ class SnapPaging {
       this.initTouchPaging();
     } else {
       this.initWheelPaging();
+    }
+  }
+
+  recalculateDimensions() {
+    // Reset any ongoing touch gestures when dimensions change
+    // This prevents incorrect calculations using old heights
+    if (this.isMobile && this.touchAccum !== undefined) {
+      this.touchAccum = 0;
+      this.touchIntent = 0;
+      this.touchLastY = this.touchStartY || 0;
     }
   }
 
@@ -886,16 +894,17 @@ class SnapPaging {
   }
 
   initTouchPaging() {
-    let startY = 0;
-    let accum = 0;
-    let intent = 0;
+    this.touchStartY = 0;
+    this.touchLastY = 0;
+    this.touchAccum = 0;
+    this.touchIntent = 0;
 
     const getCurrentCase = () => this.cases[this.findNearestIndex()];
-    
+
     const isNearTop = (el) => {
       return this.scroller.scrollTop <= el.offsetTop + CONFIG.SNAP_NEAR_TOP_PX;
     };
-    
+
     const isNearBottom = (el) => {
       const bottom = el.offsetTop + el.offsetHeight;
       const viewportBottom = this.scroller.scrollTop + this.scroller.clientHeight;
@@ -912,9 +921,10 @@ class SnapPaging {
       "touchstart",
       (e) => {
         if (e.touches?.length !== 1) return;
-        startY = e.touches[0].clientY;
-        accum = 0;
-        intent = 0;
+        this.touchStartY = e.touches[0].clientY;
+        this.touchLastY = e.touches[0].clientY;
+        this.touchAccum = 0;
+        this.touchIntent = 0;
       },
       { passive: true }
     );
@@ -927,7 +937,8 @@ class SnapPaging {
 
         const currentCase = getCurrentCase();
         const currentY = e.touches[0].clientY;
-        const deltaY = startY - currentY;
+        const deltaY = this.touchStartY - currentY;
+        const incrementalDelta = this.touchLastY - currentY;
 
         const atBottom = isNearBottom(currentCase);
         const atTop = isNearTop(currentCase);
@@ -936,13 +947,15 @@ class SnapPaging {
 
         if (atBottom && deltaY > CONFIG.TOUCH_ARM_PX) {
           e.preventDefault();
-          accum += deltaY;
-          intent = +1;
+          this.touchAccum += incrementalDelta;
+          this.touchIntent = +1;
         } else if (atTop && deltaY < -CONFIG.TOUCH_ARM_PX) {
           e.preventDefault();
-          accum += deltaY;
-          intent = -1;
+          this.touchAccum += incrementalDelta;
+          this.touchIntent = -1;
         }
+
+        this.touchLastY = currentY;
       },
       { passive: false }
     );
@@ -951,20 +964,20 @@ class SnapPaging {
       "touchend",
       () => {
         if (this.gestureLocked || this.isAnimating) return;
-        if (intent === 0) return;
+        if (this.touchIntent === 0) return;
 
-        if (intent === +1 && accum > CONFIG.TOUCH_PAGE_PX) {
+        if (this.touchIntent === +1 && this.touchAccum > CONFIG.TOUCH_PAGE_PX) {
           this.gestureLocked = true;
           forceStopScroll(this.scroller);
           this.go(+1);
-        } else if (intent === -1 && accum < -CONFIG.TOUCH_PAGE_PX) {
+        } else if (this.touchIntent === -1 && this.touchAccum < -CONFIG.TOUCH_PAGE_PX) {
           this.gestureLocked = true;
           forceStopScroll(this.scroller);
           this.go(-1);
         }
 
-        intent = 0;
-        accum = 0;
+        this.touchIntent = 0;
+        this.touchAccum = 0;
 
         setTimeout(() => {
           this.gestureLocked = false;
@@ -1052,7 +1065,7 @@ function main() {
   // Initialize snap paging
   const scroller = document.querySelector(".v2-snap");
   if (scroller) {
-    new SnapPaging(scroller);
+    window.snapPaging = new SnapPaging(scroller);
   }
 
   // Initialize all cases and store them globally
