@@ -152,7 +152,7 @@ html, body {
 }
 
 .v2-header__menu {
-  margin-top: var(--v2-space-lg);
+  margin-bottom: var(--v2-space-md);
   opacity: 0;
   max-height: 0;
   overflow: hidden;

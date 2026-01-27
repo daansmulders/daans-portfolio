@@ -326,7 +326,6 @@ class OverlayManager {
 
   closeMenu() {
     if (!this.header || !this.headerMenu || !this.menuToggleBtn) return;
-    if (!this.isMenuOpen) return;
 
     this.isMenuOpen = false;
     this.header.classList.remove("is-menu-open");
