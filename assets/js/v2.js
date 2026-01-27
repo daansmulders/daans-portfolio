@@ -253,29 +253,24 @@ class OverlayManager {
     // Update header height
     setTimeout(() => setV2HeaderHeight(), 50);
 
-    const text = "He turns complex journeys into human-friendly products and enjoys bringing positive energy to the teams he works with. Previously at funda, Ace & Tate, Werkspot, and Powerly — now at Nationale-Nederlanden.";
+    const text = "Previously at funda, Ace & Tate, Werkspot, and Powerly — now at Nationale-Nederlanden. Reach me at daan.smulders@gmail.com";
 
-    this.typewriterEl.textContent = "";
-    let index = 0;
+    // Set text and trigger slide-down animation
+    this.typewriterEl.textContent = text;
 
-    const type = () => {
-      if (index < text.length) {
-        this.typewriterEl.textContent += text.charAt(index);
-        index++;
-        setTimeout(type, 20);
-      } else {
-        this.typewriterEl.classList.add("typing-done");
-      }
-    };
-
-    setTimeout(type, 200);
+    // Use requestAnimationFrame to ensure the transition triggers
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.typewriterEl.classList.add("slide-in");
+      });
+    });
   }
 
   collapseAbout() {
     if (!this.header || !this.headerExpanded) return;
 
     this.header.classList.remove("is-expanded");
-    this.typewriterEl.classList.remove("typing-done");
+    this.typewriterEl.classList.remove("slide-in");
 
     // Update button text
     this.aboutButtons.forEach(btn => {

@@ -30,7 +30,7 @@
   --v2-font-weight-bold: 700;
 
   /* Colors - Light theme (default) */
-  --bg: #faf9f5;
+  --bg: #fff;
   --fg: #1f1f1f;
   --muted: #6f6f6f;
   --border-subtle: rgba(0, 0, 0, 0.1);
@@ -138,23 +138,17 @@ html, body {
 }
 
 .v2-typewriter {
-  display: inline-block;
-  border-right: 2px solid var(--fg);
-  animation: blink 0.7s step-end infinite;
+  display: block;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
-.v2-typewriter.typing-done {
-  border-right: none;
-  animation: none;
-}
-
-@keyframes blink {
-  0%, 50% {
-    border-color: var(--fg);
-  }
-  51%, 100% {
-    border-color: transparent;
-  }
+.v2-typewriter.slide-in {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* =============================================================================
@@ -592,6 +586,11 @@ body.theme-dark .v2-overlay {
     position: absolute;
     top: var(--v2-space-md);
     right: var(--v2-pad-x);
+  }
+
+  /* Expanded header needs more height on mobile for text wrapping */
+  .v2-header.is-expanded .v2-header__expanded {
+    max-height: 300px;
   }
 
   /* Case layout */

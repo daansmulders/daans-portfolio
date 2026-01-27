@@ -9,19 +9,19 @@ hero_image: "/assets/images/powerly-interactive-video/interactive-video-hero.png
 steps:
   - heading: Problem, expert knowledge didn’t scale
     body: /case-content/powerly-interactive-video/steps/01-problem.md
-    video: /case-content/powerly-interactive-video/videos/prototype-01.mp4
+    video: /case-content/powerly-interactive-video/videos/prototype-02.mp4
   - heading: Finding a way to offer trustworthy advice at scale
     body: /case-content/powerly-interactive-video/steps/02-approach.md
-    image: /case-content/powerly-interactive-video/images/02.png
+    image: /case-content/powerly-interactive-video/images/journey.png
   - heading: Concept - personalized, interactive video
     body: /case-content/powerly-interactive-video/steps/03-concept.md
-    video: /case-content/powerly-interactive-video/videos/prototype-02.mp4
+    image: /case-content/powerly-interactive-video/images/video-flow.png
   - heading: Testing & learnings
     body: /case-content/powerly-interactive-video/steps/04-testing.md
-    image: /case-content/powerly-interactive-video/images/01.png
+    video: /case-content/powerly-interactive-video/videos/prototype-01.mp4
   - heading: Validate value, blocked feasability
     body: /case-content/powerly-interactive-video/steps/05-outcome.md
-    image: /case-content/powerly-interactive-video/images/01.png
+    image: /case-content/powerly-interactive-video/images/feasability.png
 ---
 
 <div class="project-intro-grid">
