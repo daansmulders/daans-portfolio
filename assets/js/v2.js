@@ -789,6 +789,8 @@ class SnapPaging {
     this.isMobile = isMobileUI();
     this.isAnimating = false;
     this.gestureLocked = false;
+    this.switchToken = 0; // Token to cancel stale animations when switching quickly
+    this.activeIndex = 0; // Track which case should currently be active
 
     this.init();
   }
@@ -826,29 +828,23 @@ class SnapPaging {
 
     let lastActiveIndex = -1;
 
+    // Use the existing findNearestIndex which uses scroll position - more reliable than entries
     const observer = new IntersectionObserver(
-      (entries) => {
-        let mostVisible = null;
-        let maxRatio = 0;
+      () => {
+        // Don't switch during animation to prevent conflicts
+        if (this.isAnimating) return;
 
-        entries.forEach(entry => {
-          if (entry.intersectionRatio > maxRatio) {
-            maxRatio = entry.intersectionRatio;
-            mostVisible = entry.target;
-          }
-        });
+        // Use scroll position to determine which case is truly nearest/most visible
+        const currentIndex = this.findNearestIndex();
 
-        if (mostVisible && maxRatio > 0.3) {
-          const currentIndex = this.cases.indexOf(mostVisible);
-          if (currentIndex !== -1 && currentIndex !== lastActiveIndex) {
-            lastActiveIndex = currentIndex;
-            this.switchToCase(currentIndex);
-          }
+        if (currentIndex !== lastActiveIndex) {
+          lastActiveIndex = currentIndex;
+          this.switchToCase(currentIndex);
         }
       },
       {
         root: this.scroller,
-        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+        threshold: [0, 0.3, 0.5, 0.7, 1.0]
       }
     );
 
@@ -856,6 +852,10 @@ class SnapPaging {
   }
 
   switchToCase(index) {
+    // Increment token to invalidate any pending timeouts from previous switches
+    const token = ++this.switchToken;
+    this.activeIndex = index;
+
     // Hide all text, media, and counter containers
     this.cases.forEach(caseEl => {
       const textContainer = caseEl.querySelector('.v2-left');
@@ -863,7 +863,10 @@ class SnapPaging {
       const counterContainer = caseEl.querySelector('.v2-bottom__center');
 
       if (textContainer) {
+        // Force immediate hide with inline styles (bypasses CSS transitions completely)
+        textContainer.style.cssText = 'opacity: 0 !important; visibility: hidden !important;';
         textContainer.classList.remove('v2-left--active');
+        textContainer.classList.remove('v2-text--slidein');
       }
       if (mediaContainer) {
         mediaContainer.classList.remove('v2-media--visible');
@@ -893,9 +896,29 @@ class SnapPaging {
       // Delay text appearance slightly to avoid overlap
       if (textContainer) {
         setTimeout(() => {
+          // Check if this is still the current switch operation
+          if (token !== this.switchToken) return;
+          // Double-check this case is still supposed to be active
+          if (index !== this.activeIndex) return;
+
+          // SAFETY: Before showing this text, ensure ALL other texts are hidden
+          // This catches any race conditions that might have left stale text visible
+          this.cases.forEach((c, i) => {
+            if (i === index) return; // Skip the one we're about to show
+            const tc = c.querySelector('.v2-left');
+            if (tc) {
+              tc.style.cssText = 'opacity: 0 !important; visibility: hidden !important;';
+              tc.classList.remove('v2-left--active');
+            }
+          });
+
+          // Clear inline styles and add active class
+          textContainer.style.cssText = '';
           textContainer.classList.add('v2-left--active');
           textContainer.classList.add('v2-text--slidein');
           setTimeout(() => {
+            // Also guard the slidein removal
+            if (token !== this.switchToken) return;
             textContainer.classList.remove('v2-text--slidein');
           }, 800);
         }, 150);
