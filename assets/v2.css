@@ -231,6 +231,36 @@ html, body {
   overflow: hidden;
   cursor: none;
   padding-right: 24px; /* add breathing room so text doesn't feel cramped against image */
+  transition: opacity 0.4s ease;
+  position: fixed;
+  top: var(--v2-header-h);
+  left: var(--v2-pad-x);
+  width: calc((100vw - var(--v2-pad-x) * 2 - var(--v2-scrollbar-w) - var(--v2-grid-gap)) / 3);
+  z-index: 5;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.v2-left.v2-left--active {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+}
+
+.v2-text--slidein {
+  animation: textSlideIn 0.8s ease-out;
+}
+
+@keyframes textSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .v2-kicker {
@@ -244,6 +274,25 @@ html, body {
 .v2-title {
   font-style: italic;
   color: var(--muted);
+}
+
+.v2-copy {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.v2-copy--updating {
+  animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+  0% {
+    opacity: 0.4;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .v2-stepHeading {
@@ -264,6 +313,13 @@ html, body {
   position: relative;
   cursor: none;
   overflow: hidden;
+  grid-column: 2; /* Always use the second column since left is fixed */
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.v2-right.v2-media--visible {
+  opacity: 1;
 }
 
 /* Shared styles for image and video */
@@ -301,10 +357,23 @@ html, body {
 }
 
 .v2-bottom__center {
+  position: fixed;
+  bottom: var(--v2-pad-x);
+  left: 50%;
+  transform: translateX(-50%);
   display: inline-flex;
   gap: var(--v2-space-sm);
   align-items: center;
   justify-content: center;
+  z-index: 10;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.v2-bottom__center.v2-counter--active {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .v2-counterItem {
@@ -633,6 +702,12 @@ body.theme-dark .v2-overlay {
   /* Make left section children become direct grid children */
   .v2-left {
     display: contents;
+    position: static;
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+    width: auto;
+    transition: none;
   }
 
   /* Order: 1. kicker, 2. media, 3. copy (heading + body together) */
@@ -647,6 +722,9 @@ body.theme-dark .v2-overlay {
     min-height: auto;
     cursor: auto;
     margin-bottom: var(--v2-space-lg);
+    grid-column: auto;
+    opacity: 1;
+    transition: none;
   }
 
   .v2-copy {

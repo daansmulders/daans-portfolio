@@ -8,14 +8,16 @@ const CONFIG = {
   MOBILE_BREAKPOINT: 900,
   WHEEL_THRESHOLD: 300,
   WHEEL_IDLE_MS: 40,
-  TOUCH_ARM_PX: 20,        // Increased from 12: requires more deliberate initial swipe
-  TOUCH_PAGE_PX: 160,      // Increased from 120: requires longer swipe to trigger page transition
-  DESKTOP_ANIM_MS: 140,
-  MOBILE_ANIM_MS: 220,
+  TOUCH_ARM_PX: 20,
+  TOUCH_PAGE_PX: 160,
+  DESKTOP_ANIM_MS: 600,       // Longer for smoother flow into snap
+  MOBILE_ANIM_MS: 600,        // Longer for smoother flow into snap
   GESTURE_LOCK_MS: 240,
   SNAP_NEAR_TOP_PX: 40,
-  SNAP_NEAR_BOTTOM_PX: 40, // Decreased from 56: only triggers when closer to bottom
+  SNAP_NEAR_BOTTOM_PX: 40,
   INTERSECTION_THRESHOLD: 0.15,
+  IMAGE_FADE_MS: 400,         // Duration of image fade transition
+  SNAP_SETTLE_MS: 150,        // Delay before snap starts - allows free scrolling
 };
 
 /* =============================================================================
@@ -678,7 +680,7 @@ class CaseCarousel {
   async render() {
     const step = this.steps[this.currentIndex] || {};
 
-    // Update heading immediately
+    // Update heading
     if (this.headingEl) {
       this.headingEl.textContent = step.heading || "";
     }
@@ -775,7 +777,7 @@ class CaseCarousel {
 }
 
 /* =============================================================================
-   SNAP PAGING
+   SNAP PAGING - Smooth snap scrolling between cases
 ============================================================================= */
 class SnapPaging {
   constructor(scroller) {
@@ -797,15 +799,107 @@ class SnapPaging {
     } else {
       this.initWheelPaging();
     }
+
+    // Initialize first case as active
+    if (this.cases.length > 0) {
+      const firstText = this.cases[0].querySelector('.v2-left');
+      const firstMedia = this.cases[0].querySelector('.v2-right');
+      const firstCounter = this.cases[0].querySelector('.v2-bottom__center');
+
+      if (firstText) {
+        firstText.classList.add('v2-left--active');
+      }
+      if (firstMedia) {
+        firstMedia.classList.add('v2-media--visible');
+      }
+      if (firstCounter) {
+        firstCounter.classList.add('v2-counter--active');
+      }
+    }
+
+    // Observe when cases change to trigger animations
+    this.observeCaseChanges();
   }
 
-  recalculateDimensions() {
-    // Reset any ongoing touch gestures when dimensions change
-    // This prevents incorrect calculations using old heights
-    if (this.isMobile && this.touchAccum !== undefined) {
-      this.touchAccum = 0;
-      this.touchIntent = 0;
-      this.touchLastY = this.touchStartY || 0;
+  observeCaseChanges() {
+    if (!('IntersectionObserver' in window)) return;
+
+    let lastActiveIndex = -1;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        let mostVisible = null;
+        let maxRatio = 0;
+
+        entries.forEach(entry => {
+          if (entry.intersectionRatio > maxRatio) {
+            maxRatio = entry.intersectionRatio;
+            mostVisible = entry.target;
+          }
+        });
+
+        if (mostVisible && maxRatio > 0.3) {
+          const currentIndex = this.cases.indexOf(mostVisible);
+          if (currentIndex !== -1 && currentIndex !== lastActiveIndex) {
+            lastActiveIndex = currentIndex;
+            this.switchToCase(currentIndex);
+          }
+        }
+      },
+      {
+        root: this.scroller,
+        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+      }
+    );
+
+    this.cases.forEach(caseEl => observer.observe(caseEl));
+  }
+
+  switchToCase(index) {
+    // Hide all text, media, and counter containers
+    this.cases.forEach(caseEl => {
+      const textContainer = caseEl.querySelector('.v2-left');
+      const mediaContainer = caseEl.querySelector('.v2-right');
+      const counterContainer = caseEl.querySelector('.v2-bottom__center');
+
+      if (textContainer) {
+        textContainer.classList.remove('v2-left--active');
+      }
+      if (mediaContainer) {
+        mediaContainer.classList.remove('v2-media--visible');
+      }
+      if (counterContainer) {
+        counterContainer.classList.remove('v2-counter--active');
+      }
+    });
+
+    // Show and animate the active case's text, media, and counter
+    const activeCase = this.cases[index];
+    if (activeCase) {
+      const mediaContainer = activeCase.querySelector('.v2-right');
+      const counterContainer = activeCase.querySelector('.v2-bottom__center');
+      const textContainer = activeCase.querySelector('.v2-left');
+
+      // Show media and counter immediately
+      if (mediaContainer) {
+        void mediaContainer.offsetWidth;
+        mediaContainer.classList.add('v2-media--visible');
+      }
+
+      if (counterContainer) {
+        counterContainer.classList.add('v2-counter--active');
+      }
+
+      // Delay text appearance slightly to avoid overlap
+      if (textContainer) {
+        setTimeout(() => {
+          textContainer.classList.add('v2-left--active');
+          textContainer.classList.add('v2-text--slidein');
+          setTimeout(() => {
+            textContainer.classList.remove('v2-text--slidein');
+          }, 800);
+        }, 150);
+      }
     }
   }
 
@@ -828,17 +922,18 @@ class SnapPaging {
   animateTo(targetTop, durationMs) {
     const startTop = this.scroller.scrollTop;
     const delta = targetTop - startTop;
-    
+
     if (delta === 0) return;
 
     const startTime = performance.now();
-    const easeOut = (x) => 1 - Math.pow(1 - x, 3);
+    // Smoother easing - ease-in-out for more natural flow
+    const easeInOut = (x) => x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
     this.isAnimating = true;
 
     const frame = (now) => {
       const progress = Math.min(1, (now - startTime) / durationMs);
-      this.scroller.scrollTop = startTop + delta * easeOut(progress);
-      
+      this.scroller.scrollTop = startTop + delta * easeInOut(progress);
+
       if (progress < 1) {
         requestAnimationFrame(frame);
       } else {
@@ -853,135 +948,60 @@ class SnapPaging {
     const currentIdx = this.findNearestIndex();
     const nextIdx = clamp(currentIdx + direction, 0, this.cases.length - 1);
     const duration = this.isMobile ? CONFIG.MOBILE_ANIM_MS : CONFIG.DESKTOP_ANIM_MS;
-    
+
     this.animateTo(this.cases[nextIdx].offsetTop, duration);
   }
 
   initWheelPaging() {
-    let wheelIdleTimer = null;
-    let wheelAccum = 0;
+    let scrollTimeout = null;
 
     this.scroller.addEventListener(
-      "wheel",
-      (e) => {
-        if (e.ctrlKey) return;
-        e.preventDefault();
+      "scroll",
+      () => {
+        if (this.isAnimating) return;
 
-        if (wheelIdleTimer) clearTimeout(wheelIdleTimer);
-        
-        wheelIdleTimer = setTimeout(() => {
-          this.gestureLocked = false;
-          wheelAccum = 0;
-        }, CONFIG.WHEEL_IDLE_MS);
-
-        if (this.gestureLocked || this.isAnimating) return;
-
-        const deltaY = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
-        wheelAccum += deltaY;
-
-        if (wheelAccum > CONFIG.WHEEL_THRESHOLD) {
-          this.gestureLocked = true;
-          wheelAccum = 0;
-          this.go(+1);
-        } else if (wheelAccum < -CONFIG.WHEEL_THRESHOLD) {
-          this.gestureLocked = true;
-          wheelAccum = 0;
-          this.go(-1);
+        // Clear previous timeout
+        if (scrollTimeout) {
+          clearTimeout(scrollTimeout);
         }
+
+        // After scroll settles, snap to nearest case with minimal delay
+        scrollTimeout = setTimeout(() => {
+          const currentIdx = this.findNearestIndex();
+          this.animateTo(this.cases[currentIdx].offsetTop, CONFIG.DESKTOP_ANIM_MS);
+        }, CONFIG.SNAP_SETTLE_MS);
       },
-      { passive: false }
+      { passive: true }
     );
   }
 
   initTouchPaging() {
-    this.touchStartY = 0;
-    this.touchLastY = 0;
-    this.touchAccum = 0;
-    this.touchIntent = 0;
-
-    const getCurrentCase = () => this.cases[this.findNearestIndex()];
-
-    const isNearTop = (el) => {
-      return this.scroller.scrollTop <= el.offsetTop + CONFIG.SNAP_NEAR_TOP_PX;
-    };
-
-    const isNearBottom = (el) => {
-      const bottom = el.offsetTop + el.offsetHeight;
-      const viewportBottom = this.scroller.scrollTop + this.scroller.clientHeight;
-      return viewportBottom >= bottom - CONFIG.SNAP_NEAR_BOTTOM_PX;
-    };
-
-    const forceStopScroll = (el) => {
-      const y = el.scrollTop;
-      el.scrollTop = y + 1;
-      el.scrollTop = y;
-    };
+    let scrollTimeout = null;
 
     this.scroller.addEventListener(
-      "touchstart",
-      (e) => {
-        if (e.touches?.length !== 1) return;
-        this.touchStartY = e.touches[0].clientY;
-        this.touchLastY = e.touches[0].clientY;
-        this.touchAccum = 0;
-        this.touchIntent = 0;
-      },
-      { passive: true }
-    );
-
-    this.scroller.addEventListener(
-      "touchmove",
-      (e) => {
-        if (this.gestureLocked || this.isAnimating) return;
-        if (e.touches?.length !== 1) return;
-
-        const currentCase = getCurrentCase();
-        const currentY = e.touches[0].clientY;
-        const deltaY = this.touchStartY - currentY;
-        const incrementalDelta = this.touchLastY - currentY;
-
-        const atBottom = isNearBottom(currentCase);
-        const atTop = isNearTop(currentCase);
-
-        if (!atBottom && !atTop) return;
-
-        if (atBottom && deltaY > CONFIG.TOUCH_ARM_PX) {
-          e.preventDefault();
-          this.touchAccum += incrementalDelta;
-          this.touchIntent = +1;
-        } else if (atTop && deltaY < -CONFIG.TOUCH_ARM_PX) {
-          e.preventDefault();
-          this.touchAccum += incrementalDelta;
-          this.touchIntent = -1;
-        }
-
-        this.touchLastY = currentY;
-      },
-      { passive: false }
-    );
-
-    this.scroller.addEventListener(
-      "touchend",
+      "scroll",
       () => {
-        if (this.gestureLocked || this.isAnimating) return;
-        if (this.touchIntent === 0) return;
+        if (this.isAnimating) return;
 
-        if (this.touchIntent === +1 && this.touchAccum > CONFIG.TOUCH_PAGE_PX) {
-          this.gestureLocked = true;
-          forceStopScroll(this.scroller);
-          this.go(+1);
-        } else if (this.touchIntent === -1 && this.touchAccum < -CONFIG.TOUCH_PAGE_PX) {
-          this.gestureLocked = true;
-          forceStopScroll(this.scroller);
-          this.go(-1);
+        // Clear previous timeout
+        if (scrollTimeout) {
+          clearTimeout(scrollTimeout);
         }
 
-        this.touchIntent = 0;
-        this.touchAccum = 0;
+        // After scroll settles, only snap if near the top of a case
+        scrollTimeout = setTimeout(() => {
+          const currentIdx = this.findNearestIndex();
+          const nearestCase = this.cases[currentIdx];
+          const scrollTop = this.scroller.scrollTop;
+          const caseTop = nearestCase.offsetTop;
+          const distanceFromTop = Math.abs(scrollTop - caseTop);
 
-        setTimeout(() => {
-          this.gestureLocked = false;
-        }, CONFIG.GESTURE_LOCK_MS);
+          // Only snap if within 150px of the case top (user is transitioning)
+          // Otherwise let them read freely without snapping
+          if (distanceFromTop < 150) {
+            this.animateTo(caseTop, CONFIG.MOBILE_ANIM_MS);
+          }
+        }, CONFIG.SNAP_SETTLE_MS);
       },
       { passive: true }
     );
@@ -1062,12 +1082,6 @@ function main() {
   window.addEventListener("resize", handleResize);
   window.addEventListener("orientationchange", handleResize);
 
-  // Initialize snap paging
-  const scroller = document.querySelector(".v2-snap");
-  if (scroller) {
-    window.snapPaging = new SnapPaging(scroller);
-  }
-
   // Initialize all cases and store them globally
   window.caseCarousels = [];
   const caseElements = document.querySelectorAll("[data-case]");
@@ -1079,6 +1093,12 @@ function main() {
       console.error("Failed to initialize case:", error);
     }
   });
+
+  // Initialize snap paging after cases are set up
+  const scroller = document.querySelector(".v2-snap");
+  if (scroller) {
+    window.snapPaging = new SnapPaging(scroller);
+  }
 
   // Recalculate after fonts load
   if (document.fonts?.ready) {
