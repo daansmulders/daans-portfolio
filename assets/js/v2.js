@@ -172,7 +172,7 @@ class OverlayManager {
         // Close overlays but keep menu open
         this.overlays.forEach(overlay => overlay.hidden = true);
         this.overviewButtons.forEach(btn => {
-          btn.textContent = "overview";
+          btn.textContent = "Overview";
           btn.setAttribute("aria-pressed", "false");
         });
         this.toggleAbout();
@@ -223,7 +223,7 @@ class OverlayManager {
 
     // Reset overview button text
     this.overviewButtons.forEach(btn => {
-      btn.textContent = "overview";
+      btn.textContent = "Overview";
       btn.setAttribute("aria-pressed", "false");
     });
 
@@ -243,7 +243,7 @@ class OverlayManager {
 
         // Update button text
         this.overviewButtons.forEach(btn => {
-          btn.textContent = "close";
+          btn.textContent = "Close";
           btn.setAttribute("aria-pressed", "true");
         });
       }
@@ -268,7 +268,7 @@ class OverlayManager {
 
     // Update button text
     this.aboutButtons.forEach(btn => {
-      btn.textContent = "close";
+      btn.textContent = "Close";
       btn.setAttribute("aria-pressed", "true");
     });
 
@@ -296,7 +296,7 @@ class OverlayManager {
 
     // Update button text
     this.aboutButtons.forEach(btn => {
-      btn.textContent = "about";
+      btn.textContent = "About";
       btn.setAttribute("aria-pressed", "false");
     });
 
@@ -324,7 +324,7 @@ class OverlayManager {
     this.headerMenu.hidden = false;
 
     // Update button text
-    this.menuToggleBtn.textContent = "close";
+    this.menuToggleBtn.textContent = "Close";
 
     // Update header height
     setTimeout(() => setV2HeaderHeight(), 50);
@@ -337,7 +337,7 @@ class OverlayManager {
     this.header.classList.remove("is-menu-open");
 
     // Update button text
-    this.menuToggleBtn.textContent = "menu";
+    this.menuToggleBtn.textContent = "Menu";
 
     setTimeout(() => {
       this.headerMenu.hidden = true;
@@ -373,7 +373,7 @@ class CursorNav {
     }
 
     const midX = window.innerWidth / 2;
-    this.show(e.clientX < midX ? "previous" : "next");
+    this.show(e.clientX < midX ? "Previous" : "Next");
     this.el.style.transform = `translate(${e.clientX + 12}px, ${e.clientY + 10}px)`;
   }
 
