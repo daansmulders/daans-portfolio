@@ -1,6 +1,6 @@
 ---
 layout: projects
-title: "An interactive video concept"
+title: "Exploring interactive video to scale personal expert advice"
 year: 2024
 company: "Powerly"
 role: "UX / Product Designer"

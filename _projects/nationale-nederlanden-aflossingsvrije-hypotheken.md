@@ -1,6 +1,6 @@
 ---
 layout: projects
-title: "Interest Only Mortgages"
+title: "Preparing the organisation to responsibly support customers with interest-only mortgages"
 year: 2025
 company: "Nationale-Nederlanden"
 role: "UX / Product Designer"

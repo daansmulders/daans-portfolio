@@ -1,6 +1,6 @@
 ---
 layout: projects
-title: "Improvements to the Woningcheck"
+title: "Improving conversion through better advice on sustainable measures"
 year: 2023
 company: "Powerly"
 role: "UX / Product Designer"
