@@ -10,6 +10,7 @@ collections:
 
 include:
   - case-content
+  - prototypes
 
 
 markdown: kramdown

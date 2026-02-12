@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hypotheekversneller</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <script>window.PROTOTYPE_PASSWORD = 'tiwfir-tetkA6-nozroh';</script>
+  <script src="/prototypes/password-protect.js"></script>
+  <script src="app.js"></script>
+  <script src="summary-chart.js"></script>
+  <script src="compare-monthlies.js"></script>
+  <header>
+    <div class="wrap header-wrap">
+      <h1>De Hypotheekversneller</h1>
+      <p class="prop-intro">Door elk jaar het bedrag dat je maandelijks aflost iets te verhogen, kort je de looptijd van je hypotheek in. Hierdoor bespaar je op de rente die je over het hele hypotheekbedrag betaalt. Bekijk welke versneller past bij de ontwikkeling van jouw inkomen en bereken je besparing. </p>
+
+      <!-- Subtiele recap (alleen tonen in stap 2) -->
+      <div class="header-meta" id="headerMeta" hidden>
+        <span class="chip" id="hAmount">Hypotheekbedrag: —</span>
+        <span class="chip" id="hRate">Rente: —</span>
+        <span class="chip" id="hYears">Resterende looptijd: —</span>
+        <span class="spacer"></span>
+        <button id="editLoanHeader" class="btn btn-mini btn-ghost" type="button">Wijzig hypotheekgegevens</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- ===== STAP 1 ===== -->
+    <section id="step1" class="step hero" aria-labelledby="step1-title">
+      <div class="step1-intro">
+      </div>
+      <h2 id="step1-title" class="section-title" >Bereken je besparing</h2>
+      <div class="hero-grid">
+        <div class="field col-4">
+          <label for="loanAmount">Hypotheekbedrag (€)</label>
+          <input id="loanAmount" type="number" inputmode="decimal" min="0" step="1000" value="350000">
+        </div>
+        <div class="field col-4">
+          <label for="loanRate">Rentepercentage (%)</label>
+          <input id="loanRate" type="number" min="0" step="0.1" value="4.0">
+        </div>
+        <div class="field col-4">
+          <label for="loanYears">Resterende looptijd (jaren)</label>
+          <input id="loanYears" type="number" min="5" max="40" step="1" value="30">
+        </div>
+
+        <div class="col-12">
+          <div class="actions">
+            <button id="goToStep2" class="btn btn-primary">Volgende stap: Kies je aanpak</button>
+          </div>
+          <div id="step1Errors" class="errors" role="alert" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== STAP 2 ===== -->
+    <section id="step2" class="step" aria-labelledby="step2-title" hidden>
+<!-- 
+      <section class="strategy" aria-labelledby="strategy-title"> -->
+
+        <!-- Alleen de AAN/UIT-knop blijft -->
+        <section class="strategy" aria-labelledby="strategy-title">
+  <h3 id="strategy-title" class="section-title">Kies je aanpak</h3>
+  <p class="help">
+    Zet de versneller aan, kies hoe je extra wilt aflossen en bekijk je rentebesparing. </p>
+
+  <!-- Toggle AAN/UIT -->
+  <button
+    id="accelerateToggle"
+    class="cta-toggle"
+    aria-pressed="false"
+    type="button"
+    aria-label="Sneller aflossen aanzetten">
+    Sneller aflossen aanzetten
+  </button>
+
+  <!-- Type + sub-opties (zoals eerder), bij UIT: gedimd/inactief -->
+  <div id="strategyControls" class="is-disabled" aria-disabled="true">
+    <!-- Type -->
+    <div class="controls controls-type">
+      <div class="field" style="min-width:260px">
+        <label>Type</label>
+        <div class="seg" id="modeGroup">
+          <button data-mode="amount"  aria-pressed="true">Vast bedrag per jaar</button>
+          <button data-mode="percent" aria-pressed="false">Percentage per jaar</button>
+          <button data-mode="shorten" aria-pressed="false">Looptijdverkorting per jaar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sub-opties (alleen het actieve paneel tonen) -->
+    <div class="controls">
+      <div class="field" id="panel-amount">
+        <label>Verhoging per jaar (vast bedrag)</label>
+        <p class="help">Je maandlast stijgt elk jaar met een vast bedrag – eenvoudig en voorspelbaar.</p>
+        <div class="seg" id="amountGroup">
+          <button class="opt-amount" data-value="5"  aria-pressed="false">+ €5</button>
+          <button class="opt-amount" data-value="10" aria-pressed="true">+ €10</button>
+          <button class="opt-amount" data-value="15" aria-pressed="false">+ €15</button>
+        </div>
+       
+      </div>
+
+      <div class="field" id="panel-percent" hidden>
+        <label>Verhoging per jaar (percentage)</label>
+         <p class="help">Je maandlast stijgt jaarlijks met een percentage - groeit mee met je budget.</p>
+        <div class="seg" id="percentGroup">
+          <button class="opt-percent" data-value="1" aria-pressed="false">+ 1%</button>
+          <button class="opt-percent" data-value="2" aria-pressed="true">+ 2%</button>
+          <button class="opt-percent" data-value="3" aria-pressed="false">+ 3%</button>
+        </div>
+       
+      </div>
+
+      <div class="field" id="panel-shorten" hidden>
+        <label>Looptijdverkorting per jaar</label>
+        <p class="help">Je verkort elk jaar de resterende looptijd, het maandbedrag stijgt daardoor elk jaar een beetje.</p>
+        <div class="seg" id="shortenGroup">
+          <button class="opt-shorten" data-value="1" aria-pressed="false">1 maand</button>
+          <button class="opt-shorten" data-value="2" aria-pressed="true">2 maanden</button>
+          <button class="opt-shorten" data-value="3" aria-pressed="false">3 maanden</button>
+        </div>
+       
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- === Samenvatting besparing (grafiek) === -->
+<section id="summary" class="summary step">
+  <h2 class="section-title">Wat doet de versneller met je hypotheek?</h2>
+  <div id="chartCard" class="card chart-card">
+    <svg id="interestChart" width="100%" height="260" viewBox="0 0 420 260"
+         role="img" aria-labelledby="chartTitle chartDesc" focusable="false">
+      <title id="chartTitle">Totale betaling: aflossing + rente</title>
+      <desc id="chartDesc">
+        Eén verticale balk met onderaan aflossing (hoofdsom) en daarboven rente.
+        Als versnellen aan staat, krimpt het rentedeel en verschijnt de besparing.
+      </desc>
+      <!-- De inhoud (assen, balk, label) wordt door JS opgebouwd -->
+    </svg>
+    <div class="legend">
+      <span class="chip lg principal">Aflossing</span>
+      <span class="chip lg interest">Rente</span>
+      <span class="chip lg saved">Bespaarde rente</span>
+    </div>
+  </div>
+</section>
+
+      <!-- Alleen de tabel blijft -->
+      <h2 class="table-title">Je maandlasten per jaar tijdens de looptijd</h2>
+      <table>
+        <thead>
+          <tr>
+            <th class="year">Jaar</th>
+            <th class="num">Maandlast</th>
+            <th class="num">Verhoging</th>
+            <th class="num">Restschuld (einde jaar)</th>
+          </tr>
+        </thead>
+        <tbody id="scheduleBody"></tbody>
+      </table>
+    </section>
+  </main>
+
+</body>
+</html>
