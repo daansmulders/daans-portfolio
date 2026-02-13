@@ -79,53 +79,17 @@
     Sneller aflossen aanzetten
   </button>
 
-  <!-- Type + sub-opties (zoals eerder), bij UIT: gedimd/inactief -->
+  <!-- Opties, bij UIT: gedimd/inactief -->
   <div id="strategyControls" class="is-disabled" aria-disabled="true">
-    <!-- Type -->
-    <div class="controls controls-type">
-      <div class="field" style="min-width:260px">
-        <label>Type</label>
-        <div class="seg" id="modeGroup">
-          <button data-mode="amount"  aria-pressed="true">Vast bedrag per jaar</button>
-          <button data-mode="percent" aria-pressed="false">Percentage per jaar</button>
-          <button data-mode="shorten" aria-pressed="false">Looptijdverkorting per jaar</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sub-opties (alleen het actieve paneel tonen) -->
     <div class="controls">
-      <div class="field" id="panel-amount">
-        <label>Verhoging per jaar (vast bedrag)</label>
-        <p class="help">Je maandlast stijgt elk jaar met een vast bedrag – eenvoudig en voorspelbaar.</p>
-        <div class="seg" id="amountGroup">
-          <button class="opt-amount" data-value="5"  aria-pressed="false">+ €5</button>
-          <button class="opt-amount" data-value="10" aria-pressed="true">+ €10</button>
-          <button class="opt-amount" data-value="15" aria-pressed="false">+ €15</button>
-        </div>
-       
-      </div>
-
-      <div class="field" id="panel-percent" hidden>
-        <label>Verhoging per jaar (percentage)</label>
-         <p class="help">Je maandlast stijgt jaarlijks met een percentage - groeit mee met je budget.</p>
-        <div class="seg" id="percentGroup">
-          <button class="opt-percent" data-value="1" aria-pressed="false">+ 1%</button>
-          <button class="opt-percent" data-value="2" aria-pressed="true">+ 2%</button>
-          <button class="opt-percent" data-value="3" aria-pressed="false">+ 3%</button>
-        </div>
-       
-      </div>
-
-      <div class="field" id="panel-shorten" hidden>
+      <div class="field" id="panel-shorten">
         <label>Looptijdverkorting per jaar</label>
-        <p class="help">Je verkort elk jaar de resterende looptijd, het maandbedrag stijgt daardoor elk jaar een beetje.</p>
+        <p class="help">Je verkort elk jaar de resterende looptijd, het maandbedrag stijgt daardoor elk jaar een beetje.<br> Kies met hoeveel maanden je elk jaar wil inkorten.</p>
         <div class="seg" id="shortenGroup">
           <button class="opt-shorten" data-value="1" aria-pressed="false">1 maand</button>
           <button class="opt-shorten" data-value="2" aria-pressed="true">2 maanden</button>
           <button class="opt-shorten" data-value="3" aria-pressed="false">3 maanden</button>
         </div>
-       
       </div>
     </div>
   </div>

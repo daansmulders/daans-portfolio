@@ -319,22 +319,11 @@ function getInputs(){
   var rate      = Math.max(0, +($id('loanRate') && $id('loanRate').value) || 4);
   var accelOn   = ($id('accelerateToggle') && $id('accelerateToggle').getAttribute('aria-pressed') === 'true');
 
-  var activeModeBtn = document.querySelector('#modeGroup [data-mode][aria-pressed="true"]');
-  var mode = activeModeBtn && activeModeBtn.getAttribute('data-mode') ? activeModeBtn.getAttribute('data-mode') : 'amount';
-  var param = {};
-  if (mode === 'amount'){
-    var selA = document.querySelector('#amountGroup .opt-amount[aria-pressed="true"]');
-    var vA = selA ? +selA.getAttribute('data-value') : 10; // default +€10
-    param = { stepEUR: vA };
-  } else if (mode === 'percent'){
-    var selP = document.querySelector('#percentGroup .opt-percent[aria-pressed="true"]');
-    var vP = selP ? +selP.getAttribute('data-value') : 2; // default +2%
-    param = { pct: vP/100 };
-  } else if (mode === 'shorten'){
-    var selS = document.querySelector('#shortenGroup .opt-shorten[aria-pressed="true"]');
-    var vS = selS ? +selS.getAttribute('data-value') : 2; // default 2 maanden
-    param = { monthsShorten: vS };
-  }
+  // Only shorten mode is available
+  var mode = 'shorten';
+  var selS = document.querySelector('#shortenGroup .opt-shorten[aria-pressed="true"]');
+  var vS = selS ? +selS.getAttribute('data-value') : 2; // default 2 maanden
+  var param = { monthsShorten: vS };
 
   // Startjaar uit UI
   var startInput = $id('startYear');
@@ -485,34 +474,6 @@ function init(){
       controls.classList.toggle('is-disabled', !enable);
       controls.setAttribute('aria-disabled', String(!enable));
     }
-    render();
-  });
-
-  // Mode wisselen
-  onAll('#modeGroup [data-mode]','click', function(){
-    var all = document.querySelectorAll('#modeGroup [data-mode]');
-    for (var j=0;j<all.length;j++) all[j].setAttribute('aria-pressed','false');
-    this.setAttribute('aria-pressed','true');
-    var mode = this.getAttribute('data-mode');
-    if ($id('panel-amount'))  $id('panel-amount').hidden  = (mode!=='amount');
-    if ($id('panel-percent')) $id('panel-percent').hidden = (mode!=='percent');
-    if ($id('panel-shorten')) $id('panel-shorten').hidden = (mode!=='shorten');
-    render();
-  });
-
-  // Sub-opties — amount
-  onAll('#amountGroup .opt-amount','click', function(){
-    var all = document.querySelectorAll('#amountGroup .opt-amount');
-    for (var j=0;j<all.length;j++) all[j].setAttribute('aria-pressed','false');
-    this.setAttribute('aria-pressed','true');
-    render();
-  });
-
-  // Sub-opties — percent
-  onAll('#percentGroup .opt-percent','click', function(){
-    var all = document.querySelectorAll('#percentGroup .opt-percent');
-    for (var j=0;j<all.length;j++) all[j].setAttribute('aria-pressed','false');
-    this.setAttribute('aria-pressed','true');
     render();
   });
 
