@@ -1,0 +1,184 @@
+// Demo-data seed voor Sliminject
+// Gebruik: npm run seed
+// Vereist: VITE_SUPABASE_URL en SUPABASE_SERVICE_ROLE_KEY in .env
+
+import { createClient } from '@supabase/supabase-js'
+
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+if (!SUPABASE_URL || !SERVICE_KEY) {
+  console.error('Ontbrekende omgevingsvariabelen: VITE_SUPABASE_URL en SUPABASE_SERVICE_ROLE_KEY zijn vereist.')
+  process.exit(1)
+}
+
+const supabase = createClient(SUPABASE_URL, SERVICE_KEY, {
+  auth: { autoRefreshToken: false, persistSession: false },
+})
+
+function daysAgo(n) {
+  const d = new Date()
+  d.setDate(d.getDate() - n)
+  return d
+}
+
+function daysFromNow(n) {
+  const d = new Date()
+  d.setDate(d.getDate() + n)
+  return d
+}
+
+function dateStr(d) {
+  return d.toISOString().split('T')[0]
+}
+
+async function createUser(email, password, role, fullName) {
+  const { data: list } = await supabase.auth.admin.listUsers()
+  const existing = list?.users?.find(u => u.email === email)
+
+  if (existing) {
+    // Bijwerken in plaats van verwijderen — voorkomt email-reserveringsproblemen
+    const { error } = await supabase.auth.admin.updateUserById(existing.id, {
+      password,
+      email_confirm: true,
+      user_metadata: { role, full_name: fullName },
+    })
+    if (error) throw new Error(`Bijwerken ${email} mislukt: ${error.message}`)
+    console.log(`  ✓ ${email}  →  ${fullName} (bijgewerkt)`)
+    return existing.id
+  }
+
+  const { data, error } = await supabase.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: { role, full_name: fullName },
+  })
+  if (error) throw new Error(`Aanmaken ${email} mislukt: ${error.message}`)
+  console.log(`  ✓ ${email}  →  ${fullName}`)
+  return data.user.id
+}
+
+async function run() {
+  console.log('Sliminject demo-data laden...\n')
+
+  // ── Gebruikers ──────────────────────────────────────────────────────────
+  console.log('Gebruikers aanmaken:')
+  const dokterId  = await createUser('dokter@demo.nl',   'demo1234', 'doctor',  'Dr. Fatima el-Amin')
+  const larsId    = await createUser('patient@demo.nl',  'demo1234', 'patient', 'Lars Veenstra')
+  const anoukId   = await createUser('patient2@demo.nl', 'demo1234', 'patient', 'Anouk de Boer')
+  const mohamedId = await createUser('patient3@demo.nl', 'demo1234', 'patient', 'Mohamed Bouazza')
+
+  // ── Dokterrecord ─────────────────────────────────────────────────────────
+  const { error: eDokter } = await supabase.from('doctors').upsert({ id: dokterId })
+  if (eDokter) throw new Error(`Dokterrecord: ${eDokter.message}`)
+
+  // ── Patiëntrecords ───────────────────────────────────────────────────────
+  const { error: ePatienten } = await supabase.from('patients').upsert([
+    { id: larsId,    doctor_id: dokterId, treatment_start_date: dateStr(daysAgo(56)), current_dosage_mg: 0.5 },
+    { id: anoukId,   doctor_id: dokterId, treatment_start_date: dateStr(daysAgo(28)), current_dosage_mg: 0.25 },
+    { id: mohamedId, doctor_id: dokterId, treatment_start_date: dateStr(daysAgo(14)), current_dosage_mg: 0.25 },
+  ])
+  if (ePatienten) throw new Error(`Patiëntrecords: ${ePatienten.message}`)
+  console.log('\n✓ Dokter- en patiëntrecords aangemaakt')
+
+  // ── Bestaande data opruimen (idempotent) ─────────────────────────────────
+  await supabase.from('progress_entries').delete().in('patient_id', [larsId, anoukId, mohamedId])
+  await supabase.from('dosage_schedule_entries').delete().in('patient_id', [larsId, anoukId, mohamedId])
+  await supabase.from('advice').delete().in('patient_id', [larsId, anoukId, mohamedId])
+  await supabase.from('concerns').delete().in('patient_id', [larsId, anoukId, mohamedId])
+  await supabase.from('appointments').delete().in('patient_id', [larsId, anoukId, mohamedId])
+
+  // ── Voortgangsmetingen ───────────────────────────────────────────────────
+  const { error: eLars } = await supabase.from('progress_entries').insert([
+    { patient_id: larsId, logged_at: daysAgo(56).toISOString(), weight_kg: 98.2, wellbeing_score: 2, symptoms: ['Misselijkheid', 'Vermoeidheid'], notes: 'Eerste week, nogal zwaar.' },
+    { patient_id: larsId, logged_at: daysAgo(49).toISOString(), weight_kg: 97.5, wellbeing_score: 2, symptoms: ['Misselijkheid'], notes: null },
+    { patient_id: larsId, logged_at: daysAgo(42).toISOString(), weight_kg: 97.0, wellbeing_score: 3, symptoms: ['Vermoeidheid'], notes: null },
+    { patient_id: larsId, logged_at: daysAgo(35).toISOString(), weight_kg: 96.3, wellbeing_score: 3, symptoms: [], notes: 'Misselijkheid bijna weg.' },
+    { patient_id: larsId, logged_at: daysAgo(28).toISOString(), weight_kg: 95.8, wellbeing_score: 4, symptoms: [], notes: null },
+    { patient_id: larsId, logged_at: daysAgo(21).toISOString(), weight_kg: 95.1, wellbeing_score: 4, symptoms: [], notes: 'Dosering verhoogd naar 0,5 mg.' },
+    { patient_id: larsId, logged_at: daysAgo(14).toISOString(), weight_kg: 94.6, wellbeing_score: 3, symptoms: ['Misselijkheid'], notes: null },
+    { patient_id: larsId, logged_at: daysAgo(7).toISOString(),  weight_kg: 94.0, wellbeing_score: 4, symptoms: [], notes: null },
+  ])
+  if (eLars) throw new Error(`Metingen Lars: ${eLars.message}`)
+
+  const { error: eAnouk } = await supabase.from('progress_entries').insert([
+    { patient_id: anoukId, logged_at: daysAgo(28).toISOString(), weight_kg: 82.0, wellbeing_score: 2, symptoms: ['Misselijkheid', 'Hoofdpijn'], notes: null },
+    { patient_id: anoukId, logged_at: daysAgo(21).toISOString(), weight_kg: 81.4, wellbeing_score: 3, symptoms: ['Misselijkheid'], notes: null },
+    { patient_id: anoukId, logged_at: daysAgo(14).toISOString(), weight_kg: 81.0, wellbeing_score: 3, symptoms: [], notes: null },
+    { patient_id: anoukId, logged_at: daysAgo(7).toISOString(),  weight_kg: 80.5, wellbeing_score: 4, symptoms: [], notes: null },
+  ])
+  if (eAnouk) throw new Error(`Metingen Anouk: ${eAnouk.message}`)
+
+  const { error: eMohamed } = await supabase.from('progress_entries').insert([
+    { patient_id: mohamedId, logged_at: daysAgo(14).toISOString(), weight_kg: 104.0, wellbeing_score: 3, symptoms: ['Vermoeidheid'], notes: null },
+    { patient_id: mohamedId, logged_at: daysAgo(7).toISOString(),  weight_kg: 103.5, wellbeing_score: 3, symptoms: [], notes: null },
+  ])
+  if (eMohamed) throw new Error(`Metingen Mohamed: ${eMohamed.message}`)
+  console.log('✓ Voortgangsmetingen aangemaakt (Lars: 8, Anouk: 4, Mohamed: 2)')
+
+  // ── Medicatieschema ──────────────────────────────────────────────────────
+  const { error: eSchema } = await supabase.from('dosage_schedule_entries').insert([
+    { patient_id: larsId, dose_mg: 0.25, start_date: dateStr(daysAgo(56)), created_by_doctor_id: dokterId, notes: 'Startdosering' },
+    { patient_id: larsId, dose_mg: 0.5,  start_date: dateStr(daysAgo(28)), created_by_doctor_id: dokterId, notes: null },
+    { patient_id: larsId, dose_mg: 1.0,  start_date: dateStr(daysFromNow(14)), created_by_doctor_id: dokterId, notes: 'Verhoging na goed herstel' },
+    { patient_id: anoukId, dose_mg: 0.25, start_date: dateStr(daysAgo(28)), created_by_doctor_id: dokterId, notes: null },
+    { patient_id: mohamedId, dose_mg: 0.25, start_date: dateStr(daysAgo(14)), created_by_doctor_id: dokterId, notes: null },
+  ])
+  if (eSchema) throw new Error(`Medicatieschema: ${eSchema.message}`)
+  console.log('✓ Medicatieschema aangemaakt')
+
+  // ── Advies ───────────────────────────────────────────────────────────────
+  const { error: eAdvies } = await supabase.from('advice').insert({
+    patient_id: larsId,
+    doctor_id: dokterId,
+    body: 'Lars, je doet het goed. Probeer je maaltijden klein te houden rondom de dosisverhoging volgende maand. Neem contact op als de misselijkheid terugkomt.',
+  })
+  if (eAdvies) throw new Error(`Advies: ${eAdvies.message}`)
+  console.log('✓ Persoonlijk advies aangemaakt')
+
+  // ── Meldingen ────────────────────────────────────────────────────────────
+  const { error: eMeldingen } = await supabase.from('concerns').insert([
+    {
+      patient_id: larsId,
+      submitted_at: daysAgo(10).toISOString(),
+      severity: 'routine',
+      description: 'Ik merk dat ik de laatste dagen meer misselijkheid voel na het eten, ook bij kleine porties.',
+      status: 'reviewed',
+      doctor_response: 'Dit is normaal na de dosisverhoging. Probeer vloeibaar voedsel de eerste week. Als het na 10 dagen niet verbetert, neem dan contact op.',
+      responded_at: daysAgo(9).toISOString(),
+    },
+    {
+      patient_id: anoukId,
+      submitted_at: daysAgo(3).toISOString(),
+      severity: 'urgent',
+      description: 'Ik heb de afgelopen 2 dagen erge hoofdpijn die niet overgaat met paracetamol.',
+      status: 'open',
+    },
+  ])
+  if (eMeldingen) throw new Error(`Meldingen: ${eMeldingen.message}`)
+  console.log('✓ Meldingen aangemaakt (1 beantwoord, 1 open)')
+
+  // ── Afspraak ─────────────────────────────────────────────────────────────
+  const { error: eAfspraak } = await supabase.from('appointments').insert({
+    patient_id: larsId,
+    doctor_id: dokterId,
+    scheduled_at: daysFromNow(12).toISOString(),
+    notes: 'Controle voor dosisverhoging naar 1,0 mg',
+  })
+  if (eAfspraak) throw new Error(`Afspraak: ${eAfspraak.message}`)
+  console.log('✓ Afspraak aangemaakt (Lars, over 12 dagen)')
+
+  // ── Klaar ────────────────────────────────────────────────────────────────
+  console.log('\n✅ Demo-data geladen!\n')
+  console.log('Demo-accounts:')
+  console.log('  dokter@demo.nl    /  demo1234  →  Dr. Fatima el-Amin (dokter)')
+  console.log('  patient@demo.nl   /  demo1234  →  Lars Veenstra       (patiënt)')
+  console.log('  patient2@demo.nl  /  demo1234  →  Anouk de Boer       (patiënt, open melding)')
+  console.log('  patient3@demo.nl  /  demo1234  →  Mohamed Bouazza     (patiënt)')
+}
+
+run().catch(err => {
+  console.error('\n❌ Seed mislukt:', err.message)
+  process.exit(1)
+})
