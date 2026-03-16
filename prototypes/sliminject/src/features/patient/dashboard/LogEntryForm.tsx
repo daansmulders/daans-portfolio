@@ -14,14 +14,15 @@ const SYMPTOMEN = [
 ]
 
 export function LogEntryForm() {
-  const { addEntry } = useProgressEntries()
+  const { addEntry, entries } = useProgressEntries()
   const navigate = useNavigate()
   const [gewicht, setGewicht] = useState('')
-  const [welzijn, setWelzijn] = useState<number>(3)
+  const [honger, setHonger] = useState<number>(3)
   const [symptomen, setSymptomen] = useState<string[]>([])
   const [notities, setNotities] = useState('')
   const [loading, setLoading] = useState(false)
-  const [succes, setSucces] = useState<'online' | 'offline' | null>(null)
+  const [succes, setSucces] = useState<'online' | 'offline' | 'mijlpaal' | null>(null)
+  const [mijlpaalWeek, setMijlpaalWeek] = useState<number | null>(null)
 
   function toggleSymptoom(s: string) {
     setSymptomen(prev =>
@@ -34,16 +35,32 @@ export function LogEntryForm() {
     setLoading(true)
     const { offline } = await addEntry({
       weight_kg: gewicht ? parseFloat(gewicht) : null,
-      wellbeing_score: welzijn,
+      hunger_score: honger,
       symptoms: symptomen,
       notes: notities || null,
     })
+
+    // Mijlpaal berekenen: is dit een veelvoud van 7 dagen sinds de eerste meting?
+    const allEntries = entries
+    if (allEntries.length > 0) {
+      const first = new Date(allEntries[allEntries.length - 1].logged_at)
+      const daysSince = Math.floor((Date.now() - first.getTime()) / (1000 * 60 * 60 * 24))
+      const week = Math.floor(daysSince / 7)
+      if (week > 0 && daysSince % 7 < 2) {
+        setMijlpaalWeek(week)
+        setSucces('mijlpaal')
+        setLoading(false)
+        setTimeout(() => navigate('/patient/dashboard'), 3000)
+        return
+      }
+    }
+
     setSucces(offline ? 'offline' : 'online')
     setLoading(false)
     setTimeout(() => navigate('/patient/dashboard'), 1200)
   }
 
-  const welzijnLabels = [nl.log_welzijn_1, nl.log_welzijn_2, nl.log_welzijn_3, nl.log_welzijn_4, nl.log_welzijn_5]
+  const hongerLabels = [nl.log_honger_1, nl.log_honger_2, nl.log_honger_3, nl.log_honger_4, nl.log_honger_5]
 
   return (
     <main className="max-w-lg mx-auto px-4 py-8">
@@ -74,21 +91,21 @@ export function LogEntryForm() {
           />
         </div>
 
-        {/* Welzijn */}
+        {/* Hongergevoel */}
         <fieldset>
           <legend className="block text-sm font-medium text-gray-700 mb-2">
-            {nl.log_welzijn} <span aria-hidden="true">*</span>
+            {nl.log_honger} <span aria-hidden="true">*</span>
           </legend>
-          <div className="flex gap-2" role="group" aria-label={nl.log_welzijn}>
+          <div className="flex gap-2" role="group" aria-label={nl.log_honger}>
             {[1, 2, 3, 4, 5].map(score => (
               <button
                 key={score}
                 type="button"
-                aria-label={welzijnLabels[score - 1]}
-                aria-pressed={welzijn === score}
-                onClick={() => setWelzijn(score)}
+                aria-label={hongerLabels[score - 1]}
+                aria-pressed={honger === score}
+                onClick={() => setHonger(score)}
                 className={`flex-1 py-3 rounded-lg text-sm font-medium border transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  welzijn === score
+                  honger === score
                     ? 'bg-blue-600 text-white border-blue-600'
                     : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
                 }`}
@@ -97,7 +114,7 @@ export function LogEntryForm() {
               </button>
             ))}
           </div>
-          <p className="mt-1 text-xs text-gray-500">{welzijnLabels[welzijn - 1]}</p>
+          <p className="mt-1 text-xs text-gray-500">{hongerLabels[honger - 1]}</p>
         </fieldset>
 
         {/* Symptomen */}
@@ -136,7 +153,16 @@ export function LogEntryForm() {
           />
         </div>
 
-        {succes && (
+        {succes === 'mijlpaal' && mijlpaalWeek && (
+          <div role="status" className="text-center bg-green-50 border border-green-200 rounded-xl px-4 py-5">
+            <p className="text-2xl mb-1">🎉</p>
+            <p className="text-base font-semibold text-green-800">
+              {nl.log_mijlpaal.replace('{n}', String(mijlpaalWeek))}
+            </p>
+            <p className="text-sm text-green-700 mt-1">{nl.log_mijlpaal_subtitel}</p>
+          </div>
+        )}
+        {(succes === 'online' || succes === 'offline') && (
           <p role="status" className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
             {succes === 'offline' ? nl.offline_opgeslagen : nl.log_succes}
           </p>

@@ -5,7 +5,8 @@ export interface OfflineProgressEntry {
   patient_id: string
   logged_at: string
   weight_kg: number | null
-  wellbeing_score: number
+  wellbeing_score: number | null
+  hunger_score: number | null
   symptoms: string[]
   notes: string | null
   synced: boolean
@@ -17,6 +18,9 @@ class SliminjectDB extends Dexie {
   constructor() {
     super('sliminject')
     this.version(1).stores({
+      offline_progress_entries: 'id, patient_id, synced, logged_at',
+    })
+    this.version(2).stores({
       offline_progress_entries: 'id, patient_id, synced, logged_at',
     })
   }

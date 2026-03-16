@@ -9,6 +9,8 @@ export interface PatientSummary {
   current_dosage_mg: number
   last_entry_at: string | null
   open_concerns: number
+  days_since_entry: number | null
+  needs_attention: boolean
 }
 
 export function usePatients() {
@@ -45,6 +47,11 @@ export function usePatients() {
         : null
       const openConcerns = (p.concerns ?? []).filter((c: any) => c.status === 'open').length
 
+      const daysSince = lastEntry
+        ? Math.floor((Date.now() - new Date(lastEntry).getTime()) / (1000 * 60 * 60 * 24))
+        : null
+      const needsAttention = openConcerns > 0 || daysSince === null || daysSince >= 14
+
       return {
         id: p.id,
         full_name: p.profiles.full_name,
@@ -52,11 +59,18 @@ export function usePatients() {
         current_dosage_mg: p.current_dosage_mg,
         last_entry_at: lastEntry,
         open_concerns: openConcerns,
+        days_since_entry: daysSince,
+        needs_attention: needsAttention,
       }
     })
 
-    // Patiënten met open meldingen eerst
-    summaries.sort((a, b) => b.open_concerns - a.open_concerns)
+    // Urgente meldingen eerst, dan inactief
+    summaries.sort((a, b) => {
+      if (b.open_concerns !== a.open_concerns) return b.open_concerns - a.open_concerns
+      const aDays = a.days_since_entry ?? 9999
+      const bDays = b.days_since_entry ?? 9999
+      return bDays - aDays
+    })
     setPatients(summaries)
     setLoading(false)
   }, [user])

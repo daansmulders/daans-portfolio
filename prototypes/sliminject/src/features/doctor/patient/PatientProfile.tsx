@@ -1,23 +1,41 @@
 import { useParams, Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { useProgressEntries } from '../../patient/dashboard/useProgressEntries'
 import { ProgressChart } from '../../patient/dashboard/ProgressChart'
 import { ConcernInbox } from './ConcernInbox'
 import { AdviceEditor } from './AdviceEditor'
 import { useDosageSchedule } from '../schedule/useDosageSchedule'
+import { MedicationTimeline } from '../../patient/medication/MedicationTimeline'
+import { supabase } from '../../../lib/supabase'
 import { nl } from '../../../i18n/nl'
 
 export function PatientProfile() {
   const { id: patientId } = useParams<{ id: string }>()
+  const [profile, setProfile] = useState<{ full_name: string; phone: string | null } | null>(null)
+
+  useEffect(() => {
+    if (!patientId) return
+    supabase
+      .from('profiles')
+      .select('full_name, phone')
+      .eq('id', patientId)
+      .single()
+      .then(({ data }) => setProfile(data))
+  }, [patientId])
   const { entries, loading: entriesLoading } = useProgressEntries(patientId)
   const { entries: schedule } = useDosageSchedule(patientId!)
-
-  const currentDose = schedule
-    .filter(e => new Date(e.start_date) <= new Date())
-    .sort((a, b) => b.start_date.localeCompare(a.start_date))[0]
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-8 space-y-8">
       <Link to="/dokter/overzicht" className="text-sm text-blue-600 hover:underline">← {nl.nav_patienten}</Link>
+
+      {/* Patiëntinformatie */}
+      <div className="bg-white border border-gray-200 rounded-xl px-5 py-4">
+        <h1 className="text-xl font-semibold text-gray-900">{profile?.full_name ?? nl.laden}</h1>
+        <p className="text-sm text-gray-500 mt-1">
+          {nl.dokter_profiel_telefoon}: {profile?.phone ?? nl.dokter_profiel_geen_telefoon}
+        </p>
+      </div>
 
       {/* Voortgang */}
       <section>
@@ -42,18 +60,7 @@ export function PatientProfile() {
             {nl.dokter_profiel_bewerken}
           </Link>
         </div>
-        {schedule.length === 0 ? (
-          <p className="text-sm text-gray-500">{nl.dokter_profiel_geen_schema}</p>
-        ) : (
-          <div className="bg-white border border-gray-200 rounded-xl px-4 py-3">
-            {currentDose && (
-              <p className="text-sm text-gray-700">
-                Huidige dosering: <strong>{currentDose.dose_mg} mg</strong>
-              </p>
-            )}
-            <p className="text-sm text-gray-500 mt-1">{schedule.length} stappen in schema</p>
-          </div>
-        )}
+        <MedicationTimeline entries={schedule} />
       </section>
 
       {/* Advies */}

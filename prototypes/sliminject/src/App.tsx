@@ -11,12 +11,15 @@ import { LogEntryForm } from './features/patient/dashboard/LogEntryForm'
 import { MedicationScreen } from './features/patient/medication/MedicationScreen'
 import { ConcernScreen } from './features/patient/concerns/ConcernScreen'
 import { ContentScreen } from './features/patient/content/ContentScreen'
+import { OnboardingScreen } from './features/patient/onboarding/OnboardingScreen'
 
 // Dokter schermen
 import { DoctorOverview } from './features/doctor/overview/DoctorOverview'
 import { PatientProfile } from './features/doctor/patient/PatientProfile'
 import { ScheduleEditor } from './features/doctor/schedule/ScheduleEditor'
 import { AppointmentForm } from './features/doctor/appointments/AppointmentForm'
+import { PatientIntakeForm } from './features/doctor/intake/PatientIntakeForm'
+import { PrescriptionOverview } from './features/doctor/prescriptions/PrescriptionOverview'
 
 import './index.css'
 
@@ -49,6 +52,9 @@ function AppRoutes() {
         <Route path="/patient/inhoud" element={
           <ProtectedRoute requiredRole="patient"><ContentScreen /></ProtectedRoute>
         } />
+        <Route path="/patient/onboarding" element={
+          <ProtectedRoute requiredRole="patient"><OnboardingScreen /></ProtectedRoute>
+        } />
 
         {/* Dokter */}
         <Route path="/dokter/overzicht" element={
@@ -62,6 +68,12 @@ function AppRoutes() {
         } />
         <Route path="/dokter/patient/:id/afspraak" element={
           <ProtectedRoute requiredRole="doctor"><AppointmentForm /></ProtectedRoute>
+        } />
+        <Route path="/dokter/intake" element={
+          <ProtectedRoute requiredRole="doctor"><PatientIntakeForm /></ProtectedRoute>
+        } />
+        <Route path="/dokter/recepten" element={
+          <ProtectedRoute requiredRole="doctor"><PrescriptionOverview /></ProtectedRoute>
         } />
 
         {/* Fallback */}

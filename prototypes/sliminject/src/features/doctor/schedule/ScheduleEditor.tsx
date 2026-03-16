@@ -5,9 +5,10 @@ import { nl } from '../../../i18n/nl'
 
 export function ScheduleEditor() {
   const { id: patientId } = useParams<{ id: string }>()
-  const { entries, loading, addEntry, removeEntry } = useDosageSchedule(patientId!)
+  const { entries, drugTypes, loading, addEntry, removeEntry } = useDosageSchedule(patientId!)
   const [dose, setDose] = useState('')
   const [date, setDate] = useState('')
+  const [drugTypeId, setDrugTypeId] = useState('')
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -15,8 +16,8 @@ export function ScheduleEditor() {
     if (!dose || !date) return
     setSaving(true)
     try {
-      await addEntry(parseFloat(dose), date, notes || undefined)
-      setDose(''); setDate(''); setNotes('')
+      await addEntry(parseFloat(dose), date, drugTypeId || undefined, notes || undefined)
+      setDose(''); setDate(''); setDrugTypeId(''); setNotes('')
     } finally {
       setSaving(false)
     }
@@ -36,6 +37,11 @@ export function ScheduleEditor() {
             <li key={e.id} className="flex items-center justify-between bg-white border border-gray-200 rounded-xl px-4 py-3">
               <div>
                 <span className="font-medium text-gray-900">{e.dose_mg} mg</span>
+                {e.drug_type_name && (
+                  <span className="ml-2 text-xs font-medium bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">
+                    {e.drug_type_name}
+                  </span>
+                )}
                 <span className="text-sm text-gray-500 ml-3">
                   {new Date(e.start_date).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}
                 </span>
@@ -72,6 +78,20 @@ export function ScheduleEditor() {
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
+        </div>
+        <div>
+          <label htmlFor="drug-type" className="block text-xs text-gray-500 mb-1">{nl.schema_medicijn}</label>
+          <select
+            id="drug-type"
+            value={drugTypeId}
+            onChange={e => setDrugTypeId(e.target.value)}
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          >
+            <option value="">{nl.schema_medicijn_kies}</option>
+            {drugTypes.map(d => (
+              <option key={d.id} value={d.id}>{d.name}</option>
+            ))}
+          </select>
         </div>
         <div>
           <label htmlFor="schema-notes" className="block text-xs text-gray-500 mb-1">{nl.schema_notitie}</label>

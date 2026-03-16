@@ -59,8 +59,37 @@ async function createUser(email, password, role, fullName) {
   return data.user.id
 }
 
+async function upsertPharmacies() {
+  const pharmacies = [
+    { name: 'Apotheek De Linde', address: 'Hoofdstraat 12', city: 'Amsterdam', phone: '020-1234567' },
+    { name: 'Pharma Utrecht Centrum', address: 'Lange Viestraat 8', city: 'Utrecht', phone: '030-7654321' },
+    { name: 'Apotheek Zeeburg', address: 'Insulindeweg 45', city: 'Amsterdam', phone: '020-9876543' },
+  ]
+  const result = []
+  for (const p of pharmacies) {
+    const { data: existing } = await supabase
+      .from('pharmacies').select('id, name').eq('name', p.name).maybeSingle()
+    if (existing) {
+      console.log(`  ✓ ${existing.name} (bestaand)`)
+      result.push(existing)
+    } else {
+      const { data, error } = await supabase
+        .from('pharmacies').insert(p).select('id, name').single()
+      if (error) throw new Error(`Apotheek ${p.name}: ${error.message}`)
+      console.log(`  ✓ ${data.name}`)
+      result.push(data)
+    }
+  }
+  return result
+}
+
 async function run() {
   console.log('Sliminject demo-data laden...\n')
+
+  // ── Apotheken ────────────────────────────────────────────────────────────
+  console.log('Apotheken aanmaken:')
+  const [lindePharma, utrechtPharma, zeeburgPharma] = await upsertPharmacies()
+  console.log()
 
   // ── Gebruikers ──────────────────────────────────────────────────────────
   console.log('Gebruikers aanmaken:')
@@ -68,6 +97,13 @@ async function run() {
   const larsId    = await createUser('patient@demo.nl',  'demo1234', 'patient', 'Lars Veenstra')
   const anoukId   = await createUser('patient2@demo.nl', 'demo1234', 'patient', 'Anouk de Boer')
   const mohamedId = await createUser('patient3@demo.nl', 'demo1234', 'patient', 'Mohamed Bouazza')
+  const nieuwId   = await createUser('nieuw@demo.nl',    'demo1234', 'patient', 'Sara Dijkstra')
+
+  // Telefoonnummers instellen
+  await supabase.from('profiles').update({ phone: '06-12345678' }).eq('id', larsId)
+  await supabase.from('profiles').update({ phone: '06-23456789' }).eq('id', anoukId)
+  await supabase.from('profiles').update({ phone: '06-34567890' }).eq('id', mohamedId)
+  await supabase.from('profiles').update({ phone: '06-45678901' }).eq('id', nieuwId)
 
   // ── Dokterrecord ─────────────────────────────────────────────────────────
   const { error: eDokter } = await supabase.from('doctors').upsert({ id: dokterId })
@@ -75,55 +111,59 @@ async function run() {
 
   // ── Patiëntrecords ───────────────────────────────────────────────────────
   const { error: ePatienten } = await supabase.from('patients').upsert([
-    { id: larsId,    doctor_id: dokterId, treatment_start_date: dateStr(daysAgo(56)), current_dosage_mg: 0.5 },
-    { id: anoukId,   doctor_id: dokterId, treatment_start_date: dateStr(daysAgo(28)), current_dosage_mg: 0.25 },
-    { id: mohamedId, doctor_id: dokterId, treatment_start_date: dateStr(daysAgo(14)), current_dosage_mg: 0.25 },
+    { id: larsId,    doctor_id: dokterId, treatment_start_date: dateStr(daysAgo(56)), current_dosage_mg: 0.5,  pharmacy_id: lindePharma.id },
+    { id: anoukId,   doctor_id: dokterId, treatment_start_date: dateStr(daysAgo(28)), current_dosage_mg: 0.25, pharmacy_id: utrechtPharma.id },
+    { id: mohamedId, doctor_id: dokterId, treatment_start_date: dateStr(daysAgo(14)), current_dosage_mg: 0.25, pharmacy_id: zeeburgPharma.id },
+    { id: nieuwId,   doctor_id: dokterId, treatment_start_date: dateStr(new Date()),  current_dosage_mg: 0.25, pharmacy_id: lindePharma.id },
   ])
   if (ePatienten) throw new Error(`Patiëntrecords: ${ePatienten.message}`)
   console.log('\n✓ Dokter- en patiëntrecords aangemaakt')
 
   // ── Bestaande data opruimen (idempotent) ─────────────────────────────────
-  await supabase.from('progress_entries').delete().in('patient_id', [larsId, anoukId, mohamedId])
-  await supabase.from('dosage_schedule_entries').delete().in('patient_id', [larsId, anoukId, mohamedId])
-  await supabase.from('advice').delete().in('patient_id', [larsId, anoukId, mohamedId])
-  await supabase.from('concerns').delete().in('patient_id', [larsId, anoukId, mohamedId])
-  await supabase.from('appointments').delete().in('patient_id', [larsId, anoukId, mohamedId])
+  const allIds = [larsId, anoukId, mohamedId, nieuwId]
+  await supabase.from('progress_entries').delete().in('patient_id', allIds)
+  await supabase.from('dosage_schedule_entries').delete().in('patient_id', allIds)
+  await supabase.from('advice').delete().in('patient_id', allIds)
+  await supabase.from('concerns').delete().in('patient_id', allIds)
+  await supabase.from('appointments').delete().in('patient_id', allIds)
 
   // ── Voortgangsmetingen ───────────────────────────────────────────────────
   const { error: eLars } = await supabase.from('progress_entries').insert([
-    { patient_id: larsId, logged_at: daysAgo(56).toISOString(), weight_kg: 98.2, wellbeing_score: 2, symptoms: ['Misselijkheid', 'Vermoeidheid'], notes: 'Eerste week, nogal zwaar.' },
-    { patient_id: larsId, logged_at: daysAgo(49).toISOString(), weight_kg: 97.5, wellbeing_score: 2, symptoms: ['Misselijkheid'], notes: null },
-    { patient_id: larsId, logged_at: daysAgo(42).toISOString(), weight_kg: 97.0, wellbeing_score: 3, symptoms: ['Vermoeidheid'], notes: null },
-    { patient_id: larsId, logged_at: daysAgo(35).toISOString(), weight_kg: 96.3, wellbeing_score: 3, symptoms: [], notes: 'Misselijkheid bijna weg.' },
-    { patient_id: larsId, logged_at: daysAgo(28).toISOString(), weight_kg: 95.8, wellbeing_score: 4, symptoms: [], notes: null },
-    { patient_id: larsId, logged_at: daysAgo(21).toISOString(), weight_kg: 95.1, wellbeing_score: 4, symptoms: [], notes: 'Dosering verhoogd naar 0,5 mg.' },
-    { patient_id: larsId, logged_at: daysAgo(14).toISOString(), weight_kg: 94.6, wellbeing_score: 3, symptoms: ['Misselijkheid'], notes: null },
-    { patient_id: larsId, logged_at: daysAgo(7).toISOString(),  weight_kg: 94.0, wellbeing_score: 4, symptoms: [], notes: null },
+    { patient_id: larsId, logged_at: daysAgo(56).toISOString(), weight_kg: 98.2, hunger_score: 4, symptoms: ['Misselijkheid', 'Vermoeidheid'], notes: 'Eerste week, nogal zwaar.' },
+    { patient_id: larsId, logged_at: daysAgo(49).toISOString(), weight_kg: 97.5, hunger_score: 4, symptoms: ['Misselijkheid'], notes: null },
+    { patient_id: larsId, logged_at: daysAgo(42).toISOString(), weight_kg: 97.0, hunger_score: 3, symptoms: ['Vermoeidheid'], notes: null },
+    { patient_id: larsId, logged_at: daysAgo(35).toISOString(), weight_kg: 96.3, hunger_score: 3, symptoms: [], notes: 'Misselijkheid bijna weg.' },
+    { patient_id: larsId, logged_at: daysAgo(28).toISOString(), weight_kg: 95.8, hunger_score: 2, symptoms: [], notes: null },
+    { patient_id: larsId, logged_at: daysAgo(21).toISOString(), weight_kg: 95.1, hunger_score: 2, symptoms: [], notes: 'Dosering verhoogd naar 0,5 mg.' },
+    { patient_id: larsId, logged_at: daysAgo(14).toISOString(), weight_kg: 94.6, hunger_score: 3, symptoms: ['Misselijkheid'], notes: null },
+    { patient_id: larsId, logged_at: daysAgo(7).toISOString(),  weight_kg: 94.0, hunger_score: 2, symptoms: [], notes: null },
   ])
   if (eLars) throw new Error(`Metingen Lars: ${eLars.message}`)
 
   const { error: eAnouk } = await supabase.from('progress_entries').insert([
-    { patient_id: anoukId, logged_at: daysAgo(28).toISOString(), weight_kg: 82.0, wellbeing_score: 2, symptoms: ['Misselijkheid', 'Hoofdpijn'], notes: null },
-    { patient_id: anoukId, logged_at: daysAgo(21).toISOString(), weight_kg: 81.4, wellbeing_score: 3, symptoms: ['Misselijkheid'], notes: null },
-    { patient_id: anoukId, logged_at: daysAgo(14).toISOString(), weight_kg: 81.0, wellbeing_score: 3, symptoms: [], notes: null },
-    { patient_id: anoukId, logged_at: daysAgo(7).toISOString(),  weight_kg: 80.5, wellbeing_score: 4, symptoms: [], notes: null },
+    { patient_id: anoukId, logged_at: daysAgo(28).toISOString(), weight_kg: 82.0, hunger_score: 4, symptoms: ['Misselijkheid', 'Hoofdpijn'], notes: null },
+    { patient_id: anoukId, logged_at: daysAgo(21).toISOString(), weight_kg: 81.4, hunger_score: 3, symptoms: ['Misselijkheid'], notes: null },
+    { patient_id: anoukId, logged_at: daysAgo(14).toISOString(), weight_kg: 81.0, hunger_score: 3, symptoms: [], notes: null },
+    { patient_id: anoukId, logged_at: daysAgo(7).toISOString(),  weight_kg: 80.5, hunger_score: 2, symptoms: [], notes: null },
   ])
   if (eAnouk) throw new Error(`Metingen Anouk: ${eAnouk.message}`)
 
   const { error: eMohamed } = await supabase.from('progress_entries').insert([
-    { patient_id: mohamedId, logged_at: daysAgo(14).toISOString(), weight_kg: 104.0, wellbeing_score: 3, symptoms: ['Vermoeidheid'], notes: null },
-    { patient_id: mohamedId, logged_at: daysAgo(7).toISOString(),  weight_kg: 103.5, wellbeing_score: 3, symptoms: [], notes: null },
+    { patient_id: mohamedId, logged_at: daysAgo(14).toISOString(), weight_kg: 104.0, hunger_score: 3, symptoms: ['Vermoeidheid'], notes: null },
+    { patient_id: mohamedId, logged_at: daysAgo(7).toISOString(),  weight_kg: 103.5, hunger_score: 3, symptoms: [], notes: null },
   ])
   if (eMohamed) throw new Error(`Metingen Mohamed: ${eMohamed.message}`)
   console.log('✓ Voortgangsmetingen aangemaakt (Lars: 8, Anouk: 4, Mohamed: 2)')
 
   // ── Medicatieschema ──────────────────────────────────────────────────────
   const { error: eSchema } = await supabase.from('dosage_schedule_entries').insert([
-    { patient_id: larsId, dose_mg: 0.25, start_date: dateStr(daysAgo(56)), created_by_doctor_id: dokterId, notes: 'Startdosering' },
-    { patient_id: larsId, dose_mg: 0.5,  start_date: dateStr(daysAgo(28)), created_by_doctor_id: dokterId, notes: null },
-    { patient_id: larsId, dose_mg: 1.0,  start_date: dateStr(daysFromNow(14)), created_by_doctor_id: dokterId, notes: 'Verhoging na goed herstel' },
-    { patient_id: anoukId, dose_mg: 0.25, start_date: dateStr(daysAgo(28)), created_by_doctor_id: dokterId, notes: null },
-    { patient_id: mohamedId, dose_mg: 0.25, start_date: dateStr(daysAgo(14)), created_by_doctor_id: dokterId, notes: null },
+    { patient_id: larsId, dose_mg: 0.25, start_date: dateStr(daysAgo(56)), created_by_doctor_id: dokterId, drug_type_id: 'ozempic', notes: 'Startdosering', status: 'approved' },
+    { patient_id: larsId, dose_mg: 0.5,  start_date: dateStr(daysAgo(28)), created_by_doctor_id: dokterId, drug_type_id: 'ozempic', notes: null, status: 'approved' },
+    { patient_id: larsId, dose_mg: 1.0,  start_date: dateStr(daysFromNow(14)), created_by_doctor_id: dokterId, drug_type_id: 'ozempic', notes: 'Verhoging na goed herstel', status: 'draft' },
+    { patient_id: anoukId,   dose_mg: 0.25, start_date: dateStr(daysAgo(28)), created_by_doctor_id: dokterId, drug_type_id: 'wegovy',   notes: null, status: 'approved' },
+    { patient_id: mohamedId, dose_mg: 0.25, start_date: dateStr(daysAgo(14)), created_by_doctor_id: dokterId, drug_type_id: 'mounjaro', notes: null, status: 'approved' },
+    { patient_id: nieuwId,   dose_mg: 0.25, start_date: dateStr(new Date()),  created_by_doctor_id: dokterId, drug_type_id: 'ozempic',  notes: 'Startdosering', status: 'approved' },
+    { patient_id: nieuwId,   dose_mg: 0.5,  start_date: dateStr(daysFromNow(28)), created_by_doctor_id: dokterId, drug_type_id: 'ozempic', notes: null, status: 'draft' },
   ])
   if (eSchema) throw new Error(`Medicatieschema: ${eSchema.message}`)
   console.log('✓ Medicatieschema aangemaakt')
@@ -176,6 +216,7 @@ async function run() {
   console.log('  patient@demo.nl   /  demo1234  →  Lars Veenstra       (patiënt)')
   console.log('  patient2@demo.nl  /  demo1234  →  Anouk de Boer       (patiënt, open melding)')
   console.log('  patient3@demo.nl  /  demo1234  →  Mohamed Bouazza     (patiënt)')
+  console.log('  nieuw@demo.nl     /  demo1234  →  Sara Dijkstra        (patiënt, geen metingen → onboarding)')
 }
 
 run().catch(err => {

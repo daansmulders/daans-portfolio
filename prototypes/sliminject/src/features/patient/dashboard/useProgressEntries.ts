@@ -9,14 +9,15 @@ export interface ProgressEntry {
   patient_id: string
   logged_at: string
   weight_kg: number | null
-  wellbeing_score: number
+  wellbeing_score: number | null
+  hunger_score: number | null
   symptoms: string[]
   notes: string | null
 }
 
 export interface NewProgressEntry {
   weight_kg?: number | null
-  wellbeing_score: number
+  hunger_score: number | null
   symptoms?: string[]
   notes?: string | null
 }
@@ -53,7 +54,8 @@ export function useProgressEntries(patientId?: string) {
       patient_id: user.id,
       logged_at,
       weight_kg: entry.weight_kg ?? null,
-      wellbeing_score: entry.wellbeing_score,
+      wellbeing_score: null,
+      hunger_score: entry.hunger_score,
       symptoms: entry.symptoms ?? [],
       notes: entry.notes ?? null,
       synced: false,

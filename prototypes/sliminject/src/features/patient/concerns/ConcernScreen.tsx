@@ -1,9 +1,19 @@
-import { useState, type FormEvent } from 'react'
+import { useState, useEffect, type FormEvent } from 'react'
 import { useConcerns } from './useConcerns'
+import { markConcernsAsSeen } from '../../../hooks/useSeenConcerns'
 import { nl } from '../../../i18n/nl'
 
 export function ConcernScreen() {
   const { concerns, loading, submitConcern } = useConcerns()
+
+  useEffect(() => {
+    if (concerns.length > 0) {
+      const reviewedIds = concerns
+        .filter(c => c.status === 'reviewed' && c.doctor_response)
+        .map(c => c.id)
+      if (reviewedIds.length > 0) markConcernsAsSeen(reviewedIds)
+    }
+  }, [concerns])
   const [severity, setSeverity] = useState<'routine' | 'urgent'>('routine')
   const [description, setDescription] = useState('')
   const [submitting, setSubmitting] = useState(false)
