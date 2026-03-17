@@ -73,10 +73,15 @@ Carousels are stored in `window.caseCarousels[]` for cross-component access (e.g
 GoatCounter is loaded on all pages via a script tag in the layouts.
 
 ## Active Technologies
-- TypeScript 5.x, Node 20+ + React 18, Vite 5, Tailwind CSS 3, Radix UI, Dexie.js, Supabase JS clien (001-sliminject-dashboard)
-- Supabase (PostgreSQL with Row Level Security) + IndexedDB (Dexie.js, offline queue) (001-sliminject-dashboard)
-- TypeScript 5.9.3, React 19.x (package.json lists react ^19), Vite 5.x + React Router 7, Tailwind CSS 4, Radix UI primitives, Dexie.js 4, Supabase JS v2 (002-sliminject-ux-improvements)
-- Supabase (PostgreSQL with RLS) + IndexedDB via Dexie.js (offline queue) + localStorage (notification prefs) (002-sliminject-ux-improvements)
+
+### Sliminject prototype (`prototypes/sliminject/`)
+- React 19, TypeScript 5.9, Vite 5, React Router 7
+- Tailwind CSS 4 with custom design tokens
+- Radix UI primitives (Tabs, etc.), Sonner (toasts)
+- Supabase JS v2 — PostgreSQL + Row Level Security + Realtime
+- Dexie.js 4 — IndexedDB offline write queue
+- localStorage — notification preferences, onboarding state
 
 ## Recent Changes
-- 001-sliminject-dashboard: Added TypeScript 5.x, Node 20+ + React 18, Vite 5, Tailwind CSS 3, Radix UI, Dexie.js, Supabase JS clien
+- **002-sliminject-ux-improvements** (2026-03-17): 14 UX improvements across patient and doctor flows — dashboard hierarchy redesign, tabbed patient profile, titration curve chart, realtime urgent badge, empty states, toast feedback on all forms, onboarding 4th step, educational content curriculum, daily reminder, tone of voice (je/jouw). See `prototypes/sliminject/CHANGELOG.md`.
+- **001-sliminject-dashboard** (2026-03-10): Initial Sliminject prototype — full patient and doctor feature set including auth, logging, medication timeline, concerns, educational content, doctor overview, schedule editor, prescriptions, appointments.
