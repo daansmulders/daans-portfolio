@@ -195,7 +195,7 @@ async function run() {
   console.log('✓ Welzijn check-ins aangemaakt (Lars: 2, Anouk: 1 — check-in kaart zichtbaar voor beide)')
 
   // ── Medicatieschema ──────────────────────────────────────────────────────
-  const { error: eSchema } = await supabase.from('dosage_schedule_entries').insert([
+  const { data: schemaData, error: eSchema } = await supabase.from('dosage_schedule_entries').insert([
     { patient_id: larsId, dose_mg: 0.25, start_date: dateStr(daysAgo(56)), created_by_doctor_id: dokterId, drug_type_id: 'ozempic', notes: 'Startdosering', status: 'approved' },
     { patient_id: larsId, dose_mg: 0.5,  start_date: dateStr(daysAgo(28)), created_by_doctor_id: dokterId, drug_type_id: 'ozempic', notes: null, status: 'approved' },
     { patient_id: larsId, dose_mg: 1.0,  start_date: dateStr(daysFromNow(5)), created_by_doctor_id: dokterId, drug_type_id: 'ozempic', notes: 'Verhoging na goed herstel', status: 'approved' },
@@ -203,9 +203,30 @@ async function run() {
     { patient_id: mohamedId, dose_mg: 0.25, start_date: dateStr(daysAgo(14)), created_by_doctor_id: dokterId, drug_type_id: 'mounjaro', notes: null, status: 'approved' },
     { patient_id: nieuwId,   dose_mg: 0.25, start_date: dateStr(new Date()),  created_by_doctor_id: dokterId, drug_type_id: 'ozempic',  notes: 'Startdosering', status: 'approved' },
     { patient_id: nieuwId,   dose_mg: 0.5,  start_date: dateStr(daysFromNow(28)), created_by_doctor_id: dokterId, drug_type_id: 'ozempic', notes: null, status: 'draft' },
-  ])
+  ]).select('id, patient_id, start_date')
   if (eSchema) throw new Error(`Medicatieschema: ${eSchema.message}`)
   console.log('✓ Medicatieschema aangemaakt')
+
+  // ── Injectietrouw voor afgelopen doseringen ────────────────────────────
+  // Seed adherence records for past schedule entries so existing patients
+  // don't show the injection-day card for weeks-old doses
+  const pastEntries = (schemaData ?? []).filter(e => {
+    const entryDate = new Date(e.start_date + 'T00:00:00')
+    const today = new Date(); today.setHours(0, 0, 0, 0)
+    return entryDate < today
+  })
+  if (pastEntries.length > 0) {
+    const { error: eAdherence } = await supabase.from('injection_adherence').insert(
+      pastEntries.map(e => ({
+        patient_id: e.patient_id,
+        schedule_entry_id: e.id,
+        response: 'confirmed',
+        note: null,
+      }))
+    )
+    if (eAdherence) throw new Error(`Injectietrouw: ${eAdherence.message}`)
+    console.log(`✓ Injectietrouw aangemaakt (${pastEntries.length} afgelopen doseringen bevestigd)`)
+  }
 
   // ── Advies ───────────────────────────────────────────────────────────────
   const { error: eAdvies } = await supabase.from('advice').insert({

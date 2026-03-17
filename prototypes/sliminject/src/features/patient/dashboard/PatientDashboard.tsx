@@ -79,7 +79,7 @@ export function PatientDashboard() {
     return () => clearInterval(interval)
   }, [reminderEnabled, reminderTime, hasLoggedToday])
 
-  const { entries: scheduleEntries, nextIncrease, daysUntilNext } = usePatientDosageSchedule()
+  const { entries: scheduleEntries } = usePatientDosageSchedule()
   const injectionDateSet = useMemo(() => injectionDates(scheduleEntries), [scheduleEntries])
   const todayStr = useMemo(() => {
     const d = new Date()
@@ -127,7 +127,7 @@ export function PatientDashboard() {
   }
 
   const appointmentIsSoon = nextAppointment && hoursUntilNext !== null && hoursUntilNext <= 48
-  const dosageChangeSoon = nextIncrease && daysUntilNext !== null && daysUntilNext <= 7
+
 
   return (
     <main className="page space-y-5">
@@ -146,8 +146,8 @@ export function PatientDashboard() {
         </button>
       </div>
 
-      {/* ── 1. Log CTA ───────────────────────────────────── */}
-      {!isInjectionDay && (hasLoggedToday ? (
+      {/* ── 1. Log CTA (hidden on injection day) ──────────── */}
+      {!isInjectionDay && !injectionCard.isDue && (hasLoggedToday ? (
         <div
           className="flex items-center gap-2.5 rounded-xl px-4 py-3"
           style={{ background: '#EDF7F4' }}
@@ -179,6 +179,8 @@ export function PatientDashboard() {
           adjustInjection={injectionCard.adjustInjection}
           isNewDose={doseChanges.isNewDose}
           newDoseMg={doseChanges.newDoseMg}
+          isFirstInjection={doseChanges.isFirstInjection}
+          lastWeight={entries.find(e => e.weight_kg != null)?.weight_kg}
         />
       ) : (
         <AdherenceCheckIn />
@@ -201,7 +203,7 @@ export function PatientDashboard() {
           </div>
           <button
             onClick={dismissMissNudge}
-            className="text-xs flex-shrink-0 mt-0.5"
+            className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-sm"
             style={{ color: '#A85C0A' }}
             aria-label="Melding sluiten"
           >
@@ -213,7 +215,7 @@ export function PatientDashboard() {
       {/* ── 1d. Dose increase announcement ─────────────── */}
       {doseChanges.announcement && (
         <div className="alert-amber rounded-xl px-4 py-3 flex items-start justify-between gap-3">
-          <div className="space-y-1">
+          <Link to="/patient/medicatie" className="space-y-1 no-underline" style={{ textDecoration: 'none' }}>
             <p className="text-sm font-medium" style={{ color: '#7A3D00' }}>
               {nl.dosis_aankondiging_titel}
             </p>
@@ -223,10 +225,10 @@ export function PatientDashboard() {
             <p className="text-xs" style={{ color: '#A85C0A' }}>
               {nl.dosis_aankondiging_bijwerking}
             </p>
-          </div>
+          </Link>
           <button
             onClick={() => doseChanges.dismissAnnouncement(doseChanges.announcement!.entryId)}
-            className="text-xs flex-shrink-0 mt-0.5"
+            className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-sm"
             style={{ color: '#A85C0A' }}
             aria-label="Melding sluiten"
           >
@@ -264,41 +266,24 @@ export function PatientDashboard() {
       )}
 
       {/* ── 3. Treatment updates ─────────────────────────── */}
-      {(nextAppointment || dosageChangeSoon) && (
-        <div className="space-y-2">
-          {nextAppointment && (
-            <div
-              className="flex items-center justify-between rounded-xl px-4 py-3"
-              style={{ background: appointmentIsSoon ? '#FFF8EE' : '#F5F3F0' }}
-            >
-              <div>
-                <p className="text-xs font-medium mb-0.5" style={{ color: appointmentIsSoon ? '#A85C0A' : '#6B6660' }}>
-                  {nl.dokter_profiel_afspraken}
-                </p>
-                <time className="text-sm font-semibold" style={{ color: '#14130F' }}>
-                  {new Date(nextAppointment.scheduled_at).toLocaleDateString('nl-NL', {
-                    weekday: 'short', day: 'numeric', month: 'long',
-                    hour: '2-digit', minute: '2-digit',
-                  })}
-                </time>
-              </div>
-              {appointmentIsSoon && (
-                <span className="badge badge-amber flex-shrink-0">Binnenkort</span>
-              )}
-            </div>
-          )}
-
-          {dosageChangeSoon && (
-            <Link
-              to="/patient/medicatie"
-              className="flex items-center justify-between rounded-xl px-4 py-3 no-underline"
-              style={{ background: '#FFF8EE', textDecoration: 'none' }}
-            >
-              <p className="text-sm font-medium" style={{ color: '#A85C0A' }}>
-                {nl.dashboard_dosering_toename.replace('{dagen}', String(daysUntilNext))}
-              </p>
-              <span style={{ color: '#A85C0A' }}>→</span>
-            </Link>
+      {nextAppointment && (
+        <div
+          className="flex items-center justify-between rounded-xl px-4 py-3"
+          style={{ background: appointmentIsSoon ? '#FFF8EE' : '#F5F3F0' }}
+        >
+          <div>
+            <p className="text-xs font-medium mb-0.5" style={{ color: appointmentIsSoon ? '#A85C0A' : '#6B6660' }}>
+              {nl.dokter_profiel_afspraken}
+            </p>
+            <time className="text-sm font-semibold" style={{ color: '#14130F' }}>
+              {new Date(nextAppointment.scheduled_at).toLocaleDateString('nl-NL', {
+                weekday: 'short', day: 'numeric', month: 'long',
+                hour: '2-digit', minute: '2-digit',
+              })}
+            </time>
+          </div>
+          {appointmentIsSoon && (
+            <span className="badge badge-amber flex-shrink-0">Binnenkort</span>
           )}
         </div>
       )}
@@ -326,7 +311,7 @@ export function PatientDashboard() {
           </div>
           <button
             onClick={dismissFoodNoise}
-            className="text-xs flex-shrink-0 mt-0.5"
+            className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-sm"
             style={{ color: '#2D7A5E' }}
             aria-label="Melding sluiten"
           >
@@ -348,7 +333,7 @@ export function PatientDashboard() {
           </div>
           <button
             onClick={milestone.dismiss}
-            className="text-xs flex-shrink-0 mt-0.5"
+            className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-sm"
             style={{ color: '#2D7A5E' }}
             aria-label="Melding sluiten"
           >

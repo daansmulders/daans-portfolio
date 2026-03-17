@@ -112,6 +112,15 @@ One-tap summary for doctor appointments. Full-screen, share-optimised view with 
 
 ---
 
+### 22. Dashboard experience refinement
+
+**Source**: Internal review 2026-03-17 — dashboard has become chaotic after features 006–008
+**Size**: Medium | **Spec**: None yet
+
+Critical design pass on the patient dashboard. After adding injection-day cards, dose announcements, milestone cards, side-effect tips, and food noise toggles, the dashboard has too many competing card types with no clear hierarchy. Needs: card prioritisation logic (what shows when), visual grouping, reduced noise on quiet days, and a clear "nothing to do today" empty state. Remove or rethink cards that don't earn their space.
+
+---
+
 ## Open — Doctor Experience
 
 ### 16. Patient list — attention bucketing

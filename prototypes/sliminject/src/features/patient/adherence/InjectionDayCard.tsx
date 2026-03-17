@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { nl } from '../../../i18n/nl'
 import type { InjectionDayLogData, InjectionDayStep } from './useInjectionDayCard'
 
@@ -12,6 +12,8 @@ interface InjectionDayCardProps {
   adjustInjection: (note?: string) => Promise<void>
   isNewDose?: boolean
   newDoseMg?: number | null
+  isFirstInjection?: boolean
+  lastWeight?: number | null
 }
 
 function ScorePicker({
@@ -64,6 +66,8 @@ export function InjectionDayCard({
   adjustInjection,
   isNewDose = false,
   newDoseMg,
+  isFirstInjection = false,
+  lastWeight,
 }: InjectionDayCardProps) {
   const [showAdjustNote, setShowAdjustNote] = useState(false)
   const [adjustNote, setAdjustNote] = useState('')
@@ -75,7 +79,13 @@ export function InjectionDayCard({
   const [energie, setEnergie] = useState<number | null>(null)
   const [notitie, setNotitie] = useState('')
 
-  if (!isDue) return null
+  // Pre-fill weight with last recorded value
+  useEffect(() => {
+    if (gewicht === '' && lastWeight != null) setGewicht(String(lastWeight))
+  }, [lastWeight]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Stay visible during log/done steps even after isDue flips to false
+  if (!isDue && step === 'confirm') return null
 
   // ── step: done ───────────────────────────────────────────────────────────────
   if (step === 'done') {
@@ -226,12 +236,20 @@ export function InjectionDayCard({
       </div>
 
       {isNewDose && newDoseMg != null && (
-        <div className="alert-amber rounded-lg px-3 py-2 space-y-0.5">
+        <div className="alert-amber rounded-lg px-3 py-2 space-y-1">
           <p className="text-sm font-medium" style={{ color: '#7A3D00' }}>
             {nl.dosis_nieuw_label.replace('{dosis}', String(newDoseMg))}
           </p>
           <p className="text-xs" style={{ color: '#A85C0A' }}>
-            {nl.dosis_nieuw_bijwerking}
+            {nl.tip_dosisverhoging_bijwerking}
+          </p>
+        </div>
+      )}
+
+      {isFirstInjection && !isNewDose && (
+        <div className="rounded-lg px-3 py-2" style={{ background: '#FAF8F5' }}>
+          <p className="text-sm" style={{ color: '#2E2B24' }}>
+            {nl.tip_eerste_injectie}
           </p>
         </div>
       )}

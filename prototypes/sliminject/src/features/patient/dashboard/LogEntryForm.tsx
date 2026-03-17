@@ -1,8 +1,10 @@
-import { useState, type FormEvent } from 'react'
+import { useState, useEffect, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProgressEntries } from './useProgressEntries'
 import { nl } from '../../../i18n/nl'
 import { showSuccess } from '../../../lib/toast'
+import { selectTip, type SymptomTip } from '../symptoms/symptomTips'
+import { useSymptomTipThrottle } from '../symptoms/useSymptomTipThrottle'
 
 const PRIMARY_SYMPTOMS = [
   nl.symptoom_misselijkheid,
@@ -15,20 +17,31 @@ const SECONDARY_SYMPTOMS = [
   nl.symptoom_droge_mond,
   nl.symptoom_duizeligheid,
   nl.symptoom_constipatie,
+  nl.symptoom_haaruitval,
+  nl.symptoom_injectieplaatsreactie,
 ]
 
 export function LogEntryForm() {
   const { addEntry, entries } = useProgressEntries()
   const navigate = useNavigate()
+  const { wasShownRecently, markShown } = useSymptomTipThrottle()
   const [gewicht, setGewicht]       = useState('')
   const [honger, setHonger]         = useState<number>(3)
   const [voedselruis, setVoedselruis] = useState<number | null>(null)
   const [symptomen, setSymptomen]   = useState<string[]>([])
   const [notities, setNotities]     = useState('')
   const [loading, setLoading]       = useState(false)
-  const [succes, setSucces]       = useState<'online' | 'offline' | 'mijlpaal' | null>(null)
-  const [mijlpaalWeek, setMijlpaalWeek] = useState<number | null>(null)
+  const [succes, setSucces]       = useState<'online' | 'offline' | 'tip' | null>(null)
+  const [shownTip, setShownTip]     = useState<SymptomTip | null>(null)
   const [showMoreSymptoms, setShowMoreSymptoms] = useState(false)
+
+  // Pre-fill weight with last recorded value once entries load
+  useEffect(() => {
+    if (gewicht === '' && entries.length > 0) {
+      const last = entries.find(e => e.weight_kg != null)?.weight_kg
+      if (last != null) setGewicht(String(last))
+    }
+  }, [entries]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function toggleSymptoom(s: string) {
     setSymptomen(prev =>
@@ -47,22 +60,15 @@ export function LogEntryForm() {
       notes:            notities || null,
     })
 
-    // Milestone: only fire for the FIRST log of a new treatment week
-    if (entries.length > 0) {
-      const firstDate = new Date(entries[entries.length - 1].logged_at)
-      const msPerWeek = 1000 * 60 * 60 * 24 * 7
-      const currentWeek = Math.floor((Date.now() - firstDate.getTime()) / msPerWeek)
-      const alreadyLoggedThisWeek = entries.some(e =>
-        Math.floor((new Date(e.logged_at).getTime() - firstDate.getTime()) / msPerWeek) === currentWeek
-      )
-      if (currentWeek > 0 && !alreadyLoggedThisWeek) {
-        setMijlpaalWeek(currentWeek)
-        setSucces('mijlpaal')
-        setLoading(false)
-        showSuccess(nl.log_mijlpaal.replace('{n}', String(currentWeek)))
-        setTimeout(() => navigate('/patient/dashboard'), 3000)
-        return
-      }
+    // Check for symptom tip before auto-navigating
+    const tip = symptomen.length > 0 ? selectTip(symptomen, wasShownRecently) : null
+    if (tip) {
+      markShown(tip.symptom)
+      setShownTip(tip)
+      setSucces('tip')
+      setLoading(false)
+      showSuccess(offline ? nl.offline_opgeslagen : nl.log_succes)
+      return // no auto-navigate — patient dismisses manually
     }
 
     showSuccess(offline ? nl.offline_opgeslagen : nl.log_succes)
@@ -229,29 +235,49 @@ export function LogEntryForm() {
           />
         </div>
 
-        {succes === 'mijlpaal' && mijlpaalWeek && (
-          <div role="status" className="milestone card p-6 text-center" style={{ background: '#EDF7F4' }}>
-            <p className="text-3xl mb-2">🎉</p>
-            <p className="font-semibold text-lg mb-1" style={{ color: '#1A4A36' }}>
-              {nl.log_mijlpaal.replace('{n}', String(mijlpaalWeek))}
-            </p>
-            <p className="text-sm" style={{ color: '#2D7A5E' }}>{nl.log_mijlpaal_subtitel}</p>
-          </div>
-        )}
         {(succes === 'online' || succes === 'offline') && (
           <div role="status" className="alert-brand text-sm font-medium">
             {succes === 'offline' ? nl.offline_opgeslagen : nl.log_succes}
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="btn btn-primary w-full"
-          style={{ padding: '.875rem', fontSize: '1rem', borderRadius: '12px' }}
-        >
-          {loading ? nl.laden : nl.log_opslaan}
-        </button>
+        {succes === 'tip' && shownTip && (
+          <div className="space-y-3">
+            <div role="status" className="alert-brand text-sm font-medium">
+              {nl.log_succes}
+            </div>
+            <div
+              className="card px-4 py-3 space-y-1"
+              style={{ background: '#FAF8F5', borderLeft: '2px solid #2D7A5E' }}
+            >
+              <p className="text-sm font-semibold" style={{ color: '#1A4A36' }}>
+                {nl.tip_bij_symptoom.replace('{symptoom}', shownTip.symptom.toLowerCase())}
+              </p>
+              <p className="text-sm" style={{ color: '#2E2B24' }}>
+                {shownTip.tip}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate('/patient/dashboard')}
+              className="btn btn-primary w-full"
+              style={{ padding: '.875rem', fontSize: '1rem', borderRadius: '12px' }}
+            >
+              {nl.tip_terug_dashboard}
+            </button>
+          </div>
+        )}
+
+        {succes !== 'tip' && (
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn btn-primary w-full"
+            style={{ padding: '.875rem', fontSize: '1rem', borderRadius: '12px' }}
+          >
+            {loading ? nl.laden : nl.log_opslaan}
+          </button>
+        )}
       </form>
     </main>
   )

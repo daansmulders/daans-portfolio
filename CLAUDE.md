@@ -80,6 +80,8 @@ GoatCounter is loaded on all pages via a script tag in the layouts.
 - TypeScript 5.9 + React 19, React Router 7, Tailwind CSS 4, Radix UI, Supabase JS v2, Dexie.js 4, Sonner (006-injection-day-experience)
 - Supabase PostgreSQL (primary); Dexie IndexedDB offline queue for progress entries (006-injection-day-experience)
 - Supabase PostgreSQL (primary); localStorage for announcement dismissals (007-dose-change-visibility)
+- TypeScript 5.9 + React 19, React Router 7, Tailwind CSS 4, Sonner (008-side-effect-support)
+- No server storage needed; localStorage for tip frequency tracking (008-side-effect-support)
 
 ### Sliminject prototype (`prototypes/sliminject/`)
 - React 19, TypeScript 5.9, Vite 5, React Router 7
@@ -184,6 +186,6 @@ There are two distinct sub-projects here. Apply different rules depending on con
 - Do not put portfolio assets inside the Sliminject prototype directory
 
 ## Recent Changes
+- 008-side-effect-support: Added TypeScript 5.9 + React 19, React Router 7, Tailwind CSS 4, Sonner
 - 007-dose-change-visibility: Added TypeScript 5.9 + React 19, React Router 7, Tailwind CSS 4, Radix UI, Supabase JS v2, Dexie.js 4, Sonner
 - 006-injection-day-experience: Added TypeScript 5.9 + React 19, React Router 7, Tailwind CSS 4, Radix UI, Supabase JS v2, Dexie.js 4, Sonner
-- 004-wellbeing-tracking: Added TypeScript 5.9 / React 19 + Vite 5, React Router 7, Tailwind CSS 4, Radix UI, Supabase JS v2, Sonner (toasts)

@@ -72,6 +72,8 @@ export const nl = {
   symptoom_droge_mond: 'Droge mond',
   symptoom_duizeligheid: 'Duizeligheid',
   symptoom_constipatie: 'Obstipatie',
+  symptoom_haaruitval: 'Haaruitval',
+  symptoom_injectieplaatsreactie: 'Injectieplaatsreactie',
 
   // Medicatieschema (P-04)
   medicatie_titel: 'Mijn medicatieschema',
@@ -308,6 +310,12 @@ export const nl = {
   injectiedag_badge: 'Injectiedag',
   log_voedselruis_week: 'Eetgedachten deze week',
   log_energie: 'Energie',
+
+  // Bijwerkingen tips (feature 008)
+  tip_bij_symptoom: 'Tip bij {symptoom}',
+  tip_eerste_injectie: 'Dit is je eerste injectie. Misselijkheid is normaal de eerste dagen — eet licht en drink voldoende water.',
+  tip_dosisverhoging_bijwerking: 'Bijwerkingen zoals misselijkheid kunnen tijdelijk terugkomen. Dit is normaal en trekt meestal bij.',
+  tip_terug_dashboard: 'Terug naar dashboard',
 
   // Dosisverhoging (feature 007)
   dosis_aankondiging_titel: 'Dosisverhoging',

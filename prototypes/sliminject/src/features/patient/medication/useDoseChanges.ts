@@ -25,8 +25,8 @@ export function useDoseChanges() {
   const { entries, current } = usePatientDosageSchedule()
   const { records: adherenceRecords } = useAdherence(user?.id)
 
-  // Force re-render after dismiss
-  const [, setDismissCount] = useState(0)
+  // Incremented on dismiss to invalidate the announcement memo
+  const [dismissCount, setDismissCount] = useState(0)
 
   // All approved entries for chart markers
   const doseSteps: DoseStep[] = useMemo(
@@ -57,7 +57,8 @@ export function useDoseChanges() {
       }
     }
     return null
-  }, [entries, current])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entries, current, dismissCount])
 
   const dismissAnnouncement = useCallback((entryId: string) => {
     localStorage.setItem(`${DISMISS_PREFIX}${entryId}`, '1')
@@ -91,6 +92,17 @@ export function useDoseChanges() {
     }
   }, [entries, current, adherenceRecords])
 
+  // First injection ever — first approved dose started within the last 2 days
+  // (can't rely on adherenceRecords.length === 0 because seed/reset clears records)
+  const isFirstInjection = useMemo(() => {
+    if (!current) return false
+    const approved = entries.filter(e => e.status === 'approved')
+    if (approved.length === 0) return false
+    const firstStart = localDate(approved[0].start_date).getTime()
+    const twoDays = 2 * 24 * 60 * 60 * 1000
+    return approved[0].id === current.id && (Date.now() - firstStart) < twoDays
+  }, [entries, current])
+
   return {
     doseSteps,
     announcement,
@@ -98,5 +110,6 @@ export function useDoseChanges() {
     isNewDose,
     newDoseMg,
     confirmedAtCurrentDose,
+    isFirstInjection,
   }
 }
