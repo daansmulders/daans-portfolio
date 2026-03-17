@@ -1,11 +1,13 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import type { ProgressEntry } from './useProgressEntries'
+import type { DoseStep } from '../medication/useDoseChanges'
 import { nl } from '../../../i18n/nl'
 
 interface ProgressChartProps {
   entries: ProgressEntry[]
   showFoodNoise?: boolean
   onToggleFoodNoise?: () => void
+  doseSteps?: DoseStep[]
 }
 
 const CHART_W  = 300
@@ -23,7 +25,9 @@ function toY(value: number, min: number, max: number) {
   return CHART_H - PAD_BOTTOM - ((value - min) / range) * (CHART_H - PAD_TOP - PAD_BOTTOM)
 }
 
-export function ProgressChart({ entries, showFoodNoise = false, onToggleFoodNoise }: ProgressChartProps) {
+export function ProgressChart({ entries, showFoodNoise = false, onToggleFoodNoise, doseSteps }: ProgressChartProps) {
+  const [activeTooltip, setActiveTooltip] = useState<string | null>(null)
+
   const derived = useMemo(() => {
     if (entries.length === 0) return null
     const sorted           = [...entries].reverse()
@@ -58,13 +62,35 @@ export function ProgressChart({ entries, showFoodNoise = false, onToggleFoodNois
       return `${i === 0 ? 'M' : 'L'} ${x} ${y}`
     }).join(' ')
 
+    // Dose change markers — map dose step dates to x-positions
+    const doseMarkers: { x: number; dose_mg: number; dateLabel: string; id: string }[] = []
+    if (doseSteps && doseSteps.length >= 2) {
+      // Skip the first entry (starting dose, not a change)
+      for (let s = 1; s < doseSteps.length; s++) {
+        const step = doseSteps[s]
+        const stepDate = new Date(step.date + 'T00:00:00').getTime()
+        // Find the closest sorted entry by date
+        let closestIdx = 0
+        let closestDist = Infinity
+        for (let i = 0; i < sorted.length; i++) {
+          const dist = Math.abs(new Date(sorted[i].logged_at).getTime() - stepDate)
+          if (dist < closestDist) { closestDist = dist; closestIdx = i }
+        }
+        const x = toX(closestIdx, sorted.length)
+        const dateLabel = new Date(step.date + 'T00:00:00').toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' })
+        doseMarkers.push({ x, dose_mg: step.dose_mg, dateLabel, id: `dose-${s}` })
+      }
+    }
+
     return {
       tooShort: false,
+      sorted,
       weights, hungerEntries, foodNoiseEntries,
       weightMin, weightMax, hasFoodNoiseData,
       hungerPath, foodNoisePath, gewichtPath,
+      doseMarkers,
     }
-  }, [entries])
+  }, [entries, doseSteps])
 
   if (!derived) return null
   if (derived.tooShort) {
@@ -75,6 +101,7 @@ export function ProgressChart({ entries, showFoodNoise = false, onToggleFoodNois
     weights, hungerEntries, foodNoiseEntries,
     weightMin, weightMax, hasFoodNoiseData,
     hungerPath, foodNoisePath, gewichtPath,
+    doseMarkers,
   } = derived
 
   return (
@@ -125,6 +152,29 @@ export function ProgressChart({ entries, showFoodNoise = false, onToggleFoodNois
               textAnchor="end" fontSize="8" fill="#E8821A">{weightMin} kg</text>
           </>
         )}
+
+        {/* Dose change markers */}
+        {doseMarkers.map(marker => (
+          <g key={marker.id}
+            onClick={() => setActiveTooltip(activeTooltip === marker.id ? null : marker.id)}
+            style={{ cursor: 'pointer' }}
+          >
+            <line
+              x1={marker.x} y1={PAD_TOP} x2={marker.x} y2={CHART_H - PAD_BOTTOM}
+              stroke="#AAA49C" strokeWidth="1" strokeDasharray="2 2" opacity="0.6"
+            />
+            <text x={marker.x} y={PAD_TOP - 1} textAnchor="middle"
+              fontSize="7" fill="#6B6660">{marker.dose_mg} mg</text>
+            {activeTooltip === marker.id && (
+              <text x={marker.x} y={CHART_H / 2} textAnchor="middle"
+                fontSize="7" fill="#14130F" fontWeight="600"
+                paintOrder="stroke" stroke="#fff" strokeWidth="3"
+              >
+                {marker.dose_mg} mg — {marker.dateLabel}
+              </text>
+            )}
+          </g>
+        ))}
       </svg>
 
       <div className="mt-3 flex flex-wrap gap-4" style={{ fontSize: '.75rem', color: '#6B6660' }}>

@@ -309,6 +309,13 @@ export const nl = {
   log_voedselruis_week: 'Eetgedachten deze week',
   log_energie: 'Energie',
 
+  // Dosisverhoging (feature 007)
+  dosis_aankondiging_titel: 'Dosisverhoging',
+  dosis_aankondiging_tekst: 'Volgende week gaat je dosis omhoog naar {dosis} mg.',
+  dosis_aankondiging_bijwerking: 'Bijwerkingen zoals misselijkheid kunnen tijdelijk terugkomen.',
+  dosis_nieuw_label: 'Nieuwe dosis: {dosis} mg',
+  dosis_nieuw_bijwerking: 'Bijwerkingen kunnen tijdelijk terugkomen.',
+
   // Mijlpalen (feature 004)
   mijlpaal_voedselruis_titel: 'Voedselruis sterk gedaald',
   mijlpaal_voedselruis_body: 'De afgelopen weken had je beduidend minder last van gedachten over eten. Dat is een grote stap.',

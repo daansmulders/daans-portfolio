@@ -79,6 +79,7 @@ GoatCounter is loaded on all pages via a script tag in the layouts.
 - Supabase PostgreSQL + RLS; food noise as new column on `progress_entries`; weekly check-ins as new `weekly_wellbeing_checkins` table (004-wellbeing-tracking)
 - TypeScript 5.9 + React 19, React Router 7, Tailwind CSS 4, Radix UI, Supabase JS v2, Dexie.js 4, Sonner (006-injection-day-experience)
 - Supabase PostgreSQL (primary); Dexie IndexedDB offline queue for progress entries (006-injection-day-experience)
+- Supabase PostgreSQL (primary); localStorage for announcement dismissals (007-dose-change-visibility)
 
 ### Sliminject prototype (`prototypes/sliminject/`)
 - React 19, TypeScript 5.9, Vite 5, React Router 7
@@ -183,6 +184,6 @@ There are two distinct sub-projects here. Apply different rules depending on con
 - Do not put portfolio assets inside the Sliminject prototype directory
 
 ## Recent Changes
+- 007-dose-change-visibility: Added TypeScript 5.9 + React 19, React Router 7, Tailwind CSS 4, Radix UI, Supabase JS v2, Dexie.js 4, Sonner
 - 006-injection-day-experience: Added TypeScript 5.9 + React 19, React Router 7, Tailwind CSS 4, Radix UI, Supabase JS v2, Dexie.js 4, Sonner
 - 004-wellbeing-tracking: Added TypeScript 5.9 / React 19 + Vite 5, React Router 7, Tailwind CSS 4, Radix UI, Supabase JS v2, Sonner (toasts)
-- 003-dose-adherence-tracking: Added TypeScript 5.9 / React 19 + React Router 7, Tailwind CSS 4, Radix UI, Supabase JS v2, Sonner (toasts)

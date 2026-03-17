@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import * as Tabs from '@radix-ui/react-tabs'
 import { useProgressEntries } from '../../patient/dashboard/useProgressEntries'
 import { ProgressChart } from '../../patient/dashboard/ProgressChart'
@@ -106,9 +106,15 @@ export function PatientProfile() {
   const openConcernsCount = concerns.filter(c => c.status === 'open').length
   const [showFoodNoise, setShowFoodNoise] = useState(false)
 
-  // Medicatie tab data — only fetched once the tab is first opened
+  // Dosage schedule — always loaded for chart dose markers + Medicatie tab
+  const { entries: schedule } = useDosageSchedule(patientId!)
+  const doseSteps = useMemo(
+    () => schedule.filter(e => e.status === 'approved').map(e => ({ date: e.start_date, dose_mg: e.dose_mg })),
+    [schedule],
+  )
+
+  // Adherence data — only fetched once the Medicatie tab is first opened
   const [medicatieLoaded, setMedicatieLoaded] = useState(false)
-  const { entries: schedule } = useDosageSchedule(medicatieLoaded ? patientId! : undefined)
   const { byEntryId: adherenceByEntryId } = useAdherence(medicatieLoaded ? patientId : undefined)
 
   return (
@@ -173,6 +179,7 @@ export function PatientProfile() {
                 entries={entries}
                 showFoodNoise={showFoodNoise}
                 onToggleFoodNoise={() => setShowFoodNoise(v => !v)}
+                doseSteps={doseSteps}
               />
             )}
           </section>

@@ -19,6 +19,7 @@ import { InjectionDayCard } from '../adherence/InjectionDayCard'
 import { useInjectionDayCard } from '../adherence/useInjectionDayCard'
 import { useFoodNoiseMilestone, useWellbeingDimensionMilestones } from '../wellbeing/useWellbeingMilestones'
 import { useWellbeingCheckIn } from '../wellbeing/useWellbeingCheckIn'
+import { useDoseChanges } from '../medication/useDoseChanges'
 
 const MS_PER_WEEK = 1000 * 60 * 60 * 24 * 7
 
@@ -87,6 +88,7 @@ export function PatientDashboard() {
   const isInjectionDay = injectionDateSet.has(todayStr)
   const { isConsecutiveMiss, dismiss: dismissMissNudge } = useConsecutiveMiss()
   const injectionCard = useInjectionDayCard(addEntry)
+  const doseChanges = useDoseChanges()
   const [showFoodNoise, setShowFoodNoise] = useState(false)
   const { isFoodNoiseMilestone, dismissFoodNoise } = useFoodNoiseMilestone(entries)
   // Single fetch for wellbeing data — checkins shared with WellbeingCheckIn via props
@@ -175,6 +177,8 @@ export function PatientDashboard() {
           submitLog={injectionCard.submitLog}
           skipInjection={injectionCard.skipInjection}
           adjustInjection={injectionCard.adjustInjection}
+          isNewDose={doseChanges.isNewDose}
+          newDoseMg={doseChanges.newDoseMg}
         />
       ) : (
         <AdherenceCheckIn />
@@ -197,6 +201,31 @@ export function PatientDashboard() {
           </div>
           <button
             onClick={dismissMissNudge}
+            className="text-xs flex-shrink-0 mt-0.5"
+            style={{ color: '#A85C0A' }}
+            aria-label="Melding sluiten"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* ── 1d. Dose increase announcement ─────────────── */}
+      {doseChanges.announcement && (
+        <div className="alert-amber rounded-xl px-4 py-3 flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <p className="text-sm font-medium" style={{ color: '#7A3D00' }}>
+              {nl.dosis_aankondiging_titel}
+            </p>
+            <p className="text-sm" style={{ color: '#A85C0A' }}>
+              {nl.dosis_aankondiging_tekst.replace('{dosis}', String(doseChanges.announcement.dose_mg))}
+            </p>
+            <p className="text-xs" style={{ color: '#A85C0A' }}>
+              {nl.dosis_aankondiging_bijwerking}
+            </p>
+          </div>
+          <button
+            onClick={() => doseChanges.dismissAnnouncement(doseChanges.announcement!.entryId)}
             className="text-xs flex-shrink-0 mt-0.5"
             style={{ color: '#A85C0A' }}
             aria-label="Melding sluiten"
@@ -280,6 +309,7 @@ export function PatientDashboard() {
           entries={entries}
           showFoodNoise={showFoodNoise}
           onToggleFoodNoise={() => setShowFoodNoise(v => !v)}
+          doseSteps={doseChanges.doseSteps}
         />
       )}
 

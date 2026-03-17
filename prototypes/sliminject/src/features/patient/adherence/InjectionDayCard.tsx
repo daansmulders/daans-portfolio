@@ -10,6 +10,8 @@ interface InjectionDayCardProps {
   submitLog: (data: InjectionDayLogData) => Promise<void>
   skipInjection: (note?: string) => Promise<void>
   adjustInjection: (note?: string) => Promise<void>
+  isNewDose?: boolean
+  newDoseMg?: number | null
 }
 
 function ScorePicker({
@@ -60,6 +62,8 @@ export function InjectionDayCard({
   submitLog,
   skipInjection,
   adjustInjection,
+  isNewDose = false,
+  newDoseMg,
 }: InjectionDayCardProps) {
   const [showAdjustNote, setShowAdjustNote] = useState(false)
   const [adjustNote, setAdjustNote] = useState('')
@@ -220,6 +224,17 @@ export function InjectionDayCard({
           {nl.injectiedag_vraag}
         </p>
       </div>
+
+      {isNewDose && newDoseMg != null && (
+        <div className="alert-amber rounded-lg px-3 py-2 space-y-0.5">
+          <p className="text-sm font-medium" style={{ color: '#7A3D00' }}>
+            {nl.dosis_nieuw_label.replace('{dosis}', String(newDoseMg))}
+          </p>
+          <p className="text-xs" style={{ color: '#A85C0A' }}>
+            {nl.dosis_nieuw_bijwerking}
+          </p>
+        </div>
+      )}
 
       {showAdjustNote ? (
         <div className="space-y-2">
