@@ -274,6 +274,50 @@ export const nl = {
   herinnering_inschakelen: 'Herinnering inschakelen',
   herinnering_tijd: 'Meldingstijdstip',
   herinnering_notificatie: 'Vergeet je meting niet vandaag!',
+
+  // Voedselruis (feature 004)
+  log_voedselruis: 'Voedselruis vandaag',
+  log_voedselruis_optioneel: 'Heb je last van gedachten over eten? (optioneel)',
+  log_voedselruis_min: 'Geen last',
+  log_voedselruis_max: 'Overweldigend',
+  log_voedselruis_1: 'Geen last',
+  log_voedselruis_2: 'Weinig last',
+  log_voedselruis_3: 'Matig',
+  log_voedselruis_4: 'Veel last',
+  log_voedselruis_5: 'Overweldigend',
+  grafiek_voedselruis: 'Voedselruis',
+
+  // Welzijn check-in (feature 004)
+  welzijn_checkin_titel: 'Wekelijkse check-in',
+  welzijn_checkin_subtitel: 'Hoe gaat het deze week?',
+  welzijn_checkin_energie: 'Energie',
+  welzijn_checkin_stemming: 'Stemming',
+  welzijn_checkin_zelfvertrouwen: 'Lichaamsvertrouwen',
+  welzijn_checkin_notitie: 'Notitie (optioneel)',
+  welzijn_checkin_opslaan: 'Check-in opslaan',
+  welzijn_geen_checkins: 'Geen check-ins',
+  welzijn_checkin_recentste: 'Recentste check-in',
+
+  // Injectiedag (feature 006)
+  injectiedag_titel: 'Injectiedag',
+  injectiedag_vraag: 'Heb je je injectie gezet?',
+  injectiedag_bevestigd_label: 'Injectie genoteerd ✓',
+  injectiedag_log_subtitel: 'Hoe gaat het deze week?',
+  injectiedag_sla_log_over: 'Sla log over',
+  injectiedag_bevestiging: 'Injectie genoteerd. Zo houd je je behandeling op koers.',
+  injectiedag_badge: 'Injectiedag',
+  log_voedselruis_week: 'Eetgedachten deze week',
+  log_energie: 'Energie',
+
+  // Mijlpalen (feature 004)
+  mijlpaal_voedselruis_titel: 'Voedselruis sterk gedaald',
+  mijlpaal_voedselruis_body: 'De afgelopen weken had je beduidend minder last van gedachten over eten. Dat is een grote stap.',
+  mijlpaal_energie_titel: 'Meer energie',
+  mijlpaal_energie_body: 'Je energieniveau is de afgelopen weken flink verbeterd.',
+  mijlpaal_stemming_titel: 'Betere stemming',
+  mijlpaal_stemming_body: 'Je stemming is de afgelopen weken duidelijk verbeterd.',
+  mijlpaal_zelfvertrouwen_titel: 'Meer lichaamsvertrouwen',
+  mijlpaal_zelfvertrouwen_body: 'Je lichaamsvertrouwen is de afgelopen weken gegroeid.',
 }
 
 export type NlKeys = keyof typeof nl

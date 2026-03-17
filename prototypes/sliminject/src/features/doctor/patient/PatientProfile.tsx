@@ -10,6 +10,81 @@ import { useConcerns } from '../../patient/concerns/useConcerns'
 import { MedicationTimeline } from '../../patient/medication/MedicationTimeline'
 import { supabase } from '../../../lib/supabase'
 import { nl } from '../../../i18n/nl'
+import { useAdherence } from '../../../hooks/useAdherence'
+import { useWellbeingHistory, type WellbeingCheckIn } from '../../patient/wellbeing/useWellbeingHistory'
+
+type AdherenceResponse = 'confirmed' | 'skipped' | 'adjusted' | null
+
+function TrendArrow({ current, previous }: { current: number | null; previous: number | null }) {
+  if (current == null || previous == null) return <span style={{ color: '#AAA49C' }}>—</span>
+  const diff = current - previous
+  if (diff > 0) return <span style={{ color: '#2D7A5E' }}>↑</span>
+  if (diff < 0) return <span style={{ color: '#A85C0A' }}>↓</span>
+  return <span style={{ color: '#AAA49C' }}>→</span>
+}
+
+function WellbeingDoctorSummary({ checkins }: { checkins: WellbeingCheckIn[] }) {
+  if (checkins.length === 0) {
+    return <p className="text-sm" style={{ color: '#AAA49C' }}>{nl.welzijn_geen_checkins}</p>
+  }
+
+  const recent   = checkins[0]
+  const previous = checkins[1] ?? null
+
+  const dimensions: { label: string; field: keyof WellbeingCheckIn }[] = [
+    { label: nl.welzijn_checkin_energie,        field: 'energy_score' },
+    { label: nl.welzijn_checkin_stemming,       field: 'mood_score' },
+    { label: nl.welzijn_checkin_zelfvertrouwen, field: 'confidence_score' },
+  ]
+
+  return (
+    <div className="card px-4 py-3 space-y-2">
+      <p className="text-xs" style={{ color: '#6B6660' }}>
+        {nl.welzijn_checkin_recentste}:{' '}
+        <time>{new Date(recent.submitted_at).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long' })}</time>
+      </p>
+      <ul className="space-y-2">
+        {dimensions.map(({ label, field }) => {
+          const score = recent[field] as number | null
+          const prev  = previous ? (previous[field] as number | null) : null
+          return (
+            <li key={field} className="flex items-center justify-between">
+              <span className="text-sm" style={{ color: '#2E2B24' }}>{label}</span>
+              <div className="flex items-center gap-2">
+                {score != null ? (
+                  <span className="text-sm font-semibold tabular-nums" style={{ color: '#14130F' }}>
+                    {score}/5
+                  </span>
+                ) : (
+                  <span className="text-sm" style={{ color: '#AAA49C' }}>—</span>
+                )}
+                <TrendArrow current={score} previous={prev} />
+              </div>
+            </li>
+          )
+        })}
+      </ul>
+      {recent.note && (
+        <p className="text-xs italic pt-1" style={{ color: '#6B6660' }}>"{recent.note}"</p>
+      )}
+    </div>
+  )
+}
+
+function AdherenceBadge({ response }: { response: AdherenceResponse }) {
+  if (response === 'confirmed') return (
+    <span className="badge" style={{ background: '#EDF7F4', color: '#1A4A36' }}>Genomen</span>
+  )
+  if (response === 'skipped') return (
+    <span className="badge" style={{ background: '#FFF8EE', color: '#A85C0A' }}>Overgeslagen</span>
+  )
+  if (response === 'adjusted') return (
+    <span className="badge" style={{ background: '#F5F3F0', color: '#6B6660' }}>Aangepaste dosis</span>
+  )
+  return (
+    <span className="badge" style={{ background: '#F5F3F0', color: '#AAA49C' }}>Niet ingevuld</span>
+  )
+}
 
 export function PatientProfile() {
   const { id: patientId } = useParams<{ id: string }>()
@@ -26,9 +101,15 @@ export function PatientProfile() {
   }, [patientId])
 
   const { entries, loading: entriesLoading } = useProgressEntries(patientId)
-  const { entries: schedule } = useDosageSchedule(patientId!)
-  const { concerns } = useConcerns(patientId)
+  const { checkins: wellbeingCheckins } = useWellbeingHistory(patientId)
+  const { concerns, loading: concernsLoading, respondToConcern } = useConcerns(patientId)
   const openConcernsCount = concerns.filter(c => c.status === 'open').length
+  const [showFoodNoise, setShowFoodNoise] = useState(false)
+
+  // Medicatie tab data — only fetched once the tab is first opened
+  const [medicatieLoaded, setMedicatieLoaded] = useState(false)
+  const { entries: schedule } = useDosageSchedule(medicatieLoaded ? patientId! : undefined)
+  const { byEntryId: adherenceByEntryId } = useAdherence(medicatieLoaded ? patientId : undefined)
 
   return (
     <main className="page-doctor space-y-6">
@@ -45,7 +126,10 @@ export function PatientProfile() {
       </div>
 
       {/* Tabs */}
-      <Tabs.Root defaultValue="overzicht">
+      <Tabs.Root
+        defaultValue="overzicht"
+        onValueChange={(tab) => { if (tab === 'medicatie') setMedicatieLoaded(true) }}
+      >
         <Tabs.List
           className="flex border-b"
           style={{ borderColor: '#E0DBD4' }}
@@ -85,8 +169,16 @@ export function PatientProfile() {
             ) : entries.length === 0 ? (
               <p className="text-sm" style={{ color: '#6B6660' }}>{nl.dokter_profiel_geen_metingen}</p>
             ) : (
-              <ProgressChart entries={entries} />
+              <ProgressChart
+                entries={entries}
+                showFoodNoise={showFoodNoise}
+                onToggleFoodNoise={() => setShowFoodNoise(v => !v)}
+              />
             )}
+          </section>
+          <section>
+            <h2 className="text-base font-semibold mb-4" style={{ color: '#14130F' }}>{nl.welzijn_checkin_titel}</h2>
+            <WellbeingDoctorSummary checkins={wellbeingCheckins} />
           </section>
         </Tabs.Content>
 
@@ -102,6 +194,43 @@ export function PatientProfile() {
             </Link>
           </div>
           <MedicationTimeline entries={schedule} />
+
+          {schedule.length > 0 && (
+            <section className="space-y-2">
+              <p className="section-label">Injectietrouw per dosering</p>
+              <ol className="space-y-2">
+                {schedule.map(entry => {
+                  const record = adherenceByEntryId.get(entry.id)
+                  // Find the progress entry logged on this injection day
+                  const injectionDayEntry = record?.response === 'confirmed'
+                    ? entries.find(e => e.logged_at.slice(0, 10) === entry.start_date)
+                    : undefined
+                  return (
+                    <li key={entry.id} className="card px-4 py-2.5 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="text-sm font-semibold" style={{ color: '#14130F' }}>
+                            {entry.dose_mg} mg
+                          </span>
+                          <span className="text-xs ml-2" style={{ color: '#AAA49C' }}>
+                            {new Date(entry.start_date).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          </span>
+                        </div>
+                        <AdherenceBadge response={record?.response ?? null} />
+                      </div>
+                      {injectionDayEntry && (
+                        <p className="text-xs" style={{ color: '#6B6660' }}>
+                          {injectionDayEntry.weight_kg != null && `${injectionDayEntry.weight_kg} kg`}
+                          {injectionDayEntry.weight_kg != null && injectionDayEntry.hunger_score != null && ' · '}
+                          {injectionDayEntry.hunger_score != null && `Honger ${injectionDayEntry.hunger_score}/5`}
+                        </p>
+                      )}
+                    </li>
+                  )
+                })}
+              </ol>
+            </section>
+          )}
         </Tabs.Content>
 
         <Tabs.Content value="meldingen" className="pt-6 space-y-6">
@@ -111,7 +240,7 @@ export function PatientProfile() {
           </section>
           <section>
             <h2 className="text-base font-semibold mb-4" style={{ color: '#14130F' }}>{nl.dokter_profiel_meldingen}</h2>
-            <ConcernInbox patientId={patientId!} />
+            <ConcernInbox concerns={concerns} loading={concernsLoading} respondToConcern={respondToConcern} />
           </section>
         </Tabs.Content>
 

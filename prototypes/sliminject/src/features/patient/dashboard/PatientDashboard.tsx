@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { useProgressEntries, type ProgressEntry } from './useProgressEntries'
 import { ProgressChart } from './ProgressChart'
 import { useOfflineSync } from '../../../hooks/useOfflineSync'
@@ -10,8 +10,15 @@ import { useConcerns } from '../concerns/useConcerns'
 import { useAdvice } from '../../doctor/patient/useAdvice'
 import { getUnseenReviewedConcerns } from '../../../hooks/useSeenConcerns'
 import { hasSeenOnboarding } from '../onboarding/OnboardingScreen'
+import { injectionDates } from '../adherence/injectionDates'
 import { nl } from '../../../i18n/nl'
 import { useAuth } from '../../../auth/AuthProvider'
+import { AdherenceCheckIn } from '../adherence/AdherenceCheckIn'
+import { useConsecutiveMiss } from '../adherence/useConsecutiveMiss'
+import { InjectionDayCard } from '../adherence/InjectionDayCard'
+import { useInjectionDayCard } from '../adherence/useInjectionDayCard'
+import { useFoodNoiseMilestone, useWellbeingDimensionMilestones } from '../wellbeing/useWellbeingMilestones'
+import { useWellbeingCheckIn } from '../wellbeing/useWellbeingCheckIn'
 
 const MS_PER_WEEK = 1000 * 60 * 60 * 24 * 7
 
@@ -38,7 +45,7 @@ export function PatientDashboard() {
   useOfflineSync()
   const navigate = useNavigate()
   const { signOut, user } = useAuth()
-  const { entries, loading, hasLoggedToday, hasEnoughDataForChart } = useProgressEntries()
+  const { entries, loading, addEntry, hasLoggedToday, hasEnoughDataForChart } = useProgressEntries()
 
   // Notification reminder state
   const [reminderEnabled, setReminderEnabled] = useState(
@@ -71,7 +78,20 @@ export function PatientDashboard() {
     return () => clearInterval(interval)
   }, [reminderEnabled, reminderTime, hasLoggedToday])
 
-  const { nextIncrease, daysUntilNext } = usePatientDosageSchedule()
+  const { entries: scheduleEntries, nextIncrease, daysUntilNext } = usePatientDosageSchedule()
+  const injectionDateSet = useMemo(() => injectionDates(scheduleEntries), [scheduleEntries])
+  const todayStr = useMemo(() => {
+    const d = new Date()
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  }, [])
+  const isInjectionDay = injectionDateSet.has(todayStr)
+  const { isConsecutiveMiss, dismiss: dismissMissNudge } = useConsecutiveMiss()
+  const injectionCard = useInjectionDayCard(addEntry)
+  const [showFoodNoise, setShowFoodNoise] = useState(false)
+  const { isFoodNoiseMilestone, dismissFoodNoise } = useFoodNoiseMilestone(entries)
+  // Single fetch for wellbeing data — checkins shared with WellbeingCheckIn via props
+  const { checkins } = useWellbeingCheckIn()
+  const { energy: energyMilestone, mood: moodMilestone, confidence: confidenceMilestone } = useWellbeingDimensionMilestones(checkins)
   const { items: contentItems } = useEducationalContent()
   const { next: nextAppointment, hoursUntilNext } = useAppointments()
   const { concerns } = useConcerns()
@@ -125,7 +145,7 @@ export function PatientDashboard() {
       </div>
 
       {/* ── 1. Log CTA ───────────────────────────────────── */}
-      {hasLoggedToday ? (
+      {!isInjectionDay && (hasLoggedToday ? (
         <div
           className="flex items-center gap-2.5 rounded-xl px-4 py-3"
           style={{ background: '#EDF7F4' }}
@@ -143,6 +163,47 @@ export function PatientDashboard() {
         >
           {nl.log_cta_vandaag}
         </Link>
+      ))}
+
+      {/* ── 1b. Injection day card (unified) or standalone adherence ── */}
+      {injectionCard.isDue ? (
+        <InjectionDayCard
+          isDue={injectionCard.isDue}
+          step={injectionCard.step}
+          submitting={injectionCard.submitting}
+          confirmInjection={injectionCard.confirmInjection}
+          submitLog={injectionCard.submitLog}
+          skipInjection={injectionCard.skipInjection}
+          adjustInjection={injectionCard.adjustInjection}
+        />
+      ) : (
+        <AdherenceCheckIn />
+      )}
+
+      {/* ── 1c. Consecutive miss nudge ───────────────────── */}
+      {isConsecutiveMiss && (
+        <div className="alert-amber rounded-xl px-4 py-3 flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <p className="text-sm font-medium" style={{ color: '#7A3D00' }}>
+              Je hebt je injectie twee keer overgeslagen
+            </p>
+            <button
+              className="text-xs underline"
+              style={{ color: '#A85C0A' }}
+              onClick={() => navigate('/patient/meldingen/nieuw')}
+            >
+              Stuur je arts een berichtje →
+            </button>
+          </div>
+          <button
+            onClick={dismissMissNudge}
+            className="text-xs flex-shrink-0 mt-0.5"
+            style={{ color: '#A85C0A' }}
+            aria-label="Melding sluiten"
+          >
+            ✕
+          </button>
+        </div>
       )}
 
       {/* ── 2. Doctor messages ───────────────────────────── */}
@@ -214,7 +275,57 @@ export function PatientDashboard() {
       )}
 
       {/* ── 4. Progress chart ────────────────────────────── */}
-      {hasEnoughDataForChart && <ProgressChart entries={entries} />}
+      {hasEnoughDataForChart && (
+        <ProgressChart
+          entries={entries}
+          showFoodNoise={showFoodNoise}
+          onToggleFoodNoise={() => setShowFoodNoise(v => !v)}
+        />
+      )}
+
+      {/* ── 4b. Food noise milestone ──────────────────────── */}
+      {isFoodNoiseMilestone && (
+        <div className="card p-4 flex items-start justify-between gap-3" style={{ background: '#EDF7F4' }}>
+          <div className="space-y-1">
+            <p className="text-sm font-semibold" style={{ color: '#1A4A36' }}>
+              {nl.mijlpaal_voedselruis_titel}
+            </p>
+            <p className="text-sm" style={{ color: '#2D7A5E' }}>
+              {nl.mijlpaal_voedselruis_body}
+            </p>
+          </div>
+          <button
+            onClick={dismissFoodNoise}
+            className="text-xs flex-shrink-0 mt-0.5"
+            style={{ color: '#2D7A5E' }}
+            aria-label="Melding sluiten"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* ── 4c. Wellbeing dimension milestones ───────────── */}
+      {[
+        { milestone: energyMilestone,     titel: nl.mijlpaal_energie_titel,         body: nl.mijlpaal_energie_body },
+        { milestone: moodMilestone,       titel: nl.mijlpaal_stemming_titel,        body: nl.mijlpaal_stemming_body },
+        { milestone: confidenceMilestone, titel: nl.mijlpaal_zelfvertrouwen_titel,  body: nl.mijlpaal_zelfvertrouwen_body },
+      ].filter(({ milestone }) => milestone.triggered).map(({ milestone, titel, body }) => (
+        <div key={titel} className="card p-4 flex items-start justify-between gap-3" style={{ background: '#EDF7F4' }}>
+          <div className="space-y-1">
+            <p className="text-sm font-semibold" style={{ color: '#1A4A36' }}>{titel}</p>
+            <p className="text-sm" style={{ color: '#2D7A5E' }}>{body}</p>
+          </div>
+          <button
+            onClick={milestone.dismiss}
+            className="text-xs flex-shrink-0 mt-0.5"
+            style={{ color: '#2D7A5E' }}
+            aria-label="Melding sluiten"
+          >
+            ✕
+          </button>
+        </div>
+      ))}
 
       {/* ── 5. Recent entries ────────────────────────────── */}
       {entries.length > 0 && (
@@ -224,10 +335,19 @@ export function PatientDashboard() {
             {entries.slice(0, 5).map(entry => {
               const weekly = entries.length > 1 && isWeeklyLog(entry, entries)
               const week = weekly ? treatmentWeek(entry, entries[entries.length - 1]) : null
+              const isInjectionDay = injectionDateSet.has(entry.logged_at.slice(0, 10))
               return (
                 <li key={entry.id} className="card px-4 py-3">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2 min-w-0">
+                      {isInjectionDay && (
+                        <span
+                          className="flex-shrink-0 text-xs font-semibold px-1.5 py-0.5 rounded"
+                          style={{ background: '#EDF7F4', color: '#2D7A5E' }}
+                        >
+                          {nl.injectiedag_badge}
+                        </span>
+                      )}
                       {weekly && week !== null && (
                         <span
                           className="flex-shrink-0 text-xs font-semibold px-1.5 py-0.5 rounded"

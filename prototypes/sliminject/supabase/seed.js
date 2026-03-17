@@ -121,6 +121,8 @@ async function run() {
 
   // ── Bestaande data opruimen (idempotent) ─────────────────────────────────
   const allIds = [larsId, anoukId, mohamedId, nieuwId]
+  await supabase.from('weekly_wellbeing_checkins').delete().in('patient_id', allIds)
+  await supabase.from('injection_adherence').delete().in('patient_id', allIds)
   await supabase.from('progress_entries').delete().in('patient_id', allIds)
   await supabase.from('dosage_schedule_entries').delete().in('patient_id', allIds)
   await supabase.from('advice').delete().in('patient_id', allIds)
@@ -128,23 +130,25 @@ async function run() {
   await supabase.from('appointments').delete().in('patient_id', allIds)
 
   // ── Voortgangsmetingen ───────────────────────────────────────────────────
+  // food_noise_score: hoog vroeg in behandeling (4–5), daalt naar 1–2 recent.
+  // Dit triggert de voedselruis-mijlpaal voor Lars.
   const { error: eLars } = await supabase.from('progress_entries').insert([
-    { patient_id: larsId, logged_at: daysAgo(56).toISOString(), weight_kg: 98.2, hunger_score: 4, symptoms: ['Misselijkheid', 'Vermoeidheid'], notes: 'Eerste week, nogal zwaar.' },
-    { patient_id: larsId, logged_at: daysAgo(49).toISOString(), weight_kg: 97.5, hunger_score: 4, symptoms: ['Misselijkheid'], notes: null },
-    { patient_id: larsId, logged_at: daysAgo(42).toISOString(), weight_kg: 97.0, hunger_score: 3, symptoms: ['Vermoeidheid'], notes: null },
-    { patient_id: larsId, logged_at: daysAgo(35).toISOString(), weight_kg: 96.3, hunger_score: 3, symptoms: [], notes: 'Misselijkheid bijna weg.' },
-    { patient_id: larsId, logged_at: daysAgo(28).toISOString(), weight_kg: 95.8, hunger_score: 2, symptoms: [], notes: null },
-    { patient_id: larsId, logged_at: daysAgo(21).toISOString(), weight_kg: 95.1, hunger_score: 2, symptoms: [], notes: 'Dosering verhoogd naar 0,5 mg.' },
-    { patient_id: larsId, logged_at: daysAgo(14).toISOString(), weight_kg: 94.6, hunger_score: 3, symptoms: ['Misselijkheid'], notes: null },
-    { patient_id: larsId, logged_at: daysAgo(7).toISOString(),  weight_kg: 94.0, hunger_score: 2, symptoms: [], notes: null },
+    { patient_id: larsId, logged_at: daysAgo(56).toISOString(), weight_kg: 98.2, hunger_score: 4, food_noise_score: 5, symptoms: ['Misselijkheid', 'Vermoeidheid'], notes: 'Eerste week, nogal zwaar.' },
+    { patient_id: larsId, logged_at: daysAgo(49).toISOString(), weight_kg: 97.5, hunger_score: 4, food_noise_score: 4, symptoms: ['Misselijkheid'], notes: null },
+    { patient_id: larsId, logged_at: daysAgo(42).toISOString(), weight_kg: 97.0, hunger_score: 3, food_noise_score: 4, symptoms: ['Vermoeidheid'], notes: null },
+    { patient_id: larsId, logged_at: daysAgo(35).toISOString(), weight_kg: 96.3, hunger_score: 3, food_noise_score: 3, symptoms: [], notes: 'Misselijkheid bijna weg.' },
+    { patient_id: larsId, logged_at: daysAgo(28).toISOString(), weight_kg: 95.8, hunger_score: 2, food_noise_score: 2, symptoms: [], notes: null },
+    { patient_id: larsId, logged_at: daysAgo(21).toISOString(), weight_kg: 95.1, hunger_score: 2, food_noise_score: 2, symptoms: [], notes: 'Dosering verhoogd naar 0,5 mg.' },
+    { patient_id: larsId, logged_at: daysAgo(14).toISOString(), weight_kg: 94.6, hunger_score: 3, food_noise_score: 1, symptoms: ['Misselijkheid'], notes: null },
+    { patient_id: larsId, logged_at: daysAgo(7).toISOString(),  weight_kg: 94.0, hunger_score: 2, food_noise_score: 2, symptoms: [], notes: null },
   ])
   if (eLars) throw new Error(`Metingen Lars: ${eLars.message}`)
 
   const { error: eAnouk } = await supabase.from('progress_entries').insert([
-    { patient_id: anoukId, logged_at: daysAgo(28).toISOString(), weight_kg: 82.0, hunger_score: 4, symptoms: ['Misselijkheid', 'Hoofdpijn'], notes: null },
-    { patient_id: anoukId, logged_at: daysAgo(21).toISOString(), weight_kg: 81.4, hunger_score: 3, symptoms: ['Misselijkheid'], notes: null },
-    { patient_id: anoukId, logged_at: daysAgo(14).toISOString(), weight_kg: 81.0, hunger_score: 3, symptoms: [], notes: null },
-    { patient_id: anoukId, logged_at: daysAgo(7).toISOString(),  weight_kg: 80.5, hunger_score: 2, symptoms: [], notes: null },
+    { patient_id: anoukId, logged_at: daysAgo(28).toISOString(), weight_kg: 82.0, hunger_score: 4, food_noise_score: 4, symptoms: ['Misselijkheid', 'Hoofdpijn'], notes: null },
+    { patient_id: anoukId, logged_at: daysAgo(21).toISOString(), weight_kg: 81.4, hunger_score: 3, food_noise_score: 3, symptoms: ['Misselijkheid'], notes: null },
+    { patient_id: anoukId, logged_at: daysAgo(14).toISOString(), weight_kg: 81.0, hunger_score: 3, food_noise_score: 2, symptoms: [], notes: null },
+    { patient_id: anoukId, logged_at: daysAgo(7).toISOString(),  weight_kg: 80.5, hunger_score: 2, food_noise_score: 1, symptoms: [], notes: null },
   ])
   if (eAnouk) throw new Error(`Metingen Anouk: ${eAnouk.message}`)
 
@@ -153,7 +157,42 @@ async function run() {
     { patient_id: mohamedId, logged_at: daysAgo(7).toISOString(),  weight_kg: 103.5, hunger_score: 3, symptoms: [], notes: null },
   ])
   if (eMohamed) throw new Error(`Metingen Mohamed: ${eMohamed.message}`)
-  console.log('✓ Voortgangsmetingen aangemaakt (Lars: 8, Anouk: 4, Mohamed: 2)')
+
+  // Sara: 2 eerdere metingen zodat ze het onboarding-scherm overslaat en de injectiedag-kaart ziet
+  const { error: eSara } = await supabase.from('progress_entries').insert([
+    { patient_id: nieuwId, logged_at: daysAgo(14).toISOString(), weight_kg: 78.5, hunger_score: 4, food_noise_score: 4, symptoms: ['Misselijkheid'], notes: 'Eerste meting, wat onwennig.' },
+    { patient_id: nieuwId, logged_at: daysAgo(7).toISOString(),  weight_kg: 77.9, hunger_score: 3, food_noise_score: 3, symptoms: [], notes: null },
+  ])
+  if (eSara) throw new Error(`Metingen Sara: ${eSara.message}`)
+  console.log('✓ Voortgangsmetingen aangemaakt (Lars: 8, Anouk: 4, Mohamed: 2, Sara: 2, met food_noise_score)')
+
+  // ── Wekelijkse welzijn check-ins ─────────────────────────────────────────
+  // Lars: check-in van 35 dagen geleden (laag) + check-in van 8 dagen geleden (hoog).
+  // → isDue = true (8 dagen ≥ 7): check-in kaart zichtbaar op dashboard.
+  // → +2 verbetering per dimensie: alle drie mijlpalen getriggerd.
+  // Anouk: één check-in van 8 dagen geleden → check-in kaart zichtbaar.
+  const { error: eCheckins } = await supabase.from('weekly_wellbeing_checkins').insert([
+    {
+      patient_id: larsId,
+      submitted_at: daysAgo(35).toISOString(),
+      energy_score: 2, mood_score: 2, confidence_score: 2,
+      note: 'Nog erg moe van de bijwerkingen.',
+    },
+    {
+      patient_id: larsId,
+      submitted_at: daysAgo(8).toISOString(),
+      energy_score: 4, mood_score: 4, confidence_score: 4,
+      note: 'Voel me echt beter de laatste weken.',
+    },
+    {
+      patient_id: anoukId,
+      submitted_at: daysAgo(8).toISOString(),
+      energy_score: 3, mood_score: 3, confidence_score: null,
+      note: null,
+    },
+  ])
+  if (eCheckins) throw new Error(`Welzijn check-ins: ${eCheckins.message}`)
+  console.log('✓ Welzijn check-ins aangemaakt (Lars: 2, Anouk: 1 — check-in kaart zichtbaar voor beide)')
 
   // ── Medicatieschema ──────────────────────────────────────────────────────
   const { error: eSchema } = await supabase.from('dosage_schedule_entries').insert([
@@ -213,10 +252,10 @@ async function run() {
   console.log('\n✅ Demo-data geladen!\n')
   console.log('Demo-accounts:')
   console.log('  dokter@demo.nl    /  demo1234  →  Dr. Fatima el-Amin (dokter)')
-  console.log('  patient@demo.nl   /  demo1234  →  Lars Veenstra       (patiënt)')
-  console.log('  patient2@demo.nl  /  demo1234  →  Anouk de Boer       (patiënt, open melding)')
+  console.log('  patient@demo.nl   /  demo1234  →  Lars Veenstra       (patiënt, check-in kaart zichtbaar, voedselruis + welzijn mijlpalen)')
+  console.log('  patient2@demo.nl  /  demo1234  →  Anouk de Boer       (patiënt, open melding, check-in kaart zichtbaar)')
   console.log('  patient3@demo.nl  /  demo1234  →  Mohamed Bouazza     (patiënt)')
-  console.log('  nieuw@demo.nl     /  demo1234  →  Sara Dijkstra        (patiënt, geen metingen → onboarding)')
+  console.log('  nieuw@demo.nl     /  demo1234  →  Sara Dijkstra        (patiënt, injectiedag vandaag → injectiedag-kaart zichtbaar op dashboard)')
 }
 
 run().catch(err => {
