@@ -28,8 +28,8 @@ export type Database = {
         Update: Record<string, never>
       }
       progress_entries: {
-        Row: { id: string; patient_id: string; logged_at: string; weight_kg: number | null; wellbeing_score: number; symptoms: string[]; notes: string | null }
-        Insert: { patient_id: string; logged_at: string; weight_kg?: number | null; wellbeing_score: number; symptoms?: string[]; notes?: string | null }
+        Row: { id: string; patient_id: string; logged_at: string; weight_kg: number | null; wellbeing_score: number; symptoms: string[]; notes: string | null; hunger_score: number | null; food_noise_score: number | null }
+        Insert: { patient_id: string; logged_at: string; weight_kg?: number | null; wellbeing_score: number; symptoms?: string[]; notes?: string | null; hunger_score?: number | null; food_noise_score?: number | null }
         Update: never
       }
       concerns: {
@@ -51,6 +51,16 @@ export type Database = {
         Row: { id: string; patient_id: string; doctor_id: string; scheduled_at: string; notes: string | null }
         Insert: { patient_id: string; doctor_id: string; scheduled_at: string; notes?: string | null }
         Update: { scheduled_at?: string; notes?: string | null }
+      }
+      injection_adherence: {
+        Row: { id: string; patient_id: string; schedule_entry_id: string; response: 'confirmed' | 'skipped' | 'adjusted'; note: string | null; recorded_at: string }
+        Insert: { patient_id: string; schedule_entry_id: string; response: 'confirmed' | 'skipped' | 'adjusted'; note?: string | null }
+        Update: never
+      }
+      weekly_wellbeing_checkins: {
+        Row: { id: string; patient_id: string; submitted_at: string; energy_score: number | null; mood_score: number | null; confidence_score: number | null; note: string | null }
+        Insert: { patient_id: string; energy_score?: number | null; mood_score?: number | null; confidence_score?: number | null; note?: string | null }
+        Update: never
       }
     }
   }

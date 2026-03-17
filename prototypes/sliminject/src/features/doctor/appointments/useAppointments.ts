@@ -20,6 +20,7 @@ export function useAppointments(patientId?: string) {
     let query = supabase
       .from('appointments')
       .select('*')
+      .gte('scheduled_at', new Date().toISOString())
       .order('scheduled_at', { ascending: true })
 
     if (patientId) query = query.eq('patient_id', patientId)
@@ -41,8 +42,8 @@ export function useAppointments(patientId?: string) {
     await fetchAppointments()
   }
 
-  const upcoming = appointments.filter(a => new Date(a.scheduled_at) >= new Date())
-  const next = upcoming[0] ?? null
+  const upcoming = appointments
+  const next = appointments[0] ?? null
   const hoursUntilNext = next
     ? (new Date(next.scheduled_at).getTime() - Date.now()) / (1000 * 60 * 60)
     : null

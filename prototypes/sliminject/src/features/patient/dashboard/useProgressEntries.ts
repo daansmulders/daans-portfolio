@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { supabase } from '../../../lib/supabase'
 import { db, type OfflineProgressEntry } from '../../../lib/db'
@@ -11,6 +11,7 @@ export interface ProgressEntry {
   weight_kg: number | null
   wellbeing_score: number | null
   hunger_score: number | null
+  food_noise_score: number | null
   symptoms: string[]
   notes: string | null
 }
@@ -18,6 +19,7 @@ export interface ProgressEntry {
 export interface NewProgressEntry {
   weight_kg?: number | null
   hunger_score: number | null
+  food_noise_score?: number | null
   symptoms?: string[]
   notes?: string | null
 }
@@ -86,6 +88,7 @@ export function useProgressEntries(patientId?: string) {
       weight_kg: entry.weight_kg ?? null,
       wellbeing_score: null,
       hunger_score: entry.hunger_score,
+      food_noise_score: entry.food_noise_score ?? null,
       symptoms: entry.symptoms ?? [],
       notes: entry.notes ?? null,
       synced: false,
@@ -117,10 +120,14 @@ export function useProgressEntries(patientId?: string) {
     return { offline: false }
   }
 
-  const todayKey = toLocalDateKey(new Date().toISOString())
-  const hasLoggedToday = entries.some(e => toLocalDateKey(e.logged_at) === todayKey)
-  const streakDays = calculateStreak(entries)
-  const hasEnoughDataForChart = entries.length >= 7
+  const { hasLoggedToday, streakDays, hasEnoughDataForChart } = useMemo(() => {
+    const todayKey = toLocalDateKey(new Date().toISOString())
+    return {
+      hasLoggedToday: entries.some(e => toLocalDateKey(e.logged_at) === todayKey),
+      streakDays: calculateStreak(entries),
+      hasEnoughDataForChart: entries.length >= 7,
+    }
+  }, [entries])
 
   return { entries, loading, addEntry, refresh: fetchEntries, hasLoggedToday, streakDays, hasEnoughDataForChart }
 }

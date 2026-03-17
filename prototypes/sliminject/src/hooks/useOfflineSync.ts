@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { db } from '../lib/db'
 import { useAuth } from '../auth/AuthProvider'
@@ -7,7 +7,8 @@ export function useOfflineSync() {
   const { user } = useAuth()
   const syncRunning = useRef(false)
 
-  async function syncPendingEntries() {
+  // Stable reference — useCallback ensures add/removeEventListener use the same function object
+  const syncPendingEntries = useCallback(async () => {
     if (!user || syncRunning.current) return
     syncRunning.current = true
 
@@ -19,12 +20,14 @@ export function useOfflineSync() {
 
       for (const entry of unsyncedEntries) {
         const { error } = await supabase.from('progress_entries').insert({
-          patient_id: entry.patient_id,
-          logged_at: entry.logged_at,
-          weight_kg: entry.weight_kg,
-          wellbeing_score: entry.wellbeing_score,
-          symptoms: entry.symptoms,
-          notes: entry.notes,
+          patient_id:       entry.patient_id,
+          logged_at:        entry.logged_at,
+          weight_kg:        entry.weight_kg,
+          wellbeing_score:  entry.wellbeing_score,
+          hunger_score:     entry.hunger_score,
+          food_noise_score: entry.food_noise_score,
+          symptoms:         entry.symptoms,
+          notes:            entry.notes,
         })
 
         if (!error) {
@@ -34,15 +37,11 @@ export function useOfflineSync() {
     } finally {
       syncRunning.current = false
     }
-  }
+  }, [user])
 
   useEffect(() => {
-    // Sync zodra de browser online komt
     window.addEventListener('online', syncPendingEntries)
-
-    // Probeer ook direct bij mount (voor het geval we al online zijn)
     if (navigator.onLine) syncPendingEntries()
-
     return () => window.removeEventListener('online', syncPendingEntries)
-  }, [user])
+  }, [syncPendingEntries])
 }

@@ -20,11 +20,12 @@ const SECONDARY_SYMPTOMS = [
 export function LogEntryForm() {
   const { addEntry, entries } = useProgressEntries()
   const navigate = useNavigate()
-  const [gewicht, setGewicht]     = useState('')
-  const [honger, setHonger]       = useState<number>(3)
-  const [symptomen, setSymptomen] = useState<string[]>([])
-  const [notities, setNotities]   = useState('')
-  const [loading, setLoading]     = useState(false)
+  const [gewicht, setGewicht]       = useState('')
+  const [honger, setHonger]         = useState<number>(3)
+  const [voedselruis, setVoedselruis] = useState<number | null>(null)
+  const [symptomen, setSymptomen]   = useState<string[]>([])
+  const [notities, setNotities]     = useState('')
+  const [loading, setLoading]       = useState(false)
   const [succes, setSucces]       = useState<'online' | 'offline' | 'mijlpaal' | null>(null)
   const [mijlpaalWeek, setMijlpaalWeek] = useState<number | null>(null)
   const [showMoreSymptoms, setShowMoreSymptoms] = useState(false)
@@ -39,10 +40,11 @@ export function LogEntryForm() {
     e.preventDefault()
     setLoading(true)
     const { offline } = await addEntry({
-      weight_kg:    gewicht ? parseFloat(gewicht) : null,
-      hunger_score: honger,
-      symptoms:     symptomen,
-      notes:        notities || null,
+      weight_kg:        gewicht ? parseFloat(gewicht) : null,
+      hunger_score:     honger,
+      food_noise_score: voedselruis,
+      symptoms:         symptomen,
+      notes:            notities || null,
     })
 
     // Milestone: only fire for the FIRST log of a new treatment week
@@ -70,6 +72,7 @@ export function LogEntryForm() {
   }
 
   const hongerLabels = [nl.log_honger_1, nl.log_honger_2, nl.log_honger_3, nl.log_honger_4, nl.log_honger_5]
+  const voedselruisLabels = [nl.log_voedselruis_1, nl.log_voedselruis_2, nl.log_voedselruis_3, nl.log_voedselruis_4, nl.log_voedselruis_5]
 
   return (
     <main className="page">
@@ -137,6 +140,39 @@ export function LogEntryForm() {
           <p className="mt-1 text-sm text-center" style={{ color: '#6B6660' }}>
             {hongerLabels[honger - 1]}
           </p>
+        </fieldset>
+
+        {/* Voedselruis */}
+        <fieldset>
+          <legend className="block text-sm font-medium mb-1" style={{ color: '#2E2B24' }}>
+            {nl.log_voedselruis}
+          </legend>
+          <p className="text-xs mb-3" style={{ color: '#6B6660' }}>
+            {nl.log_voedselruis_optioneel}
+          </p>
+          <div className="flex gap-2" role="group" aria-label={nl.log_voedselruis}>
+            {[1, 2, 3, 4, 5].map(score => (
+              <button
+                key={score}
+                type="button"
+                aria-label={voedselruisLabels[score - 1]}
+                aria-pressed={voedselruis === score}
+                onClick={() => setVoedselruis(prev => prev === score ? null : score)}
+                className={`hunger-btn${voedselruis === score ? ' selected' : ''}`}
+              >
+                {score}
+              </button>
+            ))}
+          </div>
+          <div className="flex justify-between mt-1.5 px-0.5">
+            <span className="text-xs" style={{ color: '#AAA49C' }}>{nl.log_voedselruis_min}</span>
+            <span className="text-xs" style={{ color: '#AAA49C' }}>{nl.log_voedselruis_max}</span>
+          </div>
+          {voedselruis !== null && (
+            <p className="mt-1 text-sm text-center" style={{ color: '#6B6660' }}>
+              {voedselruisLabels[voedselruis - 1]}
+            </p>
+          )}
         </fieldset>
 
         {/* Symptomen */}

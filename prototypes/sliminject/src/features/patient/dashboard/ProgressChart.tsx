@@ -1,8 +1,11 @@
+import { useMemo } from 'react'
 import type { ProgressEntry } from './useProgressEntries'
 import { nl } from '../../../i18n/nl'
 
 interface ProgressChartProps {
   entries: ProgressEntry[]
+  showFoodNoise?: boolean
+  onToggleFoodNoise?: () => void
 }
 
 const CHART_W  = 300
@@ -20,45 +23,59 @@ function toY(value: number, min: number, max: number) {
   return CHART_H - PAD_BOTTOM - ((value - min) / range) * (CHART_H - PAD_TOP - PAD_BOTTOM)
 }
 
-export function ProgressChart({ entries }: ProgressChartProps) {
-  if (entries.length === 0) return null
+export function ProgressChart({ entries, showFoodNoise = false, onToggleFoodNoise }: ProgressChartProps) {
+  const derived = useMemo(() => {
+    if (entries.length === 0) return null
+    const sorted           = [...entries].reverse()
+    const firstDate        = new Date(sorted[0].logged_at)
+    const lastDate         = new Date(sorted[sorted.length - 1].logged_at)
+    const daySpan          = (lastDate.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24)
+    if (daySpan < 7) return { tooShort: true } as const
 
-  const sorted = [...entries].reverse()
+    const weights          = sorted.filter(e => e.weight_kg != null)
+    const hungerEntries    = sorted.filter(e => e.hunger_score != null)
+    const foodNoiseEntries = sorted.filter(e => e.food_noise_score != null)
+    const weightVals       = weights.map(e => e.weight_kg as number)
+    const weightMin        = weights.length ? Math.min(...weightVals) : 0
+    const weightMax        = weights.length ? Math.max(...weightVals) : 0
+    const hasFoodNoiseData = foodNoiseEntries.length >= 3
 
-  const firstDate = new Date(sorted[0].logged_at)
-  const lastDate  = new Date(sorted[sorted.length - 1].logged_at)
-  const daySpan   = (lastDate.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24)
-  if (daySpan < 7) {
-    return <p className="text-sm text-center py-4" style={{ color: '#AAA49C' }}>{nl.log_grafiek_wacht}</p>
-  }
-
-  const weights       = sorted.filter(e => e.weight_kg != null)
-  const hungerEntries = sorted.filter(e => e.hunger_score != null)
-
-  function hungerPath() {
-    if (hungerEntries.length < 2) return ''
-    return hungerEntries.map((e, i) => {
+    const hungerPath = hungerEntries.length < 2 ? '' : hungerEntries.map((e, i) => {
       const x = toX(i, hungerEntries.length)
       const y = toY(e.hunger_score!, 1, 5)
       return `${i === 0 ? 'M' : 'L'} ${x} ${y}`
     }).join(' ')
-  }
 
-  function gewichtPath() {
-    if (weights.length < 2) return ''
-    const vals = weights.map(e => e.weight_kg as number)
-    const min  = Math.min(...vals)
-    const max  = Math.max(...vals)
-    return weights.map((e, i) => {
-      const x = toX(i, weights.length)
-      const y = toY(e.weight_kg!, min, max)
+    const foodNoisePath = foodNoiseEntries.length < 3 ? '' : foodNoiseEntries.map((e, i) => {
+      const x = toX(i, foodNoiseEntries.length)
+      const y = toY(e.food_noise_score!, 1, 5)
       return `${i === 0 ? 'M' : 'L'} ${x} ${y}`
     }).join(' ')
+
+    const gewichtPath = weights.length < 2 ? '' : weights.map((e, i) => {
+      const x = toX(i, weights.length)
+      const y = toY(e.weight_kg!, weightMin, weightMax)
+      return `${i === 0 ? 'M' : 'L'} ${x} ${y}`
+    }).join(' ')
+
+    return {
+      tooShort: false,
+      weights, hungerEntries, foodNoiseEntries,
+      weightMin, weightMax, hasFoodNoiseData,
+      hungerPath, foodNoisePath, gewichtPath,
+    }
+  }, [entries])
+
+  if (!derived) return null
+  if (derived.tooShort) {
+    return <p className="text-sm text-center py-4" style={{ color: '#AAA49C' }}>{nl.log_grafiek_wacht}</p>
   }
 
-  const weightVals = weights.map(e => e.weight_kg as number)
-  const weightMin  = weights.length ? Math.min(...weightVals) : 0
-  const weightMax  = weights.length ? Math.max(...weightVals) : 0
+  const {
+    weights, hungerEntries, foodNoiseEntries,
+    weightMin, weightMax, hasFoodNoiseData,
+    hungerPath, foodNoisePath, gewichtPath,
+  } = derived
 
   return (
     <div className="card p-4">
@@ -82,13 +99,20 @@ export function ProgressChart({ entries }: ProgressChartProps) {
 
         {/* Hunger line — brand green */}
         {hungerEntries.length >= 2 && (
-          <path d={hungerPath()} fill="none" stroke="#2D7A5E"
+          <path d={hungerPath} fill="none" stroke="#2D7A5E"
             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        )}
+
+        {/* Food noise line — violet */}
+        {showFoodNoise && hasFoodNoiseData && (
+          <path d={foodNoisePath} fill="none" stroke="#7C5CBF"
+            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            strokeDasharray="3 2" />
         )}
 
         {/* Weight line — amber */}
         {weights.length >= 2 && (
-          <path d={gewichtPath()} fill="none" stroke="#E8821A"
+          <path d={gewichtPath} fill="none" stroke="#E8821A"
             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
             strokeDasharray="4 2" />
         )}
@@ -103,7 +127,7 @@ export function ProgressChart({ entries }: ProgressChartProps) {
         )}
       </svg>
 
-      <div className="mt-3 flex gap-4" style={{ fontSize: '.75rem', color: '#6B6660' }}>
+      <div className="mt-3 flex flex-wrap gap-4" style={{ fontSize: '.75rem', color: '#6B6660' }}>
         {hungerEntries.length >= 2 && (
           <span className="flex items-center gap-1.5">
             <span className="inline-block w-3 h-0.5 rounded" style={{ background: '#2D7A5E' }} />
@@ -115,6 +139,17 @@ export function ProgressChart({ entries }: ProgressChartProps) {
             <span className="inline-block w-3 h-0.5 rounded" style={{ background: '#E8821A' }} />
             {nl.grafiek_gewicht}
           </span>
+        )}
+        {onToggleFoodNoise && hasFoodNoiseData && (
+          <button
+            type="button"
+            onClick={onToggleFoodNoise}
+            className="flex items-center gap-1.5"
+            style={{ color: showFoodNoise ? '#7C5CBF' : '#AAA49C' }}
+          >
+            <span className="inline-block w-3 h-0.5 rounded" style={{ background: showFoodNoise ? '#7C5CBF' : '#AAA49C' }} />
+            {nl.grafiek_voedselruis}
+          </button>
         )}
       </div>
     </div>

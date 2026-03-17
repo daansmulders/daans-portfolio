@@ -1,14 +1,15 @@
 import { useState } from 'react'
-import { useConcerns } from '../../patient/concerns/useConcerns'
+import type { Concern } from '../../patient/concerns/useConcerns'
 import { nl } from '../../../i18n/nl'
 import { showSuccess, showError } from '../../../lib/toast'
 
 interface ConcernInboxProps {
-  patientId: string
+  concerns: Concern[]
+  loading: boolean
+  respondToConcern: (concernId: string, response: string) => Promise<void>
 }
 
-export function ConcernInbox({ patientId }: ConcernInboxProps) {
-  const { concerns, loading, respondToConcern } = useConcerns(patientId)
+export function ConcernInbox({ concerns, loading, respondToConcern }: ConcernInboxProps) {
   const [responses, setResponses] = useState<Record<string, string>>({})
   const [submitting, setSubmitting] = useState<string | null>(null)
 

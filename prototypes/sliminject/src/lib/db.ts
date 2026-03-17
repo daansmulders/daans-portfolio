@@ -7,6 +7,7 @@ export interface OfflineProgressEntry {
   weight_kg: number | null
   wellbeing_score: number | null
   hunger_score: number | null
+  food_noise_score: number | null
   symptoms: string[]
   notes: string | null
   synced: boolean
