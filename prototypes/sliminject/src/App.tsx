@@ -21,6 +21,7 @@ import { AppointmentForm } from './features/doctor/appointments/AppointmentForm'
 import { PatientIntakeForm } from './features/doctor/intake/PatientIntakeForm'
 import { PrescriptionOverview } from './features/doctor/prescriptions/PrescriptionOverview'
 
+import { Toaster } from 'sonner'
 import './index.css'
 
 function AppRoutes() {
@@ -89,6 +90,7 @@ export default function App() {
       <AuthProvider>
         <AppRoutes />
       </AuthProvider>
+      <Toaster position="bottom-center" richColors />
     </BrowserRouter>
   )
 }
