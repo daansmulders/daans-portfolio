@@ -205,6 +205,75 @@ export const nl = {
   afspraak_notities: 'Notities (optioneel)',
   afspraak_plannen: 'Afspraak plannen',
   afspraak_succes: 'Afspraak gepland.',
+
+  // UX Verbeteringen (002)
+
+  // Log CTA
+  log_cta_vandaag: 'Log vandaag',
+  log_cta_gedaan: 'Vandaag gelogd ✓',
+
+  // Streak
+  streak_label: '{n} dagen op rij! 🔥',
+  streak_reset: 'Begin opnieuw — elke dag telt',
+  streak_voortgang: '{n} van 7 dagen',
+
+  // Honger-ankerlabels
+  honger_min: 'Geen honger',
+  honger_max: 'Heel veel honger',
+
+  // Symptomenlijst
+  symptomen_meer: 'Meer symptomen',
+  symptomen_minder: 'Minder weergeven',
+
+  // Melding: verwachte responstijd
+  melding_verwacht_routine: 'Verwacht antwoord binnen 1 werkdag.',
+  melding_verwacht_urgent: 'Je melding is als urgent gemarkeerd. We nemen zo snel mogelijk contact op.',
+
+  // Advies zichtbaarheid
+  advies_zichtbaar: 'Zichtbaar voor patiënt',
+  advies_van_arts: 'Van je arts',
+
+  // Onboarding stap 4
+  onboarding_eerste_titel: 'Doe je eerste meting',
+  onboarding_sla_over: 'Sla over',
+
+  // Educatieve inhoud — groepen
+  inhoud_groep_start: 'Start hier',
+  inhoud_groep_bijwerkingen: 'Bijwerkingen',
+  inhoud_groep_leefstijl: 'Voeding & leefstijl',
+  inhoud_groep_overig: 'Overig',
+  inhoud_alles_bekeken: 'Alles bekeken ✓',
+
+  // Tabs patiëntprofiel
+  tabs_overzicht: 'Overzicht',
+  tabs_meldingen: 'Meldingen',
+  tabs_afspraken: 'Afspraken',
+
+  // Lege states
+  empty_dashboard_heading: 'Nog geen metingen',
+  empty_dashboard_body: 'Start met je eerste meting om je voortgang bij te houden.',
+  empty_meldingen_heading: 'Geen meldingen',
+  empty_meldingen_body: 'Heb je een vraag of klacht over je behandeling? Je arts staat voor je klaar.',
+  empty_inhoud_heading: 'Informatie volgt binnenkort',
+  empty_inhoud_body: 'Hier verschijnen artikelen en video\'s die bij jouw behandeling passen.',
+  empty_patienten_heading: 'Nog geen patiënten',
+  empty_patienten_body: 'Nodig je eerste patiënt uit om aan de slag te gaan.',
+  empty_patienten_cta: 'Patiënt uitnodigen',
+
+  // Toast meldingen
+  toast_schema_bijgewerkt: 'Schema bijgewerkt',
+  toast_intake_succes: 'Patiënt uitgenodigd',
+  toast_reactie_verstuurd: 'Reactie verstuurd',
+  toast_fout: 'Er ging iets mis. Probeer het opnieuw.',
+
+  // Titratieschema
+  schema_titratie_curve: 'Titratieschema',
+
+  // Dagelijkse herinneringen
+  herinnering_titel: 'Dagelijkse herinnering',
+  herinnering_inschakelen: 'Herinnering inschakelen',
+  herinnering_tijd: 'Meldingstijdstip',
+  herinnering_notificatie: 'Vergeet je meting niet vandaag!',
 }
 
 export type NlKeys = keyof typeof nl

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { useAuth } from '../../../auth/AuthProvider'
+import { CONTENT_GROUPS, getGroupForContent } from './contentGroups'
 
 export interface ContentItem {
   id: string
@@ -9,6 +10,8 @@ export interface ContentItem {
   video_url: string | null
   content_type: 'article' | 'video'
   viewed: boolean
+  groupId: string | null
+  groupOrder: number
 }
 
 export function useEducationalContent() {
@@ -75,9 +78,21 @@ export function useEducationalContent() {
       }
     }
 
-    const triggered = content
+    // Sort by group order: "Start hier" first, then by position within group, ungrouped last
+    const triggered: ContentItem[] = content
       .filter((c: any) => triggeredContentIds.has(c.id))
-      .map((c: any) => ({ ...c, viewed: viewedIds.has(c.id) }))
+      .map((c: any) => {
+        const group = getGroupForContent(c.id)
+        const groupIndex = group ? CONTENT_GROUPS.findIndex(g => g.id === group.id) : 999
+        const posInGroup = group ? group.contentIds.indexOf(c.id) : 999
+        return {
+          ...c,
+          viewed: viewedIds.has(c.id),
+          groupId: group?.id ?? null,
+          groupOrder: groupIndex * 100 + posInGroup,
+        }
+      })
+      .sort((a: ContentItem, b: ContentItem) => a.groupOrder - b.groupOrder)
 
     setItems(triggered)
     setLoading(false)

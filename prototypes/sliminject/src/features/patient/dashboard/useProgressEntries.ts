@@ -22,6 +22,36 @@ export interface NewProgressEntry {
   notes?: string | null
 }
 
+function toLocalDateKey(isoStr: string): string {
+  const d = new Date(isoStr)
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
+}
+
+function calculateStreak(entries: ProgressEntry[]): number {
+  if (entries.length === 0) return 0
+
+  const uniqueDays = [...new Set(entries.map(e => toLocalDateKey(e.logged_at)))]
+  const todayKey = toLocalDateKey(new Date().toISOString())
+  const yesterdayKey = toLocalDateKey(new Date(Date.now() - 86400000).toISOString())
+
+  if (!uniqueDays.includes(todayKey) && !uniqueDays.includes(yesterdayKey)) return 0
+
+  const startDate = new Date()
+  if (!uniqueDays.includes(todayKey)) startDate.setDate(startDate.getDate() - 1)
+
+  let streak = 0
+  for (let i = 0; i < 365; i++) {
+    const check = new Date(startDate)
+    check.setDate(check.getDate() - i)
+    if (uniqueDays.includes(toLocalDateKey(check.toISOString()))) {
+      streak++
+    } else {
+      break
+    }
+  }
+  return streak
+}
+
 export function useProgressEntries(patientId?: string) {
   const { user } = useAuth()
   const [entries, setEntries] = useState<ProgressEntry[]>([])
@@ -87,5 +117,10 @@ export function useProgressEntries(patientId?: string) {
     return { offline: false }
   }
 
-  return { entries, loading, addEntry, refresh: fetchEntries }
+  const todayKey = toLocalDateKey(new Date().toISOString())
+  const hasLoggedToday = entries.some(e => toLocalDateKey(e.logged_at) === todayKey)
+  const streakDays = calculateStreak(entries)
+  const hasEnoughDataForChart = entries.length >= 7
+
+  return { entries, loading, addEntry, refresh: fetchEntries, hasLoggedToday, streakDays, hasEnoughDataForChart }
 }

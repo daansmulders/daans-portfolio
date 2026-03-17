@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useConcerns } from '../../patient/concerns/useConcerns'
 import { nl } from '../../../i18n/nl'
+import { showSuccess, showError } from '../../../lib/toast'
 
 interface ConcernInboxProps {
   patientId: string
@@ -18,6 +19,9 @@ export function ConcernInbox({ patientId }: ConcernInboxProps) {
     try {
       await respondToConcern(concernId, text)
       setResponses(prev => ({ ...prev, [concernId]: '' }))
+      showSuccess(nl.toast_reactie_verstuurd)
+    } catch {
+      showError(nl.toast_fout)
     } finally {
       setSubmitting(null)
     }

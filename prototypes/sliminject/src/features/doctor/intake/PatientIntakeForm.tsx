@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useInvitations } from './useInvitations'
 import { nl } from '../../../i18n/nl'
+import { showSuccess, showError } from '../../../lib/toast'
 
 export function PatientIntakeForm() {
   const { drugTypes, addInvitation } = useInvitations()
@@ -29,25 +30,28 @@ export function PatientIntakeForm() {
         starting_weight_kg: startgewicht ? parseFloat(startgewicht) : null,
         drug_type_id: medicijn || null,
       })
+      showSuccess(nl.toast_intake_succes)
       navigate('/dokter/overzicht')
     } catch (err: any) {
-      setError(err.message ?? nl.intake_fout)
+      const msg = err.message ?? nl.intake_fout
+      setError(msg)
+      showError(msg)
       setLoading(false)
     }
   }
 
   return (
-    <main className="max-w-lg mx-auto px-4 py-8 space-y-6">
-      <Link to="/dokter/overzicht" className="text-sm text-blue-600 hover:underline">
+    <main className="page-doctor space-y-6">
+      <Link to="/dokter/overzicht" className="text-sm hover:underline" style={{ color: '#2D7A5E' }}>
         ← {nl.nav_patienten}
       </Link>
 
-      <h1 className="text-xl font-semibold text-gray-900">{nl.intake_titel}</h1>
+      <h1 className="text-xl font-semibold" style={{ color: '#14130F' }}>{nl.intake_titel}</h1>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Naam */}
         <div>
-          <label htmlFor="naam" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="naam" className="block text-sm font-medium mb-1" style={{ color: '#14130F' }}>
             {nl.intake_naam} <span aria-hidden="true">*</span>
           </label>
           <input
@@ -56,14 +60,14 @@ export function PatientIntakeForm() {
             type="text"
             value={naam}
             onChange={e => setNaam(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="input w-full"
             placeholder="bijv. Anna Jansen"
           />
         </div>
 
         {/* E-mail */}
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="email" className="block text-sm font-medium mb-1" style={{ color: '#14130F' }}>
             {nl.intake_email} <span aria-hidden="true">*</span>
           </label>
           <input
@@ -72,15 +76,15 @@ export function PatientIntakeForm() {
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="input w-full"
             placeholder="patient@email.nl"
           />
-          <p className="mt-1 text-xs text-gray-500">{nl.intake_email_uitleg}</p>
+          <p className="mt-1 text-xs" style={{ color: '#6B6660' }}>{nl.intake_email_uitleg}</p>
         </div>
 
         {/* Startdatum */}
         <div>
-          <label htmlFor="startdatum" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="startdatum" className="block text-sm font-medium mb-1" style={{ color: '#14130F' }}>
             {nl.intake_startdatum} <span aria-hidden="true">*</span>
           </label>
           <input
@@ -89,13 +93,13 @@ export function PatientIntakeForm() {
             type="date"
             value={startdatum}
             onChange={e => setStartdatum(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="input w-full"
           />
         </div>
 
         {/* Startgewicht */}
         <div>
-          <label htmlFor="startgewicht" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="startgewicht" className="block text-sm font-medium mb-1" style={{ color: '#14130F' }}>
             {nl.intake_startgewicht}
           </label>
           <input
@@ -106,7 +110,7 @@ export function PatientIntakeForm() {
             max="300"
             value={startgewicht}
             onChange={e => setStartgewicht(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="input w-full"
             placeholder="bijv. 95.0"
           />
         </div>
@@ -114,7 +118,7 @@ export function PatientIntakeForm() {
         {/* Startdosering */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label htmlFor="dosis" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="dosis" className="block text-sm font-medium mb-1" style={{ color: '#14130F' }}>
               {nl.schema_dosis}
             </label>
             <input
@@ -125,19 +129,19 @@ export function PatientIntakeForm() {
               max="10"
               value={dosis}
               onChange={e => setDosis(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="input w-full"
               placeholder="0.25"
             />
           </div>
           <div>
-            <label htmlFor="medicijn" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="medicijn" className="block text-sm font-medium mb-1" style={{ color: '#14130F' }}>
               {nl.schema_medicijn}
             </label>
             <select
               id="medicijn"
               value={medicijn}
               onChange={e => setMedicijn(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className="input w-full bg-white"
             >
               <option value="">{nl.schema_medicijn_kies}</option>
               {drugTypes.map(d => (
@@ -148,7 +152,7 @@ export function PatientIntakeForm() {
         </div>
 
         {error && (
-          <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+          <p className="text-sm alert-danger rounded-lg px-3 py-2">
             {error}
           </p>
         )}
@@ -156,7 +160,7 @@ export function PatientIntakeForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg px-4 py-2.5 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="btn btn-primary w-full disabled:opacity-50"
         >
           {loading ? nl.laden : nl.intake_versturen}
         </button>

@@ -5,35 +5,45 @@ import { nl } from '../../../i18n/nl'
 export function MedicationScreen() {
   const { entries, current, nextIncrease, daysUntilNext, loading } = usePatientDosageSchedule()
 
-  if (loading) return <main className="max-w-lg mx-auto px-4 py-8"><p className="text-gray-500">{nl.laden}</p></main>
+  if (loading) return (
+    <main className="page">
+      <p style={{ color: '#AAA49C' }}>{nl.laden}</p>
+    </main>
+  )
 
   return (
-    <main className="max-w-lg mx-auto px-4 py-8 space-y-6">
-      <h1 className="text-xl font-semibold text-gray-900">{nl.medicatie_titel}</h1>
+    <main className="page space-y-6">
+      <h1 className="text-xl font-semibold" style={{ color: '#14130F' }}>
+        {nl.medicatie_titel}
+      </h1>
 
-      {/* Huidige dosering hero */}
+      {/* Hero dosage card */}
       {current ? (
-        <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-4">
-          <p className="text-sm text-blue-600 font-medium mb-1">{nl.medicatie_huidige_dosis}</p>
-          <div className="flex items-baseline gap-3">
-            <p className="text-3xl font-bold text-blue-800">{current.dose_mg} mg</p>
+        <div className="card p-6" style={{ background: '#EDF7F4' }}>
+          <p className="section-label mb-3">{nl.medicatie_huidige_dosis}</p>
+          <div className="flex items-end gap-3 mb-1">
+            <span className="data-num data-num-xl">{current.dose_mg}</span>
+            <span className="text-lg font-medium pb-1" style={{ color: '#2D7A5E' }}>mg</span>
             {current.drug_type_name && (
-              <span className="text-sm font-medium text-blue-600">{current.drug_type_name}</span>
+              <span className="badge badge-brand pb-1">{current.drug_type_name}</span>
             )}
           </div>
           {nextIncrease && daysUntilNext !== null && (
-            <p className={`text-sm mt-2 ${daysUntilNext <= 7 ? 'text-amber-700 font-medium' : 'text-blue-700'}`}>
-              {nl.medicatie_volgende_verhoging}: {nextIncrease.dose_mg} mg — {nl.medicatie_over_dagen.replace('{dagen}', String(daysUntilNext))}
+            <p className={`text-sm mt-3 font-medium ${daysUntilNext <= 7 ? '' : ''}`}
+               style={{ color: daysUntilNext <= 7 ? '#A85C0A' : '#2D7A5E' }}>
+              {nl.medicatie_volgende_verhoging}: {nextIncrease.dose_mg} mg
+              {' '}— {nl.medicatie_over_dagen.replace('{dagen}', String(daysUntilNext))}
+              {daysUntilNext <= 7 && <span className="ml-2 badge badge-amber">{daysUntilNext}d</span>}
             </p>
           )}
         </div>
       ) : (
-        <p className="text-gray-500 text-sm">{nl.medicatie_geen_dosis}</p>
+        <p className="text-sm" style={{ color: '#AAA49C' }}>{nl.medicatie_geen_dosis}</p>
       )}
 
-      {/* Tijdlijn */}
+      {/* Timeline */}
       <section>
-        <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">{nl.medicatie_tijdlijn}</h2>
+        <p className="section-label mb-4">{nl.medicatie_tijdlijn}</p>
         <MedicationTimeline entries={entries} />
       </section>
     </main>

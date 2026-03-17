@@ -75,6 +75,8 @@ GoatCounter is loaded on all pages via a script tag in the layouts.
 ## Active Technologies
 - TypeScript 5.x, Node 20+ + React 18, Vite 5, Tailwind CSS 3, Radix UI, Dexie.js, Supabase JS clien (001-sliminject-dashboard)
 - Supabase (PostgreSQL with Row Level Security) + IndexedDB (Dexie.js, offline queue) (001-sliminject-dashboard)
+- TypeScript 5.9.3, React 19.x (package.json lists react ^19), Vite 5.x + React Router 7, Tailwind CSS 4, Radix UI primitives, Dexie.js 4, Supabase JS v2 (002-sliminject-ux-improvements)
+- Supabase (PostgreSQL with RLS) + IndexedDB via Dexie.js (offline queue) + localStorage (notification prefs) (002-sliminject-ux-improvements)
 
 ## Recent Changes
 - 001-sliminject-dashboard: Added TypeScript 5.x, Node 20+ + React 18, Vite 5, Tailwind CSS 3, Radix UI, Dexie.js, Supabase JS clien
