@@ -68,33 +68,11 @@ Carousels are stored in `window.caseCarousels[]` for cross-component access (e.g
 
 `prototypes/hypotheekversneller/` is a standalone vanilla JS/HTML prototype (mortgage calculator), included as a static file via `_config.yml`'s `include` list.
 
+The **Sliminject** prototype (GLP-1 treatment tracking app) has been moved to its own repository: [github.com/daansmulders/sliminject](https://github.com/daansmulders/sliminject). The design specs (`specs/001-012`) remain in this repo as case study documentation.
+
 ### Analytics
 
 GoatCounter is loaded on all pages via a script tag in the layouts.
-
-## Active Technologies
-- TypeScript 5.9 / React 19 + React Router 7, Tailwind CSS 4, Radix UI, Supabase JS v2, Sonner (toasts) (003-dose-adherence-tracking)
-- Supabase PostgreSQL + RLS (primary); no Dexie queue for adherence (online-only write, see research.md Decision 3) (003-dose-adherence-tracking)
-- TypeScript 5.9 / React 19 + Vite 5, React Router 7, Tailwind CSS 4, Radix UI, Supabase JS v2, Sonner (toasts) (004-wellbeing-tracking)
-- Supabase PostgreSQL + RLS; food noise as new column on `progress_entries`; weekly check-ins as new `weekly_wellbeing_checkins` table (004-wellbeing-tracking)
-- TypeScript 5.9 + React 19, React Router 7, Tailwind CSS 4, Radix UI, Supabase JS v2, Dexie.js 4, Sonner (006-injection-day-experience)
-- Supabase PostgreSQL (primary); Dexie IndexedDB offline queue for progress entries (006-injection-day-experience)
-- Supabase PostgreSQL (primary); localStorage for announcement dismissals (007-dose-change-visibility)
-- TypeScript 5.9 + React 19, React Router 7, Tailwind CSS 4, Sonner (008-side-effect-support)
-- No server storage needed; localStorage for tip frequency tracking (008-side-effect-support)
-- TypeScript 5.9 / React 19 + React Router 7, Tailwind CSS 4, Sonner (toasts), Supabase JS v2, Dexie.js 4 (009-side-effect-tips)
-- Supabase PostgreSQL (primary), Dexie IndexedDB (offline queue), localStorage (tip throttle) (009-side-effect-tips)
-- TypeScript 5.9 / React 19 + React Router 7, Tailwind CSS 4, Supabase JS v2, Dexie.js 4 (010-log-entry-cards)
-- No changes — reads existing `ProgressEntry` data (010-log-entry-cards)
-- Supabase PostgreSQL (read-only queries), localStorage (dismissal state) (012-treatment-summary-cards)
-
-### Sliminject prototype (`prototypes/sliminject/`)
-- React 19, TypeScript 5.9, Vite 5, React Router 7
-- Tailwind CSS 4 with custom design tokens
-- Radix UI primitives (Tabs, etc.), Sonner (toasts)
-- Supabase JS v2 — PostgreSQL + Row Level Security + Realtime
-- Dexie.js 4 — IndexedDB offline write queue
-- localStorage — notification preferences, onboarding state
 
 ## Figma MCP Integration Rules
 
@@ -107,61 +85,6 @@ These rules apply whenever implementing UI from Figma designs. Follow this workf
 3. If the response is too large, call `get_metadata` first to get the node map, then re-fetch specific nodes
 4. Only after you have both outputs: download any needed assets and start coding
 5. Validate the final UI against the screenshot before marking complete
-
-### Which codebase does the Figma design target?
-
-There are two distinct sub-projects here. Apply different rules depending on context:
-
-| Target | Indicator |
-|--------|-----------|
-| **Sliminject prototype** | Design is for a React app, uses DM Sans / Instrument Serif typography, emerald/warm colour palette |
-| **Portfolio (v2/v1)** | Design is for the Jekyll site, uses TimesTen serif, muted off-white/dark palette |
-
----
-
-### Sliminject (`prototypes/sliminject/`)
-
-**Stack:** React 19 + TypeScript, Vite, Tailwind CSS 4, Radix UI, Supabase, Dexie.js, Sonner
-
-**Design tokens** — defined in `src/index.css` using a Tailwind 4 `@theme` block:
-
-```css
-/* Color palette */
---color-brand-{950..50}   /* deep emerald */
---color-warm-{950..50}    /* warm neutrals — text & bg */
---color-accent-{700..50}  /* amber */
---color-danger-{700..50}  /* red */
-
-/* Typography */
---font-sans: 'DM Sans', system-ui, sans-serif
---font-serif: 'Instrument Serif', Georgia, serif
-```
-
-**IMPORTANT: Never hardcode hex colors.** Always use the token names above (e.g. `text-brand-700`, `bg-warm-50`).
-
-**Component classes** — pre-built utility classes in `src/index.css`:
-- Layout: `.page`, `.page-doctor`
-- Buttons: `.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-sm`
-- Cards: `.card`, `.card-interactive`
-- Forms: `.input`
-- Feedback: `.badge`, `.chip`, `.alert-brand`, `.alert-amber`, `.alert-danger`, `.alert-neutral`
-- Navigation: `.bottom-nav`, `.bottom-nav-tab` (patient), `.top-nav` (doctor)
-- Typography: `.section-label`, `.data-num`, `.data-num-md`, `.data-num-lg`, `.data-num-xl`
-
-**Component conventions:**
-- Shared UI components → `src/components/` (PascalCase filenames)
-- Feature components → `src/features/{patient|doctor}/{feature}/`
-- Check for existing components before creating new ones
-- Icons are inline SVG functions using `strokeWidth="1.6"` and `currentColor`; do **not** install new icon packages
-
-**Translating Figma output to Sliminject:**
-- The Figma MCP returns React + Tailwind reference code — adapt it to this project's conventions
-- Replace raw hex values with token classes
-- Reuse existing `.btn`, `.card`, `.input`, etc. classes instead of duplicating styles
-- Respect existing routing (React Router 7) and data patterns (Supabase + Dexie offline queue)
-- If Figma MCP returns a `localhost` source for an image or SVG, use it directly — do not create placeholders
-
----
 
 ### Portfolio (`assets/`, `_layouts/`, `_projects/`, `case-content/`)
 
@@ -188,9 +111,3 @@ There are two distinct sub-projects here. Apply different rules depending on con
 **Asset paths:**
 - Portfolio images → `assets/images/`
 - Case step media → `case-content/{project}/images/`
-- Do not put portfolio assets inside the Sliminject prototype directory
-
-## Recent Changes
-- 012-treatment-summary-cards: Added TypeScript 5.9 / React 19 + React Router 7, Tailwind CSS 4, Supabase JS v2, Dexie.js 4
-- 011-collapsed-card-indicators: Added TypeScript 5.9 / React 19 + React Router 7, Tailwind CSS 4
-- 010-log-entry-cards: Added TypeScript 5.9 / React 19 + React Router 7, Tailwind CSS 4, Supabase JS v2, Dexie.js 4
