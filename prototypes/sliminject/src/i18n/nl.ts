@@ -311,6 +311,20 @@ export const nl = {
   log_voedselruis_week: 'Eetgedachten deze week',
   log_energie: 'Energie',
 
+  // Dashboard
+  dashboard_rustig: 'Je bent bij. Geniet van je dag.',
+
+  // Ernst bijwerkingen (feature 009)
+  severity_label: 'Ernst',
+  severity_1: 'Licht',
+  severity_2: 'Mild',
+  severity_3: 'Matig',
+  severity_4: 'Ernstig',
+  severity_5: 'Zeer ernstig',
+  dokter_nudge_titel: 'Je arts kan je helpen',
+  dokter_nudge_body: 'Je ervaart ernstige klachten van {symptoom}. Neem contact op met je arts — samen vinden jullie een oplossing.',
+  dokter_nudge_cta: 'Stuur een bericht →',
+
   // Bijwerkingen tips (feature 008)
   tip_bij_symptoom: 'Tip bij {symptoom}',
   tip_eerste_injectie: 'Dit is je eerste injectie. Misselijkheid is normaal de eerste dagen — eet licht en drink voldoende water.',

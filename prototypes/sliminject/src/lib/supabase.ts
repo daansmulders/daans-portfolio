@@ -1,5 +1,17 @@
 import { createClient } from '@supabase/supabase-js'
 
+export interface SymptomEntry {
+  name: string
+  severity: number
+}
+
+/** Converts legacy string[] symptoms to SymptomEntry[] for backward compat */
+export function normalizeSymptoms(symptoms: (string | SymptomEntry)[]): SymptomEntry[] {
+  return symptoms.map(s =>
+    typeof s === 'string' ? { name: s, severity: 0 } : s
+  )
+}
+
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
@@ -28,8 +40,8 @@ export type Database = {
         Update: Record<string, never>
       }
       progress_entries: {
-        Row: { id: string; patient_id: string; logged_at: string; weight_kg: number | null; wellbeing_score: number; symptoms: string[]; notes: string | null; hunger_score: number | null; food_noise_score: number | null }
-        Insert: { patient_id: string; logged_at: string; weight_kg?: number | null; wellbeing_score: number; symptoms?: string[]; notes?: string | null; hunger_score?: number | null; food_noise_score?: number | null }
+        Row: { id: string; patient_id: string; logged_at: string; weight_kg: number | null; wellbeing_score: number; symptoms: (string | SymptomEntry)[]; notes: string | null; hunger_score: number | null; food_noise_score: number | null }
+        Insert: { patient_id: string; logged_at: string; weight_kg?: number | null; wellbeing_score: number; symptoms?: (string | SymptomEntry)[]; notes?: string | null; hunger_score?: number | null; food_noise_score?: number | null }
         Update: never
       }
       concerns: {

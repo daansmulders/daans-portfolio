@@ -3,8 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { useProgressEntries } from './useProgressEntries'
 import { nl } from '../../../i18n/nl'
 import { showSuccess } from '../../../lib/toast'
-import { selectTip, type SymptomTip } from '../symptoms/symptomTips'
+import { selectTip, type SelectedTip } from '../symptoms/symptomTips'
 import { useSymptomTipThrottle } from '../symptoms/useSymptomTipThrottle'
+import { SeveritySelector } from '../symptoms/SeveritySelector'
+import { TipCard } from '../symptoms/TipCard'
+import { DoctorNudge } from '../symptoms/DoctorNudge'
+import type { SymptomEntry } from '../../../lib/supabase'
 
 const PRIMARY_SYMPTOMS = [
   nl.symptoom_misselijkheid,
@@ -24,15 +28,16 @@ const SECONDARY_SYMPTOMS = [
 export function LogEntryForm() {
   const { addEntry, entries } = useProgressEntries()
   const navigate = useNavigate()
-  const { wasShownRecently, markShown } = useSymptomTipThrottle()
+  const { wasShownRecently, markShown, getNextVariantIndex } = useSymptomTipThrottle()
   const [gewicht, setGewicht]       = useState('')
   const [honger, setHonger]         = useState<number>(3)
   const [voedselruis, setVoedselruis] = useState<number | null>(null)
-  const [symptomen, setSymptomen]   = useState<string[]>([])
+  const [symptomen, setSymptomen]   = useState<Map<string, number>>(new Map())
   const [notities, setNotities]     = useState('')
   const [loading, setLoading]       = useState(false)
-  const [succes, setSucces]       = useState<'online' | 'offline' | 'tip' | null>(null)
-  const [shownTip, setShownTip]     = useState<SymptomTip | null>(null)
+  const [succes, setSucces]       = useState<'online' | 'offline' | 'tip' | 'nudge' | null>(null)
+  const [shownTip, setShownTip]     = useState<SelectedTip | null>(null)
+  const [nudgeSymptom, setNudgeSymptom] = useState<string | null>(null)
   const [showMoreSymptoms, setShowMoreSymptoms] = useState(false)
 
   // Pre-fill weight with last recorded value once entries load
@@ -44,31 +49,64 @@ export function LogEntryForm() {
   }, [entries]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function toggleSymptoom(s: string) {
-    setSymptomen(prev =>
-      prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]
-    )
+    setSymptomen(prev => {
+      const next = new Map(prev)
+      if (next.has(s)) {
+        next.delete(s)
+      } else {
+        next.set(s, 1)
+      }
+      return next
+    })
+  }
+
+  function setSeverity(s: string, severity: number) {
+    setSymptomen(prev => {
+      const next = new Map(prev)
+      next.set(s, severity)
+      return next
+    })
   }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setLoading(true)
+
+    const symptomEntries: SymptomEntry[] = Array.from(symptomen.entries()).map(
+      ([name, severity]) => ({ name, severity })
+    )
+    const symptomNames = symptomEntries.map(s => s.name)
+
     const { offline } = await addEntry({
       weight_kg:        gewicht ? parseFloat(gewicht) : null,
       hunger_score:     honger,
       food_noise_score: voedselruis,
-      symptoms:         symptomen,
+      symptoms:         symptomEntries,
       notes:            notities || null,
     })
 
+    // Check for severe symptoms (4-5) → doctor nudge
+    const severeSymptom = symptomEntries
+      .filter(s => s.severity >= 4)
+      .sort((a, b) => b.severity - a.severity)[0]
+
+    if (severeSymptom) {
+      setNudgeSymptom(severeSymptom.name)
+      setSucces('nudge')
+      setLoading(false)
+      showSuccess(offline ? nl.offline_opgeslagen : nl.log_succes)
+      return
+    }
+
     // Check for symptom tip before auto-navigating
-    const tip = symptomen.length > 0 ? selectTip(symptomen, wasShownRecently) : null
+    const tip = symptomNames.length > 0 ? selectTip(symptomNames, symptomEntries, wasShownRecently, getNextVariantIndex) : null
     if (tip) {
-      markShown(tip.symptom)
+      markShown(tip.symptom, tip.variantIndex)
       setShownTip(tip)
       setSucces('tip')
       setLoading(false)
       showSuccess(offline ? nl.offline_opgeslagen : nl.log_succes)
-      return // no auto-navigate — patient dismisses manually
+      return
     }
 
     showSuccess(offline ? nl.offline_opgeslagen : nl.log_succes)
@@ -186,38 +224,46 @@ export function LogEntryForm() {
           <legend className="block text-sm font-medium mb-3" style={{ color: '#2E2B24' }}>
             {nl.log_symptomen}
           </legend>
-          <div className="flex flex-wrap gap-2">
+          <div className="space-y-2.5">
             {PRIMARY_SYMPTOMS.map(s => (
-              <button
-                key={s}
-                type="button"
-                aria-pressed={symptomen.includes(s)}
-                onClick={() => toggleSymptoom(s)}
-                className={`chip${symptomen.includes(s) ? ' selected' : ''}`}
-              >
-                {s}
-              </button>
+              <div key={s} className="flex items-center gap-2.5">
+                <button
+                  type="button"
+                  aria-pressed={symptomen.has(s)}
+                  onClick={() => toggleSymptoom(s)}
+                  className={`chip flex-shrink-0${symptomen.has(s) ? ' selected' : ''}`}
+                >
+                  {s}
+                </button>
+                {symptomen.has(s) && (
+                  <SeveritySelector value={symptomen.get(s)!} onChange={(v) => setSeverity(s, v)} />
+                )}
+              </div>
             ))}
             {showMoreSymptoms && SECONDARY_SYMPTOMS.map(s => (
-              <button
-                key={s}
-                type="button"
-                aria-pressed={symptomen.includes(s)}
-                onClick={() => toggleSymptoom(s)}
-                className={`chip${symptomen.includes(s) ? ' selected' : ''}`}
-              >
-                {s}
-              </button>
+              <div key={s} className="flex items-center gap-2.5">
+                <button
+                  type="button"
+                  aria-pressed={symptomen.has(s)}
+                  onClick={() => toggleSymptoom(s)}
+                  className={`chip flex-shrink-0${symptomen.has(s) ? ' selected' : ''}`}
+                >
+                  {s}
+                </button>
+                {symptomen.has(s) && (
+                  <SeveritySelector value={symptomen.get(s)!} onChange={(v) => setSeverity(s, v)} />
+                )}
+              </div>
             ))}
+            <button
+              type="button"
+              onClick={() => setShowMoreSymptoms(v => !v)}
+              className="chip"
+              style={{ borderStyle: 'dashed', color: '#2D7A5E', borderColor: '#A8DDD0' }}
+            >
+              {showMoreSymptoms ? nl.symptomen_minder : nl.symptomen_meer}
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => setShowMoreSymptoms(v => !v)}
-            className="mt-2 text-xs font-medium"
-            style={{ color: '#2D7A5E' }}
-          >
-            {showMoreSymptoms ? nl.symptomen_minder : nl.symptomen_meer}
-          </button>
         </fieldset>
 
         {/* Notities */}
@@ -246,17 +292,7 @@ export function LogEntryForm() {
             <div role="status" className="alert-brand text-sm font-medium">
               {nl.log_succes}
             </div>
-            <div
-              className="card px-4 py-3 space-y-1"
-              style={{ background: '#FAF8F5', borderLeft: '2px solid #2D7A5E' }}
-            >
-              <p className="text-sm font-semibold" style={{ color: '#1A4A36' }}>
-                {nl.tip_bij_symptoom.replace('{symptoom}', shownTip.symptom.toLowerCase())}
-              </p>
-              <p className="text-sm" style={{ color: '#2E2B24' }}>
-                {shownTip.tip}
-              </p>
-            </div>
+            <TipCard heading={shownTip.heading} body={shownTip.body} symptom={shownTip.symptom} />
             <button
               type="button"
               onClick={() => navigate('/patient/dashboard')}
@@ -268,7 +304,23 @@ export function LogEntryForm() {
           </div>
         )}
 
-        {succes !== 'tip' && (
+        {succes === 'nudge' && nudgeSymptom && (
+          <div className="space-y-3">
+            <div role="status" className="alert-brand text-sm font-medium">
+              {nl.log_succes}
+            </div>
+            <DoctorNudge symptom={nudgeSymptom} />
+            <button
+              type="button"
+              onClick={() => navigate('/patient/dashboard')}
+              className="btn btn-ghost w-full"
+            >
+              {nl.tip_terug_dashboard}
+            </button>
+          </div>
+        )}
+
+        {succes !== 'tip' && succes !== 'nudge' && (
           <button
             type="submit"
             disabled={loading}

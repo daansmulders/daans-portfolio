@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { supabase } from '../../../lib/supabase'
+import { supabase, normalizeSymptoms, type SymptomEntry } from '../../../lib/supabase'
 import { db, type OfflineProgressEntry } from '../../../lib/db'
 import { useAuth } from '../../../auth/AuthProvider'
 
@@ -12,7 +12,7 @@ export interface ProgressEntry {
   wellbeing_score: number | null
   hunger_score: number | null
   food_noise_score: number | null
-  symptoms: string[]
+  symptoms: SymptomEntry[]
   notes: string | null
 }
 
@@ -20,7 +20,7 @@ export interface NewProgressEntry {
   weight_kg?: number | null
   hunger_score: number | null
   food_noise_score?: number | null
-  symptoms?: string[]
+  symptoms?: SymptomEntry[]
   notes?: string | null
 }
 
@@ -68,7 +68,7 @@ export function useProgressEntries(patientId?: string) {
       .select('*')
       .eq('patient_id', id)
       .order('logged_at', { ascending: false })
-    setEntries(data ?? [])
+    setEntries((data ?? []).map(e => ({ ...e, symptoms: normalizeSymptoms(e.symptoms ?? []) })))
     setLoading(false)
   }, [id])
 

@@ -1,4 +1,5 @@
 import Dexie, { type Table } from 'dexie'
+import type { SymptomEntry } from './supabase'
 
 export interface OfflineProgressEntry {
   id: string
@@ -8,7 +9,7 @@ export interface OfflineProgressEntry {
   wellbeing_score: number | null
   hunger_score: number | null
   food_noise_score: number | null
-  symptoms: string[]
+  symptoms: (string | SymptomEntry)[]
   notes: string | null
   synced: boolean
 }
@@ -22,6 +23,9 @@ class SliminjectDB extends Dexie {
       offline_progress_entries: 'id, patient_id, synced, logged_at',
     })
     this.version(2).stores({
+      offline_progress_entries: 'id, patient_id, synced, logged_at',
+    })
+    this.version(3).stores({
       offline_progress_entries: 'id, patient_id, synced, logged_at',
     })
   }

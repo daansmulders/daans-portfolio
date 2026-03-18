@@ -112,6 +112,21 @@ One-tap summary for doctor appointments. Full-screen, share-optimised view with 
 
 ---
 
+### 23. Log entry card redesign
+
+**Source**: Internal review 2026-03-18 — log entries now contain more data than the cards show
+**Size**: Small | **Spec**: None yet
+
+Recent entries cards (patient dashboard + doctor Overzicht tab) currently show only date, weight, and hunger score. Since features 004–009, daily logs also capture food noise, symptoms (with severity), and notes. Two design directions to explore and prototype:
+
+**Option A — Expandable card**: Show date + weight as the collapsed default. Tap to expand and reveal hunger, symptoms with severity chips, food noise, and notes. Keeps the list scannable.
+
+**Option B — Full detail card**: Show all logged data inline on every card. More informative at a glance but takes more vertical space. May need a compact layout (e.g., icon row or mini-chips) to avoid overwhelming the list.
+
+**Design note**: Prototype both and evaluate which works better on mobile. Consider that most entries will have 2–3 data points, not all fields — empty fields should not leave visual gaps.
+
+---
+
 ### 22. Dashboard experience refinement
 
 **Source**: Internal review 2026-03-17 — dashboard has become chaotic after features 006–008
