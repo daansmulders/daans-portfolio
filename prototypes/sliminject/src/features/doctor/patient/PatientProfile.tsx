@@ -12,7 +12,7 @@ import { supabase } from '../../../lib/supabase'
 import { nl } from '../../../i18n/nl'
 import { useAdherence } from '../../../hooks/useAdherence'
 import { useWellbeingHistory, type WellbeingCheckIn } from '../../patient/wellbeing/useWellbeingHistory'
-import type { SymptomEntry } from '../../../lib/supabase'
+import { LogEntryCard } from '../../patient/dashboard/LogEntryCard'
 
 type AdherenceResponse = 'confirmed' | 'skipped' | 'adjusted' | null
 
@@ -106,6 +106,7 @@ export function PatientProfile() {
   const { concerns, loading: concernsLoading, respondToConcern } = useConcerns(patientId)
   const openConcernsCount = concerns.filter(c => c.status === 'open').length
   const [showFoodNoise, setShowFoodNoise] = useState(false)
+  const [expandedEntryId, setExpandedEntryId] = useState<string | null>(null)
 
   // Dosage schedule — always loaded for chart dose markers + Medicatie tab
   const { entries: schedule } = useDosageSchedule(patientId!)
@@ -193,44 +194,13 @@ export function PatientProfile() {
               <p className="section-label mb-2">{nl.dashboard_recente_metingen}</p>
               <ul className="space-y-2">
                 {entries.slice(0, 5).map(entry => (
-                  <li key={entry.id} className="card px-4 py-2.5 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <time className="text-sm" style={{ color: '#6B6660' }}>
-                        {new Date(entry.logged_at).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}
-                      </time>
-                      <div className="flex items-center gap-2">
-                        {entry.weight_kg != null && (
-                          <span className="text-sm font-semibold tabular-nums" style={{ color: '#14130F' }}>
-                            {entry.weight_kg} <span className="text-xs font-normal" style={{ color: '#AAA49C' }}>kg</span>
-                          </span>
-                        )}
-                        {entry.hunger_score != null && (
-                          <span className="badge badge-brand">{nl.grafiek_honger} {entry.hunger_score}/5</span>
-                        )}
-                      </div>
-                    </div>
-                    {entry.symptoms.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {entry.symptoms.map((s: SymptomEntry) => (
-                          <span
-                            key={s.name}
-                            className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full"
-                            style={{ background: '#F5F3F0', color: '#6B6660' }}
-                          >
-                            {s.name}
-                            {s.severity > 0 && (
-                              <span
-                                className="font-semibold"
-                                style={{ color: s.severity >= 4 ? '#A85C0A' : '#2E2B24' }}
-                              >
-                                {s.severity}/5
-                              </span>
-                            )}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </li>
+                  <LogEntryCard
+                    key={entry.id}
+                    entry={entry}
+                    isInjectionDay={false}
+                    isExpanded={expandedEntryId === entry.id}
+                    onToggle={() => setExpandedEntryId(prev => prev === entry.id ? null : entry.id)}
+                  />
                 ))}
               </ul>
             </section>

@@ -1,6 +1,6 @@
 # Backlog — Sliminject Prototype
 
-> **Status**: Active — updated 2026-03-17
+> **Status**: Active — updated 2026-03-18
 > **Authors**: Designer + Product Owner
 > **Sources**: GLP-1 UX Research Database (`glp1-data.md`), Customer Journey Map (`customer-journey-map.md`), backlog review session (2026-03-16)
 
@@ -16,6 +16,9 @@
 | 6 | Unified injection-day experience | Journey Map Phases 2–5 | 006 |
 | 7 | Dose increase announcement | Journey Map Phase 4 + Theme 3 | 007 |
 | 8 | Dose annotations on progress chart | Journey Map Phases 4–5 + Theme 11 | 007 |
+| 2 | Side effect management tips | Theme 3: Side Effect Endurance | 009 |
+| 23 | Log entry card redesign | Internal review 2026-03-18 | 010 |
+| 24 | Collapsed entry card indicators | Design review 2026-03-18 | 011 |
 
 Also completed (from earlier tiers):
 - Patient info on doctor's patient view, concern notification handling, inline notifications (Tier 1, spec 002)
@@ -24,17 +27,6 @@ Also completed (from earlier tiers):
 ---
 
 ## Open — Patient Experience
-
-### 2. Side effect management tips
-
-**Source**: Theme 3: Side Effect Endurance
-**Size**: Medium | **Spec**: None yet
-
-Inline tips shown immediately after logging symptoms — brief, per-symptom guidance (nausea, diarrhea, fatigue, etc.). Max once per week per symptom. Severity 4–5 triggers a nudge to contact the doctor. Existing educational article system continues unchanged.
-
-**Design note**: Editorial design and tone are critical. Multiple layout variants should be explored.
-
----
 
 ### 9. Weekly food noise check-in (injection-day rhythm)
 
@@ -112,18 +104,14 @@ One-tap summary for doctor appointments. Full-screen, share-optimised view with 
 
 ---
 
-### 23. Log entry card redesign
+### 25. Unified daily log view (cross-table)
 
-**Source**: Internal review 2026-03-18 — log entries now contain more data than the cards show
-**Size**: Small | **Spec**: None yet
+**Source**: Design review 2026-03-18 — injection day logs split data across two tables
+**Size**: Medium | **Spec**: None yet
 
-Recent entries cards (patient dashboard + doctor Overzicht tab) currently show only date, weight, and hunger score. Since features 004–009, daily logs also capture food noise, symptoms (with severity), and notes. Two design directions to explore and prototype:
+Injection day entries save energy score to `weekly_wellbeing_checkins` and weight/hunger/symptoms to `progress_entries`. The log entry card only shows `progress_entries` data, so energy (and potentially mood/confidence from weekly check-ins) is invisible in the entry history. Explore joining wellbeing check-in data with the progress entry for the same day so the log entry card can show a complete picture of what was recorded.
 
-**Option A — Expandable card**: Show date + weight as the collapsed default. Tap to expand and reveal hunger, symptoms with severity chips, food noise, and notes. Keeps the list scannable.
-
-**Option B — Full detail card**: Show all logged data inline on every card. More informative at a glance but takes more vertical space. May need a compact layout (e.g., icon row or mini-chips) to avoid overwhelming the list.
-
-**Design note**: Prototype both and evaluate which works better on mobile. Consider that most entries will have 2–3 data points, not all fields — empty fields should not leave visual gaps.
+**Open questions**: Should this be a UI-only join (fetch both tables, merge by date) or a data model change? How to handle days where a wellbeing check-in exists but no progress entry, or vice versa? Does the doctor view need the same joined view?
 
 ---
 

@@ -18,6 +18,7 @@ import { useInjectionDayCard } from '../adherence/useInjectionDayCard'
 import { useFoodNoiseMilestone, useWellbeingDimensionMilestones } from '../wellbeing/useWellbeingMilestones'
 import { useWellbeingCheckIn } from '../wellbeing/useWellbeingCheckIn'
 import { useDoseChanges } from '../medication/useDoseChanges'
+import { LogEntryCard } from './LogEntryCard'
 
 export function PatientDashboard() {
   useOfflineSync()
@@ -41,6 +42,7 @@ export function PatientDashboard() {
   const { isConsecutiveMiss, dismiss: dismissMissNudge } = useConsecutiveMiss()
   const injectionCard = useInjectionDayCard(addEntry)
   const doseChanges = useDoseChanges()
+  const [expandedEntryId, setExpandedEntryId] = useState<string | null>(null)
   const [showFoodNoise, setShowFoodNoise] = useState(false)
   const { isFoodNoiseMilestone, dismissFoodNoise } = useFoodNoiseMilestone(entries)
   // Single fetch for wellbeing data — checkins shared with WellbeingCheckIn via props
@@ -201,33 +203,15 @@ export function PatientDashboard() {
         <section>
           <p className="section-label mb-2">{nl.dashboard_recente_metingen}</p>
           <ul className="space-y-2">
-            {entries.slice(0, 3).map(entry => {
-              const isInjDay = injectionDateSet.has(entry.logged_at.slice(0, 10))
-              return (
-                <li key={entry.id} className="card px-4 py-2.5 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 min-w-0">
-                    {isInjDay && (
-                      <span className="flex-shrink-0 text-xs font-semibold px-1.5 py-0.5 rounded" style={{ background: '#EDF7F4', color: '#2D7A5E' }}>
-                        {nl.injectiedag_badge}
-                      </span>
-                    )}
-                    <time className="text-sm" style={{ color: '#6B6660' }}>
-                      {new Date(entry.logged_at).toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short' })}
-                    </time>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    {entry.weight_kg != null && (
-                      <span className="text-sm font-semibold tabular-nums" style={{ color: '#14130F' }}>
-                        {entry.weight_kg} <span className="text-xs font-normal" style={{ color: '#AAA49C' }}>kg</span>
-                      </span>
-                    )}
-                    {entry.hunger_score != null && (
-                      <span className="badge badge-brand">{nl.grafiek_honger} {entry.hunger_score}/5</span>
-                    )}
-                  </div>
-                </li>
-              )
-            })}
+            {entries.slice(0, 3).map(entry => (
+              <LogEntryCard
+                key={entry.id}
+                entry={entry}
+                isInjectionDay={injectionDateSet.has(entry.logged_at.slice(0, 10))}
+                isExpanded={expandedEntryId === entry.id}
+                onToggle={() => setExpandedEntryId(prev => prev === entry.id ? null : entry.id)}
+              />
+            ))}
           </ul>
         </section>
       )}

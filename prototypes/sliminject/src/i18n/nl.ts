@@ -314,6 +314,12 @@ export const nl = {
   // Dashboard
   dashboard_rustig: 'Je bent bij. Geniet van je dag.',
 
+  // Log entry cards (feature 010)
+  card_voedselruis: 'Voedselruis',
+  card_meer_symptomen: '+{n} meer',
+  card_honger_kort: 'H',
+  card_voedselruis_kort: 'V',
+
   // Ernst bijwerkingen (feature 009)
   severity_label: 'Ernst',
   severity_1: 'Licht',

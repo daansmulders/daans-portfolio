@@ -7,9 +7,14 @@ export interface SymptomEntry {
 
 /** Converts legacy string[] symptoms to SymptomEntry[] for backward compat */
 export function normalizeSymptoms(symptoms: (string | SymptomEntry)[]): SymptomEntry[] {
-  return symptoms.map(s =>
-    typeof s === 'string' ? { name: s, severity: 0 } : s
-  )
+  return symptoms.map(s => {
+    if (typeof s !== 'string') return s
+    // Handle JSON-serialized objects from text[] columns
+    if (s.startsWith('{')) {
+      try { return JSON.parse(s) as SymptomEntry } catch { /* fall through */ }
+    }
+    return { name: s, severity: 0 }
+  })
 }
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL

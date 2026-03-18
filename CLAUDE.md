@@ -84,6 +84,8 @@ GoatCounter is loaded on all pages via a script tag in the layouts.
 - No server storage needed; localStorage for tip frequency tracking (008-side-effect-support)
 - TypeScript 5.9 / React 19 + React Router 7, Tailwind CSS 4, Sonner (toasts), Supabase JS v2, Dexie.js 4 (009-side-effect-tips)
 - Supabase PostgreSQL (primary), Dexie IndexedDB (offline queue), localStorage (tip throttle) (009-side-effect-tips)
+- TypeScript 5.9 / React 19 + React Router 7, Tailwind CSS 4, Supabase JS v2, Dexie.js 4 (010-log-entry-cards)
+- No changes — reads existing `ProgressEntry` data (010-log-entry-cards)
 
 ### Sliminject prototype (`prototypes/sliminject/`)
 - React 19, TypeScript 5.9, Vite 5, React Router 7
@@ -188,6 +190,6 @@ There are two distinct sub-projects here. Apply different rules depending on con
 - Do not put portfolio assets inside the Sliminject prototype directory
 
 ## Recent Changes
+- 011-collapsed-card-indicators: Added TypeScript 5.9 / React 19 + React Router 7, Tailwind CSS 4
+- 010-log-entry-cards: Added TypeScript 5.9 / React 19 + React Router 7, Tailwind CSS 4, Supabase JS v2, Dexie.js 4
 - 009-side-effect-tips: Added TypeScript 5.9 / React 19 + React Router 7, Tailwind CSS 4, Sonner (toasts), Supabase JS v2, Dexie.js 4
-- 008-side-effect-support: Added TypeScript 5.9 + React 19, React Router 7, Tailwind CSS 4, Sonner
-- 007-dose-change-visibility: Added TypeScript 5.9 + React 19, React Router 7, Tailwind CSS 4, Radix UI, Supabase JS v2, Dexie.js 4, Sonner
