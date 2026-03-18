@@ -13,6 +13,8 @@ import { nl } from '../../../i18n/nl'
 import { useAdherence } from '../../../hooks/useAdherence'
 import { useWellbeingHistory, type WellbeingCheckIn } from '../../patient/wellbeing/useWellbeingHistory'
 import { LogEntryCard } from '../../patient/dashboard/LogEntryCard'
+import { useTreatmentMilestone } from '../../patient/milestones/useTreatmentMilestone'
+import { MilestoneSummaryCard } from '../../patient/milestones/MilestoneSummaryCard'
 
 type AdherenceResponse = 'confirmed' | 'skipped' | 'adjusted' | null
 
@@ -107,6 +109,7 @@ export function PatientProfile() {
   const openConcernsCount = concerns.filter(c => c.status === 'open').length
   const [showFoodNoise, setShowFoodNoise] = useState(false)
   const [expandedEntryId, setExpandedEntryId] = useState<string | null>(null)
+  const { allMilestones } = useTreatmentMilestone(patientId)
 
   // Dosage schedule — always loaded for chart dose markers + Medicatie tab
   const { entries: schedule } = useDosageSchedule(patientId!)
@@ -189,6 +192,16 @@ export function PatientProfile() {
             <h2 className="text-base font-semibold mb-4" style={{ color: '#14130F' }}>{nl.welzijn_checkin_titel}</h2>
             <WellbeingDoctorSummary checkins={wellbeingCheckins} />
           </section>
+          {allMilestones.length > 0 && (
+            <section>
+              <h2 className="text-base font-semibold mb-4" style={{ color: '#14130F' }}>{nl.milestone_dokter_titel}</h2>
+              <div className="space-y-3">
+                {[...allMilestones].reverse().map(m => (
+                  <MilestoneSummaryCard key={m.week} milestone={m} />
+                ))}
+              </div>
+            </section>
+          )}
           {entries.length > 0 && (
             <section>
               <p className="section-label mb-2">{nl.dashboard_recente_metingen}</p>

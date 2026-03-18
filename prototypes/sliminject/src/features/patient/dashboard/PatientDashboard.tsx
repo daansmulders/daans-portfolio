@@ -19,6 +19,8 @@ import { useFoodNoiseMilestone, useWellbeingDimensionMilestones } from '../wellb
 import { useWellbeingCheckIn } from '../wellbeing/useWellbeingCheckIn'
 import { useDoseChanges } from '../medication/useDoseChanges'
 import { LogEntryCard } from './LogEntryCard'
+import { useTreatmentMilestone } from '../milestones/useTreatmentMilestone'
+import { MilestoneSummaryCard } from '../milestones/MilestoneSummaryCard'
 
 export function PatientDashboard() {
   useOfflineSync()
@@ -44,6 +46,7 @@ export function PatientDashboard() {
   const doseChanges = useDoseChanges()
   const [expandedEntryId, setExpandedEntryId] = useState<string | null>(null)
   const [showFoodNoise, setShowFoodNoise] = useState(false)
+  const { activeMilestone, dismiss: dismissMilestone } = useTreatmentMilestone()
   const { isFoodNoiseMilestone, dismissFoodNoise } = useFoodNoiseMilestone(entries)
   // Single fetch for wellbeing data — checkins shared with WellbeingCheckIn via props
   const { checkins } = useWellbeingCheckIn()
@@ -177,8 +180,15 @@ export function PatientDashboard() {
         />
       )}
 
-      {/* ══ ZONE 4: Celebration (max 1, full-width band) ════ */}
-      {celebration && (
+      {/* ══ ZONE 4: Treatment milestone OR Celebration ═══════ */}
+      {activeMilestone && (
+        <MilestoneSummaryCard
+          milestone={activeMilestone}
+          onDismiss={() => dismissMilestone(activeMilestone.week)}
+        />
+      )}
+
+      {!activeMilestone && celebration && (
         <div
           className="flex items-start justify-between gap-3 rounded-xl px-4 py-3"
           style={{ background: '#EDF7F4', borderLeft: '3px solid #2D7A5E' }}

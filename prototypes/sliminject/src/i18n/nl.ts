@@ -344,6 +344,27 @@ export const nl = {
   dosis_nieuw_label: 'Nieuwe dosis: {dosis} mg',
   dosis_nieuw_bijwerking: 'Bijwerkingen kunnen tijdelijk terugkomen.',
 
+  // Behandeloverzicht (feature 012)
+  milestone_heading_4: 'Week 4 — Jouw samenvatting',
+  milestone_heading_8: 'Week 8 — Jouw samenvatting',
+  milestone_heading_12: 'Week 12 — Jouw samenvatting',
+  milestone_heading_16: 'Week 16 — Jouw samenvatting',
+  milestone_gewicht: 'Je bent {change} kg {richting} sinds de start',
+  milestone_gewicht_lichter: 'lichter',
+  milestone_gewicht_zwaarder: 'zwaarder',
+  milestone_gewicht_gelijk: 'Je gewicht is stabiel gebleven',
+  milestone_logcount: '{n} metingen bijgehouden',
+  milestone_adherence: '{n} van {total} injecties bevestigd',
+  milestone_trend_honger: 'Je honger is afgenomen',
+  milestone_trend_voedselruis: 'Je voedselruis is verminderd',
+  milestone_trend_symptomen: 'Je hebt minder klachten ervaren',
+  milestone_trend_energie: 'Je energie is verbeterd',
+  milestone_trend_stemming: 'Je stemming is verbeterd',
+  milestone_trend_zelfvertrouwen: 'Je lichaamsvertrouwen is gegroeid',
+  milestone_geen_logs: 'Nog weinig gegevens — elke meting helpt je arts om je beter te begeleiden.',
+  milestone_sluiten: 'Begrepen',
+  milestone_dokter_titel: 'Behandeloverzicht',
+
   // Mijlpalen (feature 004)
   mijlpaal_voedselruis_titel: 'Voedselruis sterk gedaald',
   mijlpaal_voedselruis_body: 'De afgelopen weken had je beduidend minder last van gedachten over eten. Dat is een grote stap.',

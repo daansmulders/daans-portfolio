@@ -19,6 +19,7 @@
 | 2 | Side effect management tips | Theme 3: Side Effect Endurance | 009 |
 | 23 | Log entry card redesign | Internal review 2026-03-18 | 010 |
 | 24 | Collapsed entry card indicators | Design review 2026-03-18 | 011 |
+| 10 | Treatment phase summary cards | Journey Map Phases 5–6 | 012 |
 
 Also completed (from earlier tiers):
 - Patient info on doctor's patient view, concern notification handling, inline notifications (Tier 1, spec 002)
@@ -36,15 +37,6 @@ Also completed (from earlier tiers):
 Move food noise from daily log to weekly injection-day rhythm. Daily logs keep weight, hunger, symptoms, notes. Historical daily data stays on the chart. Milestone recalibrated for weekly data points.
 
 **Open question**: Where exactly food noise lives and how it's framed now that the injection-day card and daily log are separate flows.
-
----
-
-### 10. Treatment phase summary cards
-
-**Source**: Journey Map Phases 5–6 + Theme 5: Weight Regain Fear
-**Size**: Medium | **Spec**: None yet
-
-Auto-generated summary cards at weeks 4, 8, 12, 16: weight change, adherence rate, wellbeing trends. Dismissible. Warm, informative tone — not gamified.
 
 ---
 
