@@ -10,8 +10,8 @@ const CONFIG = {
   WHEEL_IDLE_MS: 40,
   TOUCH_ARM_PX: 20,
   TOUCH_PAGE_PX: 160,
-  DESKTOP_ANIM_MS: 600,       // Longer for smoother flow into snap
-  MOBILE_ANIM_MS: 600,        // Longer for smoother flow into snap
+  DESKTOP_ANIM_MS: 350,       // Snappy snap animation
+  MOBILE_ANIM_MS: 350,        // Snappy snap animation
   GESTURE_LOCK_MS: 240,
   SNAP_NEAR_TOP_PX: 40,
   SNAP_NEAR_BOTTOM_PX: 40,
@@ -130,6 +130,120 @@ function setV2ScrollbarWidth() {
 
   const scrollbarW = scroller.offsetWidth - scroller.clientWidth;
   document.documentElement.style.setProperty("--v2-scrollbar-w", `${scrollbarW}px`);
+}
+
+/* =============================================================================
+   HERO SCROLL CONTROLLER
+============================================================================= */
+class HeroScroller {
+  constructor(scroller) {
+    this.scroller = scroller;
+    this.hero = document.querySelector("[data-hero]");
+    this.heroText = this.hero?.querySelector(".v2-hero__text");
+    this.headerIntro = document.querySelector("[data-header-intro]");
+
+    if (!this.hero || !this.heroText || !this.headerIntro) return;
+
+    this.heroHeight = this.hero.offsetHeight;
+    this.ticking = false;
+    this.casesRevealed = false;
+
+    // Get first case elements to crossfade
+    const firstCase = scroller.querySelector(".v2-case");
+    this.firstCaseLeft = firstCase?.querySelector(".v2-left");
+    this.firstCaseRight = firstCase?.querySelector(".v2-right");
+    this.firstCaseCounter = firstCase?.querySelector(".v2-bottom__center");
+
+    // Hide first case elements initially via inline style
+    this.setCaseOpacity(0);
+
+    this.scroller.addEventListener("scroll", () => {
+      if (!this.ticking) {
+        requestAnimationFrame(() => {
+          this.onScroll();
+          this.ticking = false;
+        });
+        this.ticking = true;
+      }
+    }, { passive: true });
+
+    window.addEventListener("resize", () => {
+      this.heroHeight = this.hero.offsetHeight;
+    });
+  }
+
+  setCaseOpacity(val) {
+    const o = String(val);
+    if (this.firstCaseLeft) this.firstCaseLeft.style.opacity = o;
+    if (this.firstCaseRight) this.firstCaseRight.style.opacity = o;
+    if (this.firstCaseCounter) this.firstCaseCounter.style.opacity = o;
+  }
+
+  onScroll() {
+    const scrollY = this.scroller.scrollTop;
+    const heroFadeStart = this.heroHeight * 0.15;
+    const heroFadeEnd = this.heroHeight * 0.55;
+    // Cases start appearing slightly before hero is fully gone (overlap)
+    const casesFadeStart = this.heroHeight * 0.35;
+    const casesFadeEnd = this.heroHeight * 0.7;
+
+    // Hero text fade
+    if (scrollY <= heroFadeStart) {
+      this.heroText.style.opacity = "1";
+      this.heroText.style.transform = "translateY(0)";
+    } else if (scrollY >= heroFadeEnd) {
+      this.heroText.style.opacity = "0";
+      this.heroText.style.transform = `translateY(-${(scrollY - heroFadeStart) * 0.2}px)`;
+    } else {
+      const progress = (scrollY - heroFadeStart) / (heroFadeEnd - heroFadeStart);
+      this.heroText.style.opacity = String(1 - progress);
+      this.heroText.style.transform = `translateY(-${(scrollY - heroFadeStart) * 0.2}px)`;
+    }
+
+    // Cases crossfade in
+    if (scrollY <= casesFadeStart) {
+      this.setCaseOpacity(0);
+      if (this.casesRevealed) {
+        this.casesRevealed = false;
+        // Remove active classes so switchToCase doesn't fight with inline opacity
+        if (this.firstCaseLeft) this.firstCaseLeft.classList.remove("v2-left--active");
+        if (this.firstCaseRight) this.firstCaseRight.classList.remove("v2-media--visible");
+        if (this.firstCaseCounter) this.firstCaseCounter.classList.remove("v2-counter--active");
+      }
+    } else if (scrollY >= casesFadeEnd) {
+      // Fully visible — hand off to normal case switching
+      if (!this.casesRevealed) {
+        this.casesRevealed = true;
+        // Clear inline opacity and activate via classes
+        if (this.firstCaseLeft) {
+          this.firstCaseLeft.style.opacity = "";
+          this.firstCaseLeft.classList.add("v2-left--active");
+        }
+        if (this.firstCaseRight) {
+          this.firstCaseRight.style.opacity = "";
+          this.firstCaseRight.classList.add("v2-media--visible");
+        }
+        if (this.firstCaseCounter) {
+          this.firstCaseCounter.style.opacity = "";
+          this.firstCaseCounter.classList.add("v2-counter--active");
+        }
+      }
+    } else {
+      const progress = (scrollY - casesFadeStart) / (casesFadeEnd - casesFadeStart);
+      this.setCaseOpacity(progress);
+      this.casesRevealed = false;
+    }
+
+    // Header intro fades in alongside case crossfade
+    if (scrollY <= casesFadeStart) {
+      this.headerIntro.style.opacity = "0";
+    } else if (scrollY >= casesFadeEnd) {
+      this.headerIntro.style.opacity = "1";
+    } else {
+      const p = (scrollY - casesFadeStart) / (casesFadeEnd - casesFadeStart);
+      this.headerIntro.style.opacity = String(p);
+    }
+  }
 }
 
 /* =============================================================================
@@ -783,8 +897,14 @@ class SnapPaging {
   constructor(scroller) {
     this.scroller = scroller;
     this.cases = Array.from(scroller.querySelectorAll(".v2-case"));
+    this.hero = scroller.querySelector("[data-hero]");
 
-    if (this.cases.length < 2) return;
+    // Build snap targets: hero (if present) + all cases
+    this.snapTargets = [];
+    if (this.hero) this.snapTargets.push(this.hero);
+    this.snapTargets.push(...this.cases);
+
+    if (this.snapTargets.length < 2) return;
 
     this.isMobile = isMobileUI();
     this.isAnimating = false;
@@ -802,21 +922,15 @@ class SnapPaging {
       this.initWheelPaging();
     }
 
-    // Initialize first case as active
-    if (this.cases.length > 0) {
+    // If no hero, activate first case immediately. Otherwise HeroScroller handles it.
+    if (!this.hero && this.cases.length > 0) {
       const firstText = this.cases[0].querySelector('.v2-left');
       const firstMedia = this.cases[0].querySelector('.v2-right');
       const firstCounter = this.cases[0].querySelector('.v2-bottom__center');
 
-      if (firstText) {
-        firstText.classList.add('v2-left--active');
-      }
-      if (firstMedia) {
-        firstMedia.classList.add('v2-media--visible');
-      }
-      if (firstCounter) {
-        firstCounter.classList.add('v2-counter--active');
-      }
+      if (firstText) firstText.classList.add('v2-left--active');
+      if (firstMedia) firstMedia.classList.add('v2-media--visible');
+      if (firstCounter) firstCounter.classList.add('v2-counter--active');
     }
 
     // Observe when cases change to trigger animations
@@ -828,11 +942,13 @@ class SnapPaging {
 
     let lastActiveIndex = -1;
 
-    // Use the existing findNearestIndex which uses scroll position - more reliable than entries
     const observer = new IntersectionObserver(
       () => {
         // Don't switch during animation to prevent conflicts
         if (this.isAnimating) return;
+
+        // Don't switch cases while on the hero — HeroScroller handles crossfade
+        if (this.isOnHero()) return;
 
         // Use scroll position to determine which case is truly nearest/most visible
         const currentIndex = this.findNearestIndex();
@@ -926,6 +1042,22 @@ class SnapPaging {
     }
   }
 
+  findNearestSnapIndex() {
+    const scrollTop = this.scroller.scrollTop;
+    let bestIndex = 0;
+    let bestDistance = Infinity;
+
+    for (let i = 0; i < this.snapTargets.length; i++) {
+      const distance = Math.abs(this.snapTargets[i].offsetTop - scrollTop);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestIndex = i;
+      }
+    }
+
+    return bestIndex;
+  }
+
   findNearestIndex() {
     const scrollTop = this.scroller.scrollTop;
     let bestIndex = 0;
@@ -940,6 +1072,10 @@ class SnapPaging {
     }
 
     return bestIndex;
+  }
+
+  isOnHero() {
+    return this.hero && this.snapTargets[this.findNearestSnapIndex()] === this.hero;
   }
 
   animateTo(targetTop, durationMs) {
@@ -968,11 +1104,11 @@ class SnapPaging {
   }
 
   go(direction) {
-    const currentIdx = this.findNearestIndex();
-    const nextIdx = clamp(currentIdx + direction, 0, this.cases.length - 1);
+    const currentIdx = this.findNearestSnapIndex();
+    const nextIdx = clamp(currentIdx + direction, 0, this.snapTargets.length - 1);
     const duration = this.isMobile ? CONFIG.MOBILE_ANIM_MS : CONFIG.DESKTOP_ANIM_MS;
 
-    this.animateTo(this.cases[nextIdx].offsetTop, duration);
+    this.animateTo(this.snapTargets[nextIdx].offsetTop, duration);
   }
 
   initWheelPaging() {
@@ -988,10 +1124,10 @@ class SnapPaging {
           clearTimeout(scrollTimeout);
         }
 
-        // After scroll settles, snap to nearest case with minimal delay
+        // After scroll settles, snap to nearest target (hero or case)
         scrollTimeout = setTimeout(() => {
-          const currentIdx = this.findNearestIndex();
-          this.animateTo(this.cases[currentIdx].offsetTop, CONFIG.DESKTOP_ANIM_MS);
+          const idx = this.findNearestSnapIndex();
+          this.animateTo(this.snapTargets[idx].offsetTop, CONFIG.DESKTOP_ANIM_MS);
         }, CONFIG.SNAP_SETTLE_MS);
       },
       { passive: true }
@@ -1011,12 +1147,12 @@ class SnapPaging {
           clearTimeout(scrollTimeout);
         }
 
-        // After scroll settles, only snap if near the top of a case
+        // After scroll settles, only snap if near the top of a target
         scrollTimeout = setTimeout(() => {
-          const currentIdx = this.findNearestIndex();
-          const nearestCase = this.cases[currentIdx];
+          const currentIdx = this.findNearestSnapIndex();
+          const nearestTarget = this.snapTargets[currentIdx];
           const scrollTop = this.scroller.scrollTop;
-          const caseTop = nearestCase.offsetTop;
+          const caseTop = nearestTarget.offsetTop;
           const distanceFromTop = Math.abs(scrollTop - caseTop);
 
           // Only snap if within 150px of the case top (user is transitioning)
@@ -1117,9 +1253,10 @@ function main() {
     }
   });
 
-  // Initialize snap paging after cases are set up
+  // Initialize snap paging and hero scroll after cases are set up
   const scroller = document.querySelector(".v2-snap");
   if (scroller) {
+    new HeroScroller(scroller);
     window.snapPaging = new SnapPaging(scroller);
   }
 

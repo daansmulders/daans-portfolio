@@ -19,7 +19,7 @@
             <button id="theme-toggle-menu" class="v2-link" type="button" aria-pressed="false">🌙 Dark</button>
           </div>
         </div>
-        <div class="v2-header__intro">
+        <div class="v2-header__intro" data-header-intro>
           Daan is a UX and digital product designer who has designed digital experiences for platforms in finance, sustainability, marketplaces and retail over the past 10 years.
         </div>
         <div class="v2-header__expanded" hidden>
@@ -39,6 +39,12 @@
 
 
     <main class="v2-snap">
+      <section class="v2-hero" data-hero>
+        <div class="v2-hero__text">
+          Daan is a UX and digital product designer who has designed digital experiences for platforms in finance, sustainability, marketplaces and retail over the past 10 years.
+        </div>
+      </section>
+
       {% assign cases = site.projects | sort: "date" | reverse %}
 
   {% for c in cases %}

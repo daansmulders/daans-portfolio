@@ -195,6 +195,32 @@ html, body {
 }
 
 /* =============================================================================
+   LAYOUT: HERO (LANDING SECTION)
+============================================================================= */
+.v2-hero {
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--v2-pad-x);
+  box-sizing: border-box;
+  position: relative;
+}
+
+.v2-hero__text {
+  font-size: clamp(1.2rem, 1.65vw, 1.35rem);
+  line-height: 1.4;
+  max-width: 50%;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+/* Header intro opacity controlled by JS during hero scroll */
+.v2-header__intro[data-header-intro] {
+  opacity: 0;
+}
+
+
+/* =============================================================================
    LAYOUT: CASE (MAIN CONTENT SECTIONS)
 ============================================================================= */
 .v2-case {
@@ -660,6 +686,16 @@ body.theme-dark .v2-overlay {
 
   .v2-onlyDesktop {
     display: none;
+  }
+
+  /* Hero adjustments */
+  .v2-hero {
+    padding: 0 var(--v2-pad-x);
+  }
+
+  .v2-hero__text {
+    font-size: clamp(1.2rem, 4.5vw, 1.45rem);
+    max-width: 100%;
   }
 
   /* Header adjustments */
