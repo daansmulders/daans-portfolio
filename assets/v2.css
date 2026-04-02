@@ -198,11 +198,11 @@ html, body {
    LAYOUT: HERO (LANDING SECTION)
 ============================================================================= */
 .v2-hero {
-  height: 100vh;
-  height: 100dvh;
+  height: 65vh;
+  height: 65dvh;
   display: flex;
-  align-items: center;
-  padding: 0 var(--v2-pad-x);
+  align-items: end;
+  padding: 0 var(--v2-pad-x) 10vh;
   box-sizing: border-box;
   position: relative;
 }

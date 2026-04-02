@@ -179,9 +179,7 @@ class HeroScroller {
       this.firstCaseLeft.style.setProperty("opacity", o, "important");
       this.firstCaseLeft.style.visibility = hidden ? "hidden" : "visible";
     }
-    if (this.firstCaseRight) {
-      this.firstCaseRight.style.setProperty("opacity", o, "important");
-    }
+    // firstCaseRight (image) is always visible — it peeks above the fold
     if (this.firstCaseCounter) {
       this.firstCaseCounter.style.setProperty("opacity", o, "important");
     }
@@ -951,7 +949,13 @@ class SnapPaging {
       this.initWheelPaging();
     }
 
-    // If no hero, activate first case immediately. Otherwise HeroScroller handles it.
+    // If no hero, activate first case immediately. Otherwise HeroScroller handles text/counter.
+    // Always show first case media so it peeks above the fold.
+    if (this.hero && this.cases.length > 0) {
+      const firstMedia = this.cases[0].querySelector('.v2-right');
+      if (firstMedia) firstMedia.classList.add('v2-media--visible');
+    }
+
     if (!this.hero && this.cases.length > 0) {
       const firstText = this.cases[0].querySelector('.v2-left');
       const firstMedia = this.cases[0].querySelector('.v2-right');
