@@ -576,12 +576,19 @@ class VideoController {
       this.loadAttempts++;
 
       if (this.loadAttempts < this.maxLoadAttempts) {
-        setTimeout(() => {
+        setTimeout(async () => {
           if (this.currentUrl) {
-            // Replace the element to get a clean slate, then retry
             this.replaceVideoElement();
-            this.videoEl.src = this.currentUrl;
-            this.videoEl.load();
+            // Clear any cached blob for this URL and re-fetch
+            VideoController.blobCache.delete(this.currentUrl);
+            try {
+              const blobUrl = await VideoController.fetchAsBlob(this.currentUrl);
+              this.videoEl.src = blobUrl;
+              this.videoEl.load();
+              setTimeout(() => this.play(), 200);
+            } catch (err) {
+              console.warn("Video retry fetch failed:", err);
+            }
           }
         }, 500);
       }
@@ -628,7 +635,7 @@ class VideoController {
     document.addEventListener("visibilitychange", handleVisibilityChange);
   }
 
-  setSource(url) {
+  async setSource(url) {
     const normalizedUrl = normalizeUrl(url);
 
     if (!normalizedUrl) {
@@ -638,8 +645,6 @@ class VideoController {
     }
 
     this.isActive = true;
-    // IMPORTANT: Make video visible BEFORE setting source
-    // Mobile browsers may not load videos that are hidden
     this.videoEl.hidden = false;
 
     // Only update src if it changed to prevent reload flicker
@@ -648,21 +653,28 @@ class VideoController {
       this.loadAttempts = 0;
 
       // If the video element is in an error state, replace it entirely
-      // Browsers don't reliably recover from MediaError on the same element
       if (this.videoEl.error) {
         this.replaceVideoElement();
       }
 
-      // Set source and force load
-      this.videoEl.src = normalizedUrl;
-      this.videoEl.load();
+      try {
+        // Fetch video as blob to bypass browser media cache issues
+        const blobUrl = await VideoController.fetchAsBlob(normalizedUrl);
 
-      // Try to play after a delay
-      setTimeout(() => {
-        this.play();
-      }, 200);
+        // Check we're still supposed to show this video
+        if (this.currentUrl !== normalizedUrl) return;
+
+        this.videoEl.src = blobUrl;
+        this.videoEl.load();
+        setTimeout(() => this.play(), 200);
+      } catch (err) {
+        console.warn("Video blob fetch failed, falling back to direct src:", err);
+        if (this.currentUrl !== normalizedUrl) return;
+        this.videoEl.src = normalizedUrl;
+        this.videoEl.load();
+        setTimeout(() => this.play(), 200);
+      }
     } else {
-      // Video source hasn't changed, try to play if it's ready
       this.play();
     }
   }
@@ -712,6 +724,22 @@ class VideoController {
     this.videoEl.hidden = true;
     this.pause();
     this.currentUrl = "";
+  }
+
+  static blobCache = new Map();
+
+  static async fetchAsBlob(url) {
+    if (VideoController.blobCache.has(url)) {
+      return VideoController.blobCache.get(url);
+    }
+    // Force fresh request — Jekyll's dev server returns 304 without body otherwise
+    const bustUrl = url + (url.includes("?") ? "&" : "?") + "_t=" + Date.now();
+    const res = await fetch(bustUrl);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const blob = await res.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    VideoController.blobCache.set(url, blobUrl);
+    return blobUrl;
   }
 
   replaceVideoElement() {
