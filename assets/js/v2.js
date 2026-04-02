@@ -174,9 +174,17 @@ class HeroScroller {
 
   setCaseOpacity(val) {
     const o = String(val);
-    if (this.firstCaseLeft) this.firstCaseLeft.style.opacity = o;
-    if (this.firstCaseRight) this.firstCaseRight.style.opacity = o;
-    if (this.firstCaseCounter) this.firstCaseCounter.style.opacity = o;
+    const hidden = val === 0;
+    if (this.firstCaseLeft) {
+      this.firstCaseLeft.style.setProperty("opacity", o, "important");
+      this.firstCaseLeft.style.visibility = hidden ? "hidden" : "visible";
+    }
+    if (this.firstCaseRight) {
+      this.firstCaseRight.style.setProperty("opacity", o, "important");
+    }
+    if (this.firstCaseCounter) {
+      this.firstCaseCounter.style.setProperty("opacity", o, "important");
+    }
   }
 
   onScroll() {
@@ -214,17 +222,17 @@ class HeroScroller {
       // Fully visible — hand off to normal case switching
       if (!this.casesRevealed) {
         this.casesRevealed = true;
-        // Clear inline opacity and activate via classes
+        // Clear inline styles completely and activate via classes
         if (this.firstCaseLeft) {
-          this.firstCaseLeft.style.opacity = "";
+          this.firstCaseLeft.style.cssText = "";
           this.firstCaseLeft.classList.add("v2-left--active");
         }
         if (this.firstCaseRight) {
-          this.firstCaseRight.style.opacity = "";
+          this.firstCaseRight.style.cssText = "";
           this.firstCaseRight.classList.add("v2-media--visible");
         }
         if (this.firstCaseCounter) {
-          this.firstCaseCounter.style.opacity = "";
+          this.firstCaseCounter.style.cssText = "";
           this.firstCaseCounter.classList.add("v2-counter--active");
         }
       }
@@ -968,6 +976,9 @@ class SnapPaging {
   }
 
   switchToCase(index) {
+    // Don't activate cases while on the hero
+    if (this.isOnHero()) return;
+
     // Increment token to invalidate any pending timeouts from previous switches
     const token = ++this.switchToken;
     this.activeIndex = index;
@@ -1027,6 +1038,9 @@ class SnapPaging {
               tc.classList.remove('v2-left--active');
             }
           });
+
+          // Bail if we scrolled back to hero during the delay
+          if (this.isOnHero()) return;
 
           // Clear inline styles and add active class
           textContainer.style.cssText = '';
