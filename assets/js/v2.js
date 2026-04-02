@@ -580,6 +580,9 @@ class VideoController {
       if (this.loadAttempts < this.maxLoadAttempts) {
         setTimeout(() => {
           if (this.currentUrl) {
+            // Replace the element to get a clean slate, then retry
+            this.replaceVideoElement();
+            this.videoEl.src = this.currentUrl;
             this.videoEl.load();
           }
         }, 500);
@@ -646,14 +649,15 @@ class VideoController {
       this.currentUrl = normalizedUrl;
       this.loadAttempts = 0;
 
+      // If the video element is in an error state, replace it entirely
+      // Browsers don't reliably recover from MediaError on the same element
+      if (this.videoEl.error) {
+        this.replaceVideoElement();
+      }
+
       // Set source and force load
       this.videoEl.src = normalizedUrl;
       this.videoEl.load();
-
-      // Force another load after a tiny delay (helps on some mobile browsers)
-      setTimeout(() => {
-        this.videoEl.load();
-      }, 50);
 
       // Try to play after a delay
       setTimeout(() => {
@@ -709,7 +713,24 @@ class VideoController {
     this.isActive = false;
     this.videoEl.hidden = true;
     this.pause();
-    // Keep the src so it doesn't need to reload later
+    this.currentUrl = "";
+  }
+
+  replaceVideoElement() {
+    const newVideo = document.createElement("video");
+    newVideo.className = this.videoEl.className;
+    newVideo.muted = true;
+    newVideo.loop = true;
+    newVideo.playsInline = true;
+    newVideo.preload = "auto";
+    newVideo.setAttribute("data-step-video", "");
+
+    // Copy over any other attributes
+    this.videoEl.parentNode.replaceChild(newVideo, this.videoEl);
+    this.videoEl = newVideo;
+
+    // Re-attach event listeners
+    this.setupVideoEvents();
   }
 
   show() {
