@@ -259,13 +259,10 @@ class OverlayManager {
   constructor() {
     this.overlays = document.querySelectorAll("[data-overlay]");
     this.header = document.querySelector(".v2-header");
-    this.headerExpanded = document.querySelector(".v2-header__expanded");
     this.headerMenu = document.querySelector(".v2-header__menu");
-    this.typewriterEl = document.querySelector(".v2-typewriter");
     this.aboutButtons = document.querySelectorAll('[data-open="about"]');
     this.overviewButtons = document.querySelectorAll('[data-open="overview"]');
     this.menuToggleBtn = document.querySelector('[data-toggle-menu]');
-    this.isAboutExpanded = false;
     this.isMenuOpen = false;
     this.init();
   }
@@ -286,20 +283,7 @@ class OverlayManager {
     const openBtn = e.target.closest("[data-open]");
     if (openBtn) {
       const target = openBtn.getAttribute("data-open");
-
-      // Special handling for "about"
-      if (target === "about") {
-        // Close overlays but keep menu open
-        this.overlays.forEach(overlay => overlay.hidden = true);
-        this.overviewButtons.forEach(btn => {
-          btn.textContent = "Overview";
-          btn.setAttribute("aria-pressed", "false");
-        });
-        this.toggleAbout();
-        return;
-      }
-
-      this.closeMenu(); // Close menu when opening overlay
+      this.closeMenu();
       this.open(target);
       return;
     }
@@ -332,18 +316,19 @@ class OverlayManager {
   handleKeydown(e) {
     if (e.key === "Escape") {
       this.closeAll();
-      if (this.isAboutExpanded) {
-        this.toggleAbout();
-      }
     }
   }
 
   closeAll() {
     this.overlays.forEach(overlay => overlay.hidden = true);
 
-    // Reset overview button text
+    // Reset button text
     this.overviewButtons.forEach(btn => {
       btn.textContent = "Overview";
+      btn.setAttribute("aria-pressed", "false");
+    });
+    this.aboutButtons.forEach(btn => {
+      btn.textContent = "About";
       btn.setAttribute("aria-pressed", "false");
     });
 
@@ -357,74 +342,21 @@ class OverlayManager {
     if (el) {
       el.hidden = false;
 
-      // Handle overview-specific actions
       if (name === 'overview') {
         setTimeout(initOverviewVideos, 100);
-
-        // Update button text
         this.overviewButtons.forEach(btn => {
           btn.textContent = "Close";
           btn.setAttribute("aria-pressed", "true");
         });
       }
+
+      if (name === 'about') {
+        this.aboutButtons.forEach(btn => {
+          btn.textContent = "Close";
+          btn.setAttribute("aria-pressed", "true");
+        });
+      }
     }
-  }
-
-  toggleAbout() {
-    this.isAboutExpanded = !this.isAboutExpanded;
-
-    if (this.isAboutExpanded) {
-      this.expandAbout();
-    } else {
-      this.collapseAbout();
-    }
-  }
-
-  expandAbout() {
-    if (!this.header || !this.headerExpanded || !this.typewriterEl) return;
-
-    this.header.classList.add("is-expanded");
-    this.headerExpanded.hidden = false;
-
-    // Update button text
-    this.aboutButtons.forEach(btn => {
-      btn.textContent = "Close";
-      btn.setAttribute("aria-pressed", "true");
-    });
-
-    // Update header height
-    setTimeout(() => setV2HeaderHeight(), 50);
-
-    const text = "Previously at funda, Ace & Tate, Werkspot, and Powerly — now at Nationale-Nederlanden. Reach me at daan.smulders@gmail.com";
-
-    // Set text and trigger slide-down animation
-    this.typewriterEl.textContent = text;
-
-    // Use requestAnimationFrame to ensure the transition triggers
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        this.typewriterEl.classList.add("slide-in");
-      });
-    });
-  }
-
-  collapseAbout() {
-    if (!this.header || !this.headerExpanded) return;
-
-    this.header.classList.remove("is-expanded");
-    this.typewriterEl.classList.remove("slide-in");
-
-    // Update button text
-    this.aboutButtons.forEach(btn => {
-      btn.textContent = "About";
-      btn.setAttribute("aria-pressed", "false");
-    });
-
-    setTimeout(() => {
-      this.headerExpanded.hidden = true;
-      this.typewriterEl.textContent = "";
-      setV2HeaderHeight();
-    }, 400);
   }
 
   toggleMenu() {

@@ -124,33 +124,6 @@ html, body {
   transition: opacity 300ms ease;
 }
 
-.v2-header__expanded {
-  margin-top: var(--v2-space-lg);
-  opacity: 0;
-  max-height: 0;
-  overflow: hidden;
-  transition: opacity 400ms ease, max-height 400ms ease;
-}
-
-.v2-header.is-expanded .v2-header__expanded {
-  opacity: 1;
-  max-height: 200px;
-}
-
-.v2-typewriter {
-  display: block;
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
-
-.v2-typewriter.slide-in {
-  opacity: 1;
-  transform: translateY(0);
-}
-
 .v2-header__menu {
   margin-bottom: var(--v2-space-md);
   opacity: 0;
@@ -604,6 +577,76 @@ body.theme-dark .v2-overlay {
 }
 
 /* =============================================================================
+   COMPONENTS: ABOUT OVERLAY
+============================================================================= */
+.v2-about {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 50;
+  overflow-y: auto;
+  padding: var(--v2-pad-x);
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.v2-about:not([hidden]) {
+  opacity: 1;
+}
+
+.v2-about[hidden] {
+  display: none !important;
+}
+
+.v2-about__close {
+  position: fixed;
+  top: var(--v2-pad-x);
+  right: var(--v2-pad-x);
+  background: transparent;
+  border: 0;
+  font-family: 'TimesTen LT Std', 'Times New Roman', Times, serif;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--fg);
+  padding: 0;
+  z-index: 51;
+  transition: opacity 200ms ease;
+  text-decoration: underline;
+}
+
+.v2-about__close:hover {
+  opacity: 0.6;
+}
+
+.v2-about__content {
+  max-width: 640px;
+  padding-top: calc(var(--v2-pad-x) * 2);
+  padding-bottom: var(--v2-pad-x);
+}
+
+.v2-about__heading {
+  font-size: 1.2rem;
+  font-weight: var(--v2-font-weight-bold);
+  margin: 0 0 var(--v2-space-xl) 0;
+}
+
+.v2-about__body p {
+  margin: 0 0 var(--v2-space-md) 0;
+  line-height: 1.6;
+}
+
+.v2-about__body h2 {
+  font-size: 1rem;
+  font-weight: var(--v2-font-weight-bold);
+  margin: var(--v2-space-xl) 0 var(--v2-space-md) 0;
+}
+
+.v2-about__body a {
+  color: var(--fg);
+}
+
+/* =============================================================================
    COMPONENTS: MENU
 ============================================================================= */
 .v2-menuList {
@@ -712,11 +755,6 @@ body.theme-dark .v2-overlay {
     position: absolute;
     top: var(--v2-space-md);
     right: var(--v2-pad-x);
-  }
-
-  /* Expanded header needs more height on mobile for text wrapping */
-  .v2-header.is-expanded .v2-header__expanded {
-    max-height: 300px;
   }
 
   /* Case layout */
