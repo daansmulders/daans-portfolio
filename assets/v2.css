@@ -55,7 +55,14 @@ body.theme-dark {
 /* Font family */
 body {
   font-family: 'TimesTen LT Std', 'Times New Roman', Times, serif;
-  transition: background-color 180ms ease, color 180ms ease;
+}
+
+/* Smooth theme switch — applied briefly during toggle */
+body.theme-transitioning,
+body.theme-transitioning *,
+body.theme-transitioning *::before,
+body.theme-transitioning *::after {
+  transition: background-color 350ms ease, color 350ms ease, border-color 350ms ease, opacity 350ms ease !important;
 }
 
 /* =============================================================================
@@ -383,17 +390,17 @@ html, body {
 }
 
 .v2-copy--updating {
-  animation: slideUp 0.4s ease;
+  animation: textEnter 0.4s var(--ease-enter);
 }
 
-@keyframes slideUp {
+@keyframes textEnter {
   0% {
-    opacity: 0.4;
-    transform: translateY(8px);
+    opacity: 0;
+    transform: translateX(20px);
   }
   100% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(0);
   }
 }
 

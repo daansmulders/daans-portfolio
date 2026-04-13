@@ -33,9 +33,11 @@ document.addEventListener("DOMContentLoaded", function () {
   // --- Toggle handler ---
   themeToggles.forEach(button => {
     button.addEventListener("click", function () {
+      body.classList.add("theme-transitioning");
       const isDark = body.classList.toggle("theme-dark");
       updateThemeButtons(isDark);
       localStorage.setItem("theme", isDark ? "dark" : "light");
+      setTimeout(() => body.classList.remove("theme-transitioning"), 400);
     });
   });
 });

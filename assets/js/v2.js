@@ -816,15 +816,15 @@ class CaseCarousel {
 
   next() {
     this.currentIndex = (this.currentIndex + 1) % this.steps.length;
-    this.render();
+    this.render(1);
   }
 
   prev() {
     this.currentIndex = clamp(this.currentIndex - 1, 0, this.steps.length - 1);
-    this.render();
+    this.render(-1);
   }
 
-  async render() {
+  async render(direction = 0) {
     const step = this.steps[this.currentIndex] || {};
 
     // Update heading
@@ -836,10 +836,18 @@ class CaseCarousel {
     this.prefetchAdjacent();
 
     // Handle media (image vs video)
-    this.renderMedia(step);
+    this.renderMedia(step, direction);
 
     // Handle markdown body
     await this.renderBody(step.body);
+
+    // Animate text in with direction
+    const copyEl = this.caseEl.querySelector(".v2-copy");
+    if (copyEl && direction !== 0) {
+      copyEl.classList.remove("v2-copy--updating");
+      copyEl.offsetHeight;
+      copyEl.classList.add("v2-copy--updating");
+    }
 
     // Update counter
     this.renderCounter();
@@ -856,22 +864,69 @@ class CaseCarousel {
     markdownLoader.prefetch(this.steps[prevIdx]?.body);
   }
 
-  renderMedia(step) {
+  renderMedia(step, direction = 0) {
+    const exitOffset = direction * -60; // exit opposite to travel direction
+    const enterOffset = direction * 60;  // enter from travel direction
+
     if (step.video) {
-      // Show video, hide image
       if (this.imgEl) this.imgEl.hidden = true;
-      this.videoController.setSource(step.video);
+
+      if (direction !== 0 && this.videoEl) {
+        // Animate exit, swap, animate entrance
+        this.videoEl.style.transition = "transform 200ms ease-in, opacity 200ms ease-in";
+        this.videoEl.style.transform = `translateX(${exitOffset}px)`;
+        this.videoEl.style.opacity = "0";
+
+        setTimeout(() => {
+          this.videoController.setSource(step.video);
+          this.videoEl.style.transition = "none";
+          this.videoEl.style.transform = `translateX(${enterOffset}px)`;
+          requestAnimationFrame(() => {
+            this.videoEl.style.transition = "transform 350ms cubic-bezier(0.16, 1, 0.3, 1), opacity 350ms cubic-bezier(0.16, 1, 0.3, 1)";
+            this.videoEl.style.transform = "translateX(0)";
+            this.videoEl.style.opacity = "1";
+          });
+        }, 200);
+      } else {
+        this.videoController.setSource(step.video);
+      }
     } else {
-      // Show image, hide video
       this.videoController.hide();
 
       if (this.imgEl) {
         this.imgEl.hidden = false;
         const imageUrl = normalizeUrl(step.image || step.media || "");
 
-        if (imageUrl) {
+        if (imageUrl && this.imgEl.src !== imageUrl && direction !== 0) {
+          // Directional slide: exit, swap, enter
+          this.imgEl.style.transition = "transform 200ms ease-in, opacity 200ms ease-in";
+          this.imgEl.style.transform = `translateX(${exitOffset}px)`;
+          this.imgEl.style.opacity = "0";
+
+          setTimeout(() => {
+            this.imgEl.src = imageUrl;
+            this.imgEl.style.transition = "none";
+            this.imgEl.style.transform = `translateX(${enterOffset}px)`;
+
+            const onReady = () => {
+              requestAnimationFrame(() => {
+                this.imgEl.style.transition = "transform 350ms cubic-bezier(0.16, 1, 0.3, 1), opacity 350ms cubic-bezier(0.16, 1, 0.3, 1)";
+                this.imgEl.style.transform = "translateX(0)";
+                this.imgEl.style.opacity = "1";
+              });
+            };
+
+            // If image is cached, onload may not fire — check complete
+            if (this.imgEl.complete) {
+              onReady();
+            } else {
+              this.imgEl.onload = onReady;
+            }
+          }, 200);
+        } else if (imageUrl && !this.imgEl.src) {
+          // First render — no animation
           this.imgEl.src = imageUrl;
-        } else {
+        } else if (!imageUrl) {
           this.imgEl.removeAttribute("src");
         }
       }
