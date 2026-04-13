@@ -193,8 +193,10 @@ class HeroScroller {
     const casesFadeStart = this.heroHeight * 0.35;
     const casesFadeEnd = this.heroHeight * 0.7;
 
-    // Hero text fade
-    if (scrollY <= heroFadeStart) {
+    // Hero text fade (don't set inline styles at scroll 0 — entrance animation handles it)
+    if (scrollY === 0) {
+      // Let CSS entrance animation control opacity
+    } else if (scrollY <= heroFadeStart) {
       this.heroText.style.opacity = "1";
       this.heroText.style.transform = "translateY(0)";
     } else if (scrollY >= heroFadeEnd) {
@@ -1263,6 +1265,11 @@ function main() {
   if (document.fonts?.ready) {
     document.fonts.ready.then(setV2HeaderHeight);
   }
+
+  // Trigger entrance animation
+  requestAnimationFrame(() => {
+    document.body.classList.add("is-entered");
+  });
 }
 
 // Start the application

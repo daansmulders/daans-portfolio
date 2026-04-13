@@ -29,6 +29,9 @@
   --v2-font-body: inherit;
   --v2-font-weight-bold: 700;
 
+  /* Easing */
+  --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+
   /* Colors - Light theme (default) */
   --bg: #fff;
   --fg: #1f1f1f;
@@ -154,6 +157,81 @@ html, body {
   color: var(--fg);
   cursor: pointer;
   text-decoration: underline;
+}
+
+/* =============================================================================
+   ENTRANCE ANIMATION
+============================================================================= */
+@keyframes enterUp {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Elements start hidden, animate when body gets .is-entered */
+.v2-header__left,
+.v2-header__right {
+  opacity: 0;
+}
+
+.v2-hero__text {
+  opacity: 0;
+}
+
+.v2-fixedFooter__left {
+  opacity: 0;
+}
+
+.v2-fixedFooter__right {
+  opacity: 0;
+}
+
+.is-entered .v2-header__left,
+.is-entered .v2-header__right {
+  animation: enterUp 700ms var(--ease-enter) both;
+}
+
+.is-entered .v2-hero__text {
+  animation: enterUp 800ms var(--ease-enter) 350ms both;
+}
+
+.is-entered .v2-fixedFooter__left {
+  animation: enterUp 500ms var(--ease-enter) 650ms both;
+}
+
+.is-entered .v2-fixedFooter__right {
+  animation: enterUp 500ms var(--ease-enter) 650ms both;
+}
+
+/* First case image peeks in last */
+.is-entered .v2-case:first-child .v2-right {
+  animation: enterUp 700ms var(--ease-enter) 900ms both;
+}
+
+/* Reduced motion: skip entrance, show everything immediately */
+@media (prefers-reduced-motion: reduce) {
+  .v2-header__left,
+  .v2-header__right,
+  .v2-hero__text,
+  .v2-fixedFooter__left,
+  .v2-fixedFooter__right {
+    opacity: 1;
+  }
+
+  .is-entered .v2-header__left,
+  .is-entered .v2-header__right,
+  .is-entered .v2-hero__text,
+  .is-entered .v2-fixedFooter__left,
+  .is-entered .v2-fixedFooter__right,
+  .is-entered .v2-case:first-child .v2-right {
+    animation: none;
+    opacity: 1;
+  }
 }
 
 /* =============================================================================
