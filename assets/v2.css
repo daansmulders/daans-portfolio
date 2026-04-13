@@ -110,7 +110,6 @@ html, body {
   pointer-events: none;
   box-sizing: border-box;
   background: var(--bg);
-  transition: background-color 180ms ease;
 }
 
 .v2-header__left,
@@ -232,6 +231,33 @@ html, body {
     animation: none;
     opacity: 1;
   }
+
+  /* Overlay transitions: instant open/close */
+  body.has-overlay .v2-header,
+  body.has-overlay .v2-snap,
+  body.has-overlay .v2-fixedFooter__left,
+  body.has-overlay .v2-fixedFooter__right {
+    transform: none;
+    opacity: 0;
+    transition: none;
+  }
+
+  .v2-overview.is-opening,
+  .v2-about.is-opening {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .v2-overview.is-opening .v2-overview__close,
+  .v2-overview.is-opening .v2-overview__case,
+  .v2-about.is-opening .v2-about__close,
+  .v2-about.is-opening .v2-about__heading,
+  .v2-about.is-opening .v2-about__body > p,
+  .v2-about.is-opening .v2-about__body > h2 {
+    animation: none;
+    opacity: 1;
+  }
 }
 
 /* =============================================================================
@@ -242,7 +268,6 @@ html, body {
   height: 100dvh;
   overflow-y: auto;
   scroll-snap-type: none;
-  transition: margin-top 400ms ease;
 }
 
 /* =============================================================================
@@ -517,6 +542,68 @@ body.theme-dark .v2-overlay {
 }
 
 /* =============================================================================
+   OVERLAY TRANSITIONS (shared between About & Overview)
+============================================================================= */
+
+/* Pushback: main content recedes when an overlay is open */
+.v2-header {
+  transition: transform 450ms var(--ease-enter), opacity 450ms var(--ease-enter), background-color 180ms ease;
+}
+
+.v2-snap {
+  transition: transform 450ms var(--ease-enter), opacity 450ms var(--ease-enter), margin-top 400ms ease;
+}
+
+.v2-fixedFooter__left,
+.v2-fixedFooter__right {
+  transition: transform 450ms var(--ease-enter), opacity 450ms var(--ease-enter);
+}
+
+body.has-overlay .v2-header,
+body.has-overlay .v2-snap,
+body.has-overlay .v2-fixedFooter__left,
+body.has-overlay .v2-fixedFooter__right {
+  transform: scale(0.97);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* Overlay entrance: slide up + fade */
+@keyframes overlayIn {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes overlayOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+/* Staggered content entrance */
+@keyframes overlayContentIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =============================================================================
    COMPONENTS: CASE STUDY OVERVIEW
 ============================================================================= */
 .v2-overview {
@@ -528,16 +615,36 @@ body.theme-dark .v2-overlay {
   padding: var(--v2-pad-x);
   padding-top: var(--v2-pad-x);
   opacity: 0;
-  transition: opacity 300ms ease;
+  transform: translateY(40px);
 }
 
-.v2-overview:not([hidden]) {
-  opacity: 1;
+.v2-overview.is-opening {
+  animation: overlayIn 450ms var(--ease-enter) both;
+}
+
+.v2-overview.is-closing {
+  animation: overlayOut 250ms ease-in both;
 }
 
 .v2-overview[hidden] {
   display: none !important;
 }
+
+/* Stagger overview content */
+.v2-overview.is-opening .v2-overview__close {
+  animation: overlayContentIn 400ms var(--ease-enter) 150ms both;
+}
+
+.v2-overview.is-opening .v2-overview__case {
+  opacity: 0;
+  animation: overlayContentIn 500ms var(--ease-enter) both;
+}
+
+.v2-overview.is-opening .v2-overview__case:nth-child(1) { animation-delay: 200ms; }
+.v2-overview.is-opening .v2-overview__case:nth-child(2) { animation-delay: 260ms; }
+.v2-overview.is-opening .v2-overview__case:nth-child(3) { animation-delay: 320ms; }
+.v2-overview.is-opening .v2-overview__case:nth-child(4) { animation-delay: 380ms; }
+.v2-overview.is-opening .v2-overview__case:nth-child(5) { animation-delay: 440ms; }
 
 .v2-overview__close {
   position: fixed;
@@ -665,16 +772,44 @@ body.theme-dark .v2-overlay {
   overflow-y: auto;
   padding: var(--v2-pad-x);
   opacity: 0;
-  transition: opacity 300ms ease;
+  transform: translateY(40px);
 }
 
-.v2-about:not([hidden]) {
-  opacity: 1;
+.v2-about.is-opening {
+  animation: overlayIn 450ms var(--ease-enter) both;
+}
+
+.v2-about.is-closing {
+  animation: overlayOut 250ms ease-in both;
 }
 
 .v2-about[hidden] {
   display: none !important;
 }
+
+/* Stagger about content */
+.v2-about.is-opening .v2-about__close {
+  animation: overlayContentIn 400ms var(--ease-enter) 150ms both;
+}
+
+.v2-about.is-opening .v2-about__heading {
+  opacity: 0;
+  animation: overlayContentIn 500ms var(--ease-enter) 200ms both;
+}
+
+.v2-about.is-opening .v2-about__body > p,
+.v2-about.is-opening .v2-about__body > h2 {
+  opacity: 0;
+  animation: overlayContentIn 500ms var(--ease-enter) both;
+}
+
+.v2-about.is-opening .v2-about__body > :nth-child(1) { animation-delay: 260ms; }
+.v2-about.is-opening .v2-about__body > :nth-child(2) { animation-delay: 320ms; }
+.v2-about.is-opening .v2-about__body > :nth-child(3) { animation-delay: 380ms; }
+.v2-about.is-opening .v2-about__body > :nth-child(4) { animation-delay: 440ms; }
+.v2-about.is-opening .v2-about__body > :nth-child(5) { animation-delay: 500ms; }
+.v2-about.is-opening .v2-about__body > :nth-child(6) { animation-delay: 560ms; }
+.v2-about.is-opening .v2-about__body > :nth-child(7) { animation-delay: 620ms; }
 
 .v2-about__close {
   position: fixed;

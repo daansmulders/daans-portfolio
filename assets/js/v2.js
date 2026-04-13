@@ -322,7 +322,32 @@ class OverlayManager {
   }
 
   closeAll() {
-    this.overlays.forEach(overlay => overlay.hidden = true);
+    // Animate out any open overlays
+    const openOverlays = Array.from(this.overlays).filter(o => !o.hidden);
+
+    if (openOverlays.length > 0) {
+      document.body.classList.remove("has-overlay");
+
+      openOverlays.forEach(overlay => {
+        overlay.classList.remove("is-opening");
+        overlay.classList.add("is-closing");
+
+        const onEnd = () => {
+          overlay.classList.remove("is-closing");
+          overlay.hidden = true;
+          overlay.removeEventListener("animationend", onEnd);
+        };
+        overlay.addEventListener("animationend", onEnd, { once: true });
+
+        // Fallback in case animationend doesn't fire
+        setTimeout(() => {
+          if (!overlay.hidden) {
+            overlay.classList.remove("is-closing");
+            overlay.hidden = true;
+          }
+        }, 300);
+      });
+    }
 
     // Reset button text
     this.overviewButtons.forEach(btn => {
@@ -339,10 +364,29 @@ class OverlayManager {
   }
 
   open(name) {
-    this.closeAll();
+    // Close any open overlays immediately (no exit animation when switching)
+    this.overlays.forEach(overlay => {
+      overlay.classList.remove("is-opening", "is-closing");
+      overlay.hidden = true;
+    });
+
+    // Reset button text
+    this.overviewButtons.forEach(btn => {
+      btn.textContent = "Overview";
+      btn.setAttribute("aria-pressed", "false");
+    });
+    this.aboutButtons.forEach(btn => {
+      btn.textContent = "About";
+      btn.setAttribute("aria-pressed", "false");
+    });
+
     const el = document.querySelector(`[data-overlay="${name}"]`);
     if (el) {
       el.hidden = false;
+      // Force reflow so animation triggers fresh
+      el.offsetHeight;
+      el.classList.add("is-opening");
+      document.body.classList.add("has-overlay");
 
       if (name === 'overview') {
         setTimeout(initOverviewVideos, 100);
