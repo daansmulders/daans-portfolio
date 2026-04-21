@@ -1,0 +1,280 @@
+/* ---- Fill Details step styles ---- */
+
+/* ---- Questions ---- */
+.fd-question {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  margin-top: 1rem;
+}
+
+.fd-question:first-of-type {
+  margin-top: 0;
+}
+
+/* ---- Checkboxes ---- */
+.fd-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.fd-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.fd-checkbox input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid var(--color-input-border);
+  border-radius: 4px;
+  margin: 0;
+  flex-shrink: 0;
+  position: relative;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.fd-checkbox input[type="checkbox"]:checked {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+}
+
+.fd-checkbox input[type="checkbox"]:checked::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* ---- Inline Ja/Nee radios ---- */
+.fd-inline-radios {
+  display: flex;
+  gap: 0;
+  margin-bottom: 0.5rem;
+}
+
+.fd-inline-radio {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.fd-inline-radio input[type="radio"] {
+  display: none;
+}
+
+.fd-inline-radio span {
+  display: inline-block;
+  padding: 0.375rem 1rem;
+  border: 1px solid var(--color-border);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  background-color: #fff;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.fd-inline-radio:first-child span {
+  border-radius: 4px 0 0 4px;
+  border-right: none;
+}
+
+.fd-inline-radio:last-child span {
+  border-radius: 0 4px 4px 0;
+}
+
+.fd-inline-radio input[type="radio"]:checked + span {
+  background: var(--color-text);
+  color: #fff;
+  border-color: var(--color-text);
+}
+
+/* ---- Person / Co-debtor card ---- */
+.fd-card {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  background-color: #FAF9F8;
+}
+
+.fd-card__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.fd-card__subtitle {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.fd-card__subtitle:first-of-type {
+  margin-top: 0;
+}
+
+.fd-card__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+/* ---- Field groups ---- */
+.fd-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.fd-fields--2col {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 1rem 2rem;
+  justify-content: start;
+}
+
+.fd-fields--3col {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  gap: 1rem 2rem;
+  justify-content: start;
+}
+
+.fd-field label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #475569;
+  margin-bottom: 0.25rem;
+}
+
+.fd-field input,
+.fd-field select {
+  width: 280px;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--color-input-border);
+  border-radius: 6px;
+  font-size: 1rem;
+  background-color: #fff;
+}
+
+.fd-field input[type="number"] {
+  width: 80px;
+}
+
+.fd-field .euro-input {
+  width: 280px;
+}
+
+.fd-field .euro-input input {
+  width: 100%;
+}
+
+/* ---- Income rows ---- */
+.fd-income-rows {
+  margin-bottom: 0.75rem;
+}
+
+.fd-income-header {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 0.375rem;
+  padding-bottom: 0.375rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.fd-income-header span {
+  flex: 1;
+  min-width: 150px;
+}
+
+.fd-income-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.fd-income-row select,
+.fd-income-row input {
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--color-input-border);
+  border-radius: 6px;
+  font-size: 0.9375rem;
+  background-color: #fff;
+  flex: 1;
+  min-width: 150px;
+}
+
+.fd-income-row .euro-input--sm {
+  flex: 1;
+  min-width: 150px;
+}
+
+.fd-income-row .euro-input--sm input {
+  min-width: unset;
+  flex: 1;
+}
+
+/* ---- Obligations ---- */
+.fd-obligation {
+  margin-bottom: 1rem;
+}
+
+.fd-obligation__label {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  margin-bottom: 0.375rem;
+}
+
+/* ---- Provision rows ---- */
+.fd-provision-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.fd-provision-row input[type="text"] {
+  flex: 1;
+  max-width: 300px;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--color-input-border);
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+/* ---- Textarea ---- */
+.fd-textarea {
+  width: 100%;
+  max-width: 500px;
+  padding: 0.75rem;
+  border: 1px solid var(--color-input-border);
+  border-radius: 6px;
+  font-size: 1rem;
+  resize: vertical;
+  font-family: inherit;
+}
+
+/* ---- Add income / provision button spacing ---- */
+.fd-add-income,
+.fd-add-cd-income {
+  margin-bottom: 1.5rem;
+}

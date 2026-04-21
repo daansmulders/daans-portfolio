@@ -2,17 +2,23 @@
  * Simple client-side password protection for prototypes.
  *
  * Usage: Add this to your prototype HTML:
- *   <script>window.PROTOTYPE_PASSWORD = 'your-password';</script>
+ *   <script>window.PROTOTYPE_PASSWORD_HASH = 'sha256-hex-hash-here';</script>
  *   <script src="/prototypes/password-protect.js"></script>
+ *
+ * Generate the hash with:
+ *   printf '%s' 'your-password' | shasum -a 256
  *
  * The script will show a password prompt and hide content until correct password is entered.
  * Password is remembered in sessionStorage for the browser session.
+ *
+ * NOTE: This is casual gating, not real security. A determined attacker can brute-force
+ * the hash. For anything sensitive, use server-side auth or encrypt the content itself.
  */
 (function() {
   'use strict';
 
-  var PASSWORD = window.PROTOTYPE_PASSWORD;
-  if (!PASSWORD) return; // No password set, skip protection
+  var HASH = window.PROTOTYPE_PASSWORD_HASH;
+  if (!HASH) return; // No password set, skip protection
 
   var STORAGE_KEY = 'prototype_auth_' + window.location.pathname;
 
@@ -21,6 +27,14 @@
 
   // Hide body content and show password prompt
   document.documentElement.style.visibility = 'hidden';
+
+  function sha256Hex(str) {
+    var bytes = new TextEncoder().encode(str);
+    return crypto.subtle.digest('SHA-256', bytes).then(function(buf) {
+      var arr = Array.from(new Uint8Array(buf));
+      return arr.map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+    });
+  }
 
   document.addEventListener('DOMContentLoaded', function() {
     // Create overlay
@@ -89,15 +103,17 @@
 
     form.addEventListener('submit', function(e) {
       e.preventDefault();
-      if (input.value === PASSWORD) {
-        sessionStorage.setItem(STORAGE_KEY, 'true');
-        overlay.remove();
-        style.remove();
-      } else {
-        error.hidden = false;
-        input.value = '';
-        input.focus();
-      }
+      sha256Hex(input.value).then(function(hash) {
+        if (hash === HASH.toLowerCase()) {
+          sessionStorage.setItem(STORAGE_KEY, 'true');
+          overlay.remove();
+          style.remove();
+        } else {
+          error.hidden = false;
+          input.value = '';
+          input.focus();
+        }
+      });
     });
 
     input.focus();
