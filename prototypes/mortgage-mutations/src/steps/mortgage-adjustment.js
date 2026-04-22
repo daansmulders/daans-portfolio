@@ -578,38 +578,11 @@ function renderSection4(parent, wizardState) {
     const rowsEl = partsEl.querySelector("#npRows");
     const summaryEl = partsEl.querySelector("#npSummary");
 
-    function recalcFirstPart() {
-      if (state.newLoanParts.length === 0) return;
-      if (state.newLoanParts.length === 1) {
-        state.newLoanParts[0].amount = totalIncrease();
-        save();
-        return;
-      }
-      const total = totalIncrease();
-      const othersSum = state.newLoanParts.slice(1).reduce((s, p) => s + (p.amount || 0), 0);
-      state.newLoanParts[0].amount = Math.max(0, total - othersSum);
-      save();
-    }
-
     function updateInlineErrors() {
-      const total = totalIncrease();
-      const totalAlloc = state.newLoanParts.reduce((s, p) => s + (p.amount || 0), 0);
-      const excess = totalAlloc - total;
       const errorEls = rowsEl.querySelectorAll("[data-amount-error]");
-      // Find the last part with an amount > 0 (the one being edited)
-      let lastWithAmount = -1;
-      if (excess > 0) {
-        for (let i = state.newLoanParts.length - 1; i >= 0; i--) {
-          if (state.newLoanParts[i].amount > 0) { lastWithAmount = i; break; }
-        }
-      }
       errorEls.forEach((el, i) => {
         const euroInput = el.previousElementSibling;
-        if (i === lastWithAmount) {
-          el.textContent = `Het totaal van de leningdelen is hoger dan het verhogingsbedrag`;
-          el.style.display = "block";
-          if (euroInput) euroInput.style.borderColor = "#c83c00";
-        } else if (state.newLoanParts[i] && !state.newLoanParts[i].amount && state.newLoanParts[i]._showZeroError) {
+        if (state.newLoanParts[i] && !state.newLoanParts[i].amount && state.newLoanParts[i]._showZeroError) {
           el.textContent = `Vul een bedrag in`;
           el.style.display = "block";
           if (euroInput) euroInput.style.borderColor = "#c83c00";
@@ -623,12 +596,14 @@ function renderSection4(parent, wizardState) {
 
     function updateSummary() {
       const totalAlloc = state.newLoanParts.reduce((s, p) => s + (p.amount || 0), 0);
+      const total = totalIncrease();
+      const mismatch = totalAlloc !== total;
       const box1 = state.newLoanParts.filter((p) => p.box === "box1").reduce((s, p) => s + (p.amount || 0), 0);
       const box3 = state.newLoanParts.filter((p) => p.box === "box3").reduce((s, p) => s + (p.amount || 0), 0);
       summaryEl.innerHTML = `
         <div class="np-summary__item np-summary__item--total">
           <span class="np-summary__label">Totaal nieuwe lening</span>
-          <span class="np-summary__value">${fmt(totalAlloc)}</span>
+          <span class="np-summary__value${mismatch ? " np-summary__value--error" : ""}">${fmt(totalAlloc)}</span>
         </div>
         <div class="np-summary__item">
           <span class="np-summary__label">Box 1</span>
@@ -638,6 +613,7 @@ function renderSection4(parent, wizardState) {
           <span class="np-summary__label">Box 3</span>
           <span class="np-summary__value">${fmt(box3)}</span>
         </div>
+        <div class="np-summary__error" id="npSummaryError" style="display:${mismatch ? "block" : "none"}">Het totaal van de leningdelen (${fmt(totalAlloc)}) komt niet overeen met het verhogingsbedrag (${fmt(total)})</div>
       `;
     }
 
@@ -668,7 +644,7 @@ function renderSection4(parent, wizardState) {
               <label>Hoofdsom</label>
               <div class="euro-input">
                 <span class="euro-input__symbol">&euro;</span>
-                <input type="text" inputmode="numeric" data-field="amount" value="${(part.amount != null ? part.amount : 0).toLocaleString("nl-NL", { minimumFractionDigits: 2 })}" ${index === 0 && state.newLoanParts.length > 1 ? 'readonly style="background:#f5f5f5;color:#666;"' : ""}>
+                <input type="text" inputmode="numeric" data-field="amount" value="${(part.amount != null ? part.amount : 0).toLocaleString("nl-NL", { minimumFractionDigits: 2 })}">
               </div>
               <div class="np-field__error" data-amount-error></div>
             </div>
@@ -728,20 +704,14 @@ function renderSection4(parent, wizardState) {
       // Field events (only when not collapsed)
       if (!part.collapsed) {
         const amtInput = card.querySelector('[data-field="amount"]');
-        if (index === 0 && state.newLoanParts.length > 1) {
-          // First part is read-only, no events
-        } else {
-          amtInput.addEventListener("focus", () => { amtInput.value = part.amount || ""; });
-          amtInput.addEventListener("input", () => {
-            part.amount = parseInt(amtInput.value.replace(/[^0-9]/g, ""), 10) || 0;
-            if (index > 0) recalcFirstPart();
-            save(); updateSummary(); updateInlineErrors();
-          });
-          amtInput.addEventListener("blur", () => {
-            amtInput.value = (part.amount || 0).toLocaleString("nl-NL", { minimumFractionDigits: 2 });
-            if (index > 0) renderNewParts();
-          });
-        }
+        amtInput.addEventListener("focus", () => { amtInput.value = part.amount || ""; });
+        amtInput.addEventListener("input", () => {
+          part.amount = parseInt(amtInput.value.replace(/[^0-9]/g, ""), 10) || 0;
+          save(); updateSummary(); updateInlineErrors();
+        });
+        amtInput.addEventListener("blur", () => {
+          amtInput.value = (part.amount || 0).toLocaleString("nl-NL", { minimumFractionDigits: 2 });
+        });
 
         card.querySelector('[data-field="form"]').addEventListener("change", (e) => { part.form = e.target.value; save(); });
         card.querySelector('[data-field="passDate"]').addEventListener("change", (e) => { part.passDate = e.target.value; save(); });
@@ -768,7 +738,6 @@ function renderSection4(parent, wizardState) {
         if (index > 0) {
           card.querySelector(".btn-delete-part").addEventListener("click", () => {
             state.newLoanParts = state.newLoanParts.filter((p) => p.id !== part.id);
-            recalcFirstPart();
             save(); renderNewParts();
           });
         }
@@ -830,24 +799,6 @@ registerStep("mortgage-adjustment", {
     const npRows = document.getElementById("npRows");
     if (!npRows) return true;
 
-    // First check for overage errors already showing
-    const errorEls = npRows.querySelectorAll("[data-amount-error]");
-    for (const el of errorEls) {
-      if (el.textContent) {
-        // Ensure parent card body is visible
-        const body = el.closest(".np-card__body");
-        if (body) body.style.display = "";
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
-        const euroInput = el.previousElementSibling;
-        if (euroInput) {
-          euroInput.style.transition = "box-shadow 0.3s";
-          euroInput.style.boxShadow = "0 0 0 3px rgba(200, 60, 0, 0.3)";
-          setTimeout(() => { euroInput.style.boxShadow = ""; }, 1500);
-        }
-        return false;
-      }
-    }
-
     // Check for zero-amount parts
     const cards = npRows.querySelectorAll(".np-card");
     for (const card of cards) {
@@ -855,7 +806,6 @@ registerStep("mortgage-adjustment", {
       if (!amtInput) continue;
       const val = parseInt(amtInput.value.replace(/[^0-9]/g, ""), 10) || 0;
       if (!val) {
-        // Ensure card body is visible
         const body = card.querySelector(".np-card__body");
         if (body) body.style.display = "";
         const amtError = card.querySelector("[data-amount-error]");
@@ -874,6 +824,14 @@ registerStep("mortgage-adjustment", {
         return false;
       }
     }
+
+    // Check total mismatch
+    const summaryError = document.getElementById("npSummaryError");
+    if (summaryError && summaryError.style.display !== "none") {
+      summaryError.scrollIntoView({ behavior: "smooth", block: "center" });
+      return false;
+    }
+
     return true;
   },
 });

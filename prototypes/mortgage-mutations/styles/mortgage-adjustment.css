@@ -454,6 +454,7 @@
 /* ---- Summary ---- */
 .new-parts__summary {
   display: flex;
+  flex-wrap: wrap;
   gap: 2rem;
   margin-top: 1.5rem;
   padding-top: 1rem;
@@ -484,6 +485,19 @@
 .np-summary__item--total .np-summary__value {
   font-size: 1.5rem;
   font-weight: 700;
+}
+
+.np-summary__value--error {
+  color: #c83c00;
+}
+
+.np-summary__error {
+  display: none;
+  width: 100%;
+  font-size: 0.8125rem;
+  color: #c83c00;
+  margin-top: -1rem;
+  line-height: 1.4;
 }
 
 .np-summary__warning {

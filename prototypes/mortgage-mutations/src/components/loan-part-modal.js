@@ -11,7 +11,7 @@ export function openLoanPartModal(loanPart, { onSave, onCancel }) {
   let splitting = false;
   let splitParts = [
     { ...draft, principal: draft.principal },
-    { ...draft, code: draft.code + "b", principal: 0 },
+    { code: draft.code + "b", principal: 0, form: "", fixedPeriod: "", endDate: "", interest: 0, box: "" },
   ];
 
   // Overlay

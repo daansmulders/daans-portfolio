@@ -378,20 +378,108 @@ function renderContactInfo(parent, wizardState) {
 // ===== Success screen =====
 function renderSuccess(container, wizardState) {
   const customer = wizardState.getData("customer");
+  const data = customer && CUSTOMER_DATA[customer.id];
+  const totalPrincipal = data ? data.loanParts.reduce((s, lp) => s + lp.principal, 0) : 0;
+  const today = new Date();
+  const dateStr = today.toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" });
+
+  // Hide wizard footer, nav, page title, and breadcrumb
+  const footer = document.querySelector(".wizard-footer");
+  if (footer) footer.style.display = "none";
+  const nav = document.querySelector(".wizard-nav");
+  if (nav) nav.style.display = "none";
+  const pageTitle = document.querySelector(".page-title");
+  if (pageTitle) pageTitle.style.display = "none";
+  const breadcrumb = document.querySelector(".breadcrumb");
+  if (breadcrumb) breadcrumb.style.display = "none";
+
   container.innerHTML = `
-    <div class="rv-success">
-      <div class="rv-success__icon">✓</div>
-      <h2 class="rv-success__title">Aanvraag verstuurd</h2>
-      <p class="rv-success__text">De aanvraag voor hypotheekmutatie${customer ? " (" + customer.loanNumber + ")" : ""} is succesvol verstuurd.</p>
-      <p class="rv-success__text">We nemen de aanvraag in behandeling en nemen contact op als er vragen zijn.</p>
-      <a href="#" class="btn btn--primary rv-success__btn" id="rvBackToOverview">Terug naar klantoverzicht <span class="btn-arrow">→</span></a>
+    <div class="rv-success-wrap">
+      <header class="mo-header">
+        <div class="mo-header__inner">
+          <div class="mo-header__left">
+            <div class="mo-header__logo">
+              <img src="images/NN.svg" alt="Nationale-Nederlanden" class="mo-header__logo-img">
+            </div>
+            <nav class="mo-header__nav">
+              <span class="mo-header__nav-item">Regelen <span class="mo-header__chevron">⌄</span></span>
+              <span class="mo-header__nav-item">Producten <span class="mo-header__chevron">⌄</span></span>
+              <span class="mo-header__nav-item">Je klanten <span class="mo-header__chevron">⌄</span></span>
+              <span class="mo-header__nav-item">Contact <span class="mo-header__chevron">⌄</span></span>
+            </nav>
+          </div>
+          <div class="mo-header__right">
+            <span class="mo-header__search">Zoek 🔍</span>
+            <span class="mo-header__avatar">👤</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="rv-success-page__inner">
+        <div class="mo-breadcrumb">
+          <span>Home</span> / <span>Particulier</span> / <span>Hypotheken</span> / <span class="mo-breadcrumb--muted">Hypotheek aanpassen</span>
+        </div>
+
+        <div class="rv-success-page">
+          <div class="rv-success-page__left">
+            <h1 class="rv-success-page__heading">Bedankt voor je aanvraag</h1>
+            <p class="rv-success-page__subtext">We gaan voor je aan de slag.</p>
+
+            <h3 class="rv-success-page__steps-title">Wat kun je nu verwachten?</h3>
+            <p class="rv-success-page__step"><strong>Stap 1:</strong> Binnen 3 dagen krijg je ons rentevoorstel. Daarin staat welke documenten we nodig hebben.</p>
+            <p class="rv-success-page__step"><strong>Stap 2:</strong> Upload de documenten bij <strong>Lopende zaken</strong>. Zo blijft alles overzichtelijk.</p>
+            <p class="rv-success-page__step"><strong>Stap 3:</strong> Hebben we alles? Dan beoordelen we je aanvraag en hoor je snel van ons.</p>
+            <p class="rv-success-page__tip"><strong>Tip:</strong> Hoe sneller jij uploadt, hoe sneller wij kunnen rekenen.</p>
+
+            <a href="#" class="btn btn--primary rv-success-page__cta" id="rvBackToOverview">Naar lopende zaken <span class="btn-arrow">→</span></a>
+          </div>
+
+          <div class="rv-success-page__right">
+            <div class="rv-success-page__card">
+              <div class="rv-success-page__detail">
+                <span class="rv-success-page__detail-label">Leningnummer</span>
+                <span class="rv-success-page__detail-value">${customer ? customer.loanNumber : "-"}</span>
+              </div>
+              <div class="rv-success-page__detail">
+                <span class="rv-success-page__detail-label">Aanvraag ingediend op</span>
+                <span class="rv-success-page__detail-value">${dateStr}</span>
+              </div>
+              <div class="rv-success-page__detail">
+                <span class="rv-success-page__detail-label">Type aanvraag</span>
+                <span class="rv-success-page__detail-value">Verhoging</span>
+              </div>
+              <div class="rv-success-page__detail">
+                <span class="rv-success-page__detail-label">Hoofdelijk aansprakelijk(en)</span>
+                <span class="rv-success-page__detail-value">${customer ? customer.names.join("<br>") : "-"}</span>
+              </div>
+              <div class="rv-success-page__detail">
+                <span class="rv-success-page__detail-label">Restant hoofdsom</span>
+                <span class="rv-success-page__detail-value">${fmt(totalPrincipal)}</span>
+              </div>
+            </div>
+
+            <div class="rv-success-page__card rv-success-page__card--muted">
+              <div class="rv-success-page__detail">
+                <span class="rv-success-page__detail-label">Overzicht aanvraag</span>
+                <span class="rv-success-page__detail-value rv-success-page__loading">⏳ je overzicht is aan het laden</span>
+              </div>
+            </div>
+
+            <div class="rv-success-page__card">
+              <strong>De aanvraag beëindigen</strong>
+              <p class="rv-success-page__card-text">Als je deze aanvraag beëindigt, kun je een nieuwe aanvraag starten voor je klant.</p>
+              <a href="#" class="rv-success-page__end-link">Aanvraag beëindigen <span class="btn-arrow">→</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   `;
 }
 
 // ===== Main render =====
 function render(container, wizardState) {
-  container.innerHTML = "";
+  container.innerHTML = "<h2 class='section-title'>Controleer en verstuur</h2>";
 
   const intro = document.createElement("div");
   intro.className = "rv-intro";
