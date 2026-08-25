@@ -15,7 +15,7 @@ hero_image: "/assets/images/powerly-interactive-video/interactive-video-hero.png
   </div>
   <div>
    <h4>Outcome</h4>
-    <p>User research confirmed the value of the concept, technical feasibility challenges prevented further development at this time.</p>
+    <p>Research with five homeowners confirmed the value of the concept, but technical and business constraints prevented further development at the time.</p>
 
   </div>
   <div>
@@ -32,7 +32,7 @@ hero_image: "/assets/images/powerly-interactive-video/interactive-video-hero.png
 
 ## Context
 
-For many homeowners, the journey toward making their home more sustainable starts from a place of uncertainty. Powerly’s Woningcheck helps them understand their options, but usually only a call with a sustainability experts gives them enough confidence to continue the process.
+For many homeowners, the journey toward making their home more sustainable starts from a place of uncertainty. Powerly’s Woningcheck helps them understand their options, but usually only a call with a sustainability expert gives them enough confidence to continue the process.
 
 This means that our sustainability experts spent a large part of their phone calls answering the same high-level questions again and again. These calls were helpful, but also expensive and difficult to scale.
 
@@ -56,7 +56,7 @@ We saw two patterns:
 Some start from zero, some have already researched a lot.
 But almost everyone needed clarity from our experts before they felt ready to continue.
 
-* Experts repeat the same information in every call. With The first half of the call more scripted:
+* Experts repeat the same information in every call. The first half of every call was effectively scripted:
     * Explanation of the Trias Energetica
     * What insulation levels matter
     * Which warmtepomp types exist
@@ -179,7 +179,7 @@ Each choice shaped what they saw next, creating a mix of branching video and con
 
 ## Research
 
-To understand whether this approach could help homeowners, I tested the prototype through moderated sessions with people who had just scheduled a free advice call. These users were ideal because they were actively thinking about sustainability, had real questions, and were about to experience the existing phone-first process.
+To understand whether this approach could help homeowners, I tested the prototype through moderated sessions with five people who had just scheduled a free advice call. That group was ideal because they were actively thinking about sustainability, had real questions, and were about to experience the existing phone-first process — too small a group to prove anything statistically, but enough to spot a clear, consistent reaction.
 
 I first asked participants about their home, their goals, and the questions they hoped to answer. Then I let them walk through the prototype in their own way. Their choices and reactions helped reveal whether the combination of lightweight inputs and tailored video actually gave them the clarity they needed.
 
@@ -187,13 +187,13 @@ After the walkthrough, I asked a series of focused questions:
 * Did this way of learning work for them?
 * Would they prefer it over waiting for a phone call?
 * Did it increase their confidence?
-* Would they take a next step, like speaking to an intallation partner, after this flow without a free advice call first?
+* Would they take a next step, like speaking to an installation partner, after this flow without a free advice call first?
 
 ## Findings and next steps
 
-Overall, users responded positively to the interactive format. Many said that having short, tailored videos helped them understand their options more quickly than reading text or waiting for a call. The combination of a few simple questions followed by more relevant video content felt intuitive and gave them more confidence about what was possible in their home.
+All five responded positively to the interactive format. They said having short, tailored videos helped them understand their options more quickly than reading text or waiting for a call. The combination of a few simple questions followed by more relevant video content felt intuitive and gave them more confidence about what was possible in their home.
 
-The prototype also revealed a pattern: people appreciated getting information “in their own time.” Several participants described the videos as “clear,” “digestible,” and “a good first step before talking to someone.” Most said they would continue exploring the flow if it were available on the live website.
+The prototype also revealed a pattern: people appreciated getting information “in their own time.” Several described the videos as “clear,” “digestible,” and “a good first step before talking to someone.” Most said they would continue exploring the flow if it were available on the live website.
 
 However, while the user feedback encouraged us to keep exploring this idea, two practical challenges emerged.
 From a technical standpoint, the APIs behind the Woningcheck weren’t yet flexible enough to power a fully personalized video flow. And from a business perspective, producing these videos in a professional way required time and resources that weren’t yet budgeted.
@@ -202,6 +202,6 @@ So while the concept showed promise with users, we learned that it wasn’t feas
 
 ## Closing thoughts
 
-We didn’t launch this concept, but the exploration was valuable. It strengthened our understanding of homeowners, opened up new prototyping approaches, and highlighted a direction worth exploring further.
+We didn’t launch this concept, but the five sessions weren’t wasted time. Talking to real homeowners, even briefly, taught me more about how they actually think about sustainability than any amount of internal documentation could have. Rapid prototyping followed by real conversations is, in my experience, the fastest way to find out whether an idea actually works. It’s only gotten faster since: prototyping something this high-fidelity now takes a fraction of the time it did here, thanks to AI. That’s a story for another case study.
 
 <script src="/assets/js/video-control.js"></script>

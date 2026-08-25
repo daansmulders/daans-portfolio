@@ -12,6 +12,7 @@
   </head>
 
   <body class="v2">
+    <script>document.body.classList.toggle('theme-dark', localStorage.getItem('theme') === 'dark');</script>
     <header class="v2-header">
       <a href="{{ '/' | relative_url }}" class="v2-header__brand">Daan Smulders</a>
       <nav class="v2-header__nav">

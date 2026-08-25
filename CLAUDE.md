@@ -40,6 +40,7 @@ Media lives under `assets/images/<project>/`.
 
 There is no site-wide JS framework or SPA logic — only two small, independent scripts loaded where needed:
 - **`assets/js/preferences.js`** — wires up the `#theme-toggle` button, toggles `body.theme-dark`, persists the choice in `localStorage`. Loaded on every page via `v2-default.html`.
+- An inline `<script>` at the very top of `<body>` in `v2-default.html` (before the header) synchronously applies `body.theme-dark` from `localStorage` on every page load. Since this is a multi-page site, every navigation is a full reload — without this, `preferences.js` (which only runs on `DOMContentLoaded`, after first paint) would cause a visible flash of the wrong theme on every page. Keep this inline script in sync with `preferences.js`'s read of the `theme` key if that logic ever changes.
 - **`assets/js/video-control.js`** — autoplay + pause/play toggle for any `.project-video` element on a page. Loaded only by `_layouts/v2-project.html` (harmless no-op on projects with no video).
 
 ### Styling

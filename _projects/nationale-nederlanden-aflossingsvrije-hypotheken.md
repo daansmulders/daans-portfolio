@@ -1,91 +1,86 @@
 ---
 layout: v2-project
-title: "Preparing the organisation to responsibly support customers with interest-only mortgages"
+title: "Preparing the company to responsibly support customers with interest-only mortgages"
 year: 2025
 company: "Nationale-Nederlanden"
 role: "UX / Product Designer"
-summary: "Nationale-Nederlanden needed a strategy to inform people about the state of their interest only mortgage. I set-up and facilitated a design sprint with a colleague designer and worked on an implementation plan based on the results. "
+summary: "Nationale-Nederlanden needed a strategy for customers with interest-only mortgages who might be at risk at the end of their term. I ran a design sprint with a colleague to find the real problem, then iterated on the concept that came out of it — part of which was later built into mijnNN."
 hero_image: "/assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/aflossingsvrij-storyboard-end.png"
 ---
+
 <div class="project-intro-grid">
   <div>
     <h4>Goal</h4>
-    <p>Align teams around a shared understanding of the interest-only mortgage journey and define a clear strategy that supports customers earlier and more effectively, while making the process more efficient for the business.</p>
+    <p>Align teams around a shared understanding of the interest-only mortgage journey, and find a strategy that supports customers earlier — without making the process more expensive for the business.</p>
   </div>
   <div>
     <h4>Outcome</h4>
-    <p>The project produced a direction and full end-to-end storyboard that aligned teams and clarified next steps. A structured handover was prepared for development, and the first implementation steps for a new tool and communication updates were set in motion.</p>
+    <p>A direction and full end-to-end storyboard that aligned teams and clarified next steps, handed over for development. A small part of the resulting tooling was later implemented in mijnNN.</p>
   </div>
   <div>
     <h4>My role</h4>
-    <p>Workshop design, workshop facilition, UX design, concept development</p>
+    <p>Co-facilitated the design sprint. A colleague produced the first draft of the concept; I took over and iterated on it while he was away, then handed it back for him to bring to a handover-ready state.</p>
   </div>
   <div>
     <h4>Team</h4>
-    <p>Product, content, UX, marketing, business stakeholders</p>
+    <p>Product, content, UX, marketing, business stakeholders.</p>
   </div>
 </div>
 
-## Overview
+Interest-only mortgages don't get paid down monthly — the full amount is due at the end of the term, in one go, either by paying it off, selling the home, or taking out a new mortgage. Stricter European and Dutch regulation meant Nationale-Nederlanden now had to serve these customers more intensively than a letter and a phone call.
 
-Interest-only mortgages are a type of mortgage in which customers don't make monthly repayments but only pay interest.  This means that at the end of term, the customer has to either: pay the interest-only mortgage in full at once, sell the home, or apply for a new mortgage .These types of mortgages are quite unique in Europe and are subject to newer and stricter regulation from European and Dutch regulators then they once were. Due to this stricter regulation, Nationale-Nederlanden is required to more intensively serve customers with this type of mortgage. 
+## Context
 
-We wanted to make the interest-only mortgage journey easier for customers so they wouldn’t face surprises at the end of their term. At the same time, we aimed to make the process more efficient for the business by identifying the biggest pain points and addressing them with the right solutions.
+Before this project, customers with an interest-only mortgage — especially those flagged as higher-risk — were contacted by letter or phone, then pointed to an online tool where they filled in income and pension details so NN could assess their risk at term's end.
 
-## Context and goal
+Internally, the process behind that tool was harder to untangle than it looked from the outside: years of documentation, regulatory requirements layered on top of each other, and no single shared picture of how the journey actually worked end to end. Before the sprint, I went through the available material and put together a briefing deck so the whole team could start from the same baseline.
 
-Customers with an interest-only mortgage received communication through letters and phone calls, especially those identified as high-risk. After this outreach, they were directed to an online tool where they could submit key financial details — income, pension income, and their partner’s equivalent information. Based on this data, the tool assessed whether they were at risk at the end of their mortgage term.
+The problem was big enough, and spread across enough departments, that we didn't think a few workshops on existing designs would get us anywhere. We ran a four-day design sprint instead, adapted from the classic format to fit — a fast way to get a cross-functional group to a shared direction rather than a UI patch.
 
-Internally, the process around this tool was complex. There was extensive documentation on how the company handled these customers, along with strict regulatory requirements. Before the sprint, I deep-dived into all available materials and created a structured slide deck to give the entire sprint team a shared understanding of the current situation.
+## Finding the real problem
 
-We chose to kick-off this project with a design sprint because the problem space was large, unclear, and spanned multiple departments. We needed a fast, collaborative way to bring focus and uncover a direction — not just UI fixes, but a broader strategy. We adapted the classic sprint format to suit our needs, combining research synthesis, risk mapping, concept generation, and rapid validation.
+The sprint reframed the starting question into one sentence everyone could work from: how do we track, report, and improve reach and conversion of interest-only customer activation, cost-efficiently, for customers within any AFM risk category — so we avoid financial risk for both the customer and NN by getting vulnerable customers to take the right action at the right time.
 
-From a customer perspective, our goals were clear:
+<figure>
+  <img src="{{ '/assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/problem-areas.png' | relative_url }}" loading="lazy" decoding="async" alt="Workshop board showing voted problem statements and root-cause trees from the design sprint">
+  <figcaption>The team's problem statements, voted and ranked, then dug into with a 5 Whys exercise.</figcaption>
+</figure>
 
-* No surprises at the end of term
-* Prevent people from become at risk
-* Clarity about if they're at risk
-* Support with good, sensible solutions if customers are at risk
+From that question, the team generated problem statements and voted on which ones actually mattered. "We are not reaching enough customers in one or multiple segments" won by a wide margin — 9 votes, more than double anything else on the board. Close behind: whether NN could even be confident an identified risk was a real risk, and whether the whole process was cost-efficient enough to sustain.
 
-For the business, the goals were equally important:
+We took the top-voted problems and ran a 5 Whys on each, clustering what came out of it. The reach problem traced back to things like a lacking data strategy and no system in place to gather the details that would actually identify who needed help. The trust problem traced back to unclear business modeling and inefficient processes further upstream. None of these were UI problems — they were structural ones, which is exactly why a sprint made more sense than a redesign.
 
-* Collect the information required by regulators
-* Assess customer risk with more accuracy
-* Reduce dependence on the external call center (a major cost driver) by moving the right parts of the process into digital tooling
+## From direction to concept
 
-This project wasn’t just about improving a form — it was about reshaping how both customers and the business navigate a critical financial moment.
+Coming out of the sprint, I developed the direction into detailed storyboards and concept mockups — a way for stakeholders to see the experience end-to-end and actually argue about trade-offs, rather than approve an abstract strategy.
 
-## Design sprint
+<figure>
+  <img src="{{ '/assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/aflossingsvrij-storyboard-full.png' | relative_url }}" loading="lazy" decoding="async" alt="Full end-to-end storyboard of the interest-only mortgage journey">
+  <figcaption>The full journey storyboard, used to walk stakeholders through the proposed experience and surface disagreements early.</figcaption>
+</figure>
 
-To prepare for the sprint, I reviewed all available documentation and turned it into a concise briefing deck. Together with my UX colleague, I outlined the sprint format and identified which roles needed to be involved across the department.
+One concrete piece to come out of this was a short self-service scan: about five minutes, ending in a plain-language breakdown of a customer's actual mortgage — how much was annuity, how much was interest-only — and a direct question about how they expected to repay it at the end of the term.
 
-!['Sprint set-up']({{ site.baseurl }}/assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/sprint-setup.png)
+<figure>
+  <img src="{{ '/assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/tool-concept.png' | relative_url }}" loading="lazy" decoding="async" alt="Concept screens for a short mortgage scan tool">
+  <figcaption>The scan: a five-minute flow ending in a plain breakdown of the mortgage and a direct question about the customer's plan.</figcaption>
+</figure>
 
+## Picking up where a colleague left off
 
-### Day 1: Focus on alignment and shared understanding.
-We set the overall goal for the project, mapped the customer journey, and created a product ecosystem map in two groups. We also surfaced and documented our assumptions. This ensured everyone was solving the right problems, had the same mental model of the current experience, and knew which knowledge gaps required deeper research during or after the sprint.
+A colleague produced the first draft of this concept in Figma, then went on holiday. I took it over for that stretch and iterated on his designs — refining the flow, tightening specific screens, working through edge cases he hadn't gotten to yet.
 
-### Day 2: Align with business stakeholders.
-We presented our synthesis, validated or adjusted our understanding, and clarified constraints from regulatory, operational, and financial perspectives. With this context aligned, we were able to refine the overarching strategy and prioritise the most important problems to solve first.
+<figure>
+  <img src="{{ '/assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/figma-overview.png' | relative_url }}" loading="lazy" decoding="async" alt="Figma overview of the full mortgage flow prototype with dated update annotations">
+  <figcaption>The flow as it grew during that stretch — one of several dated updates from that period.</figcaption>
+</figure>
 
-### Day 3: Shift from understanding to problem-solving.
-We started by taking the highest-priority issues and using the 5 Whys method to uncover what was actually driving them. This helped us move past surface-level symptoms and identify the underlying causes that needed attention. We clustered these insights to make patterns visible and to ensure the team was aligned on which root problems mattered most.
+When he came back, he picked the file back up and carried it to a handover-ready state for development. In parallel, our content and communication teams reworked the letters, emails, and call scripts customers actually received, so the whole journey got clearer — not just the tool sitting at the end of it.
 
-### Day 4, Converged on the strongest direction.
-We reviewed all ideas and voted on the most promising elements. Rather than selecting a single solution, we combined the best pieces into a cohesive overarching concept. 
-With this foundation in place, we continued with a focused ideation session. Instead of open-ended brainstorming, we guided participants to generate ideas specifically targeted at the root causes we had identified. This kept the session productive and ensured that every concept was tied to a real user or business problem.
+## Outcome
 
-## Following up after the design sprint
-Following the sprint, I developed this direction further by creating detailed storyboards and concept mockups. These helped articulate how the experience could work end-to-end and which touchpoints should be redesign or which touchpoints should be created. This storyboard let stakeholders understand the vision and helped discuss trade-offs.
-
-!['Storyboard Interest only flow']({{ site.baseurl }}/assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/aflossingsvrij-storyboard-full.png)
-
-After presenting the storyboard and aligning with stakeholders, the first concrete step was to design a new digital tool that would help customers understand their risk, outline their repayment plan, and explore possible next steps. My UX colleague took the lead on shaping the full end-to-end experience, while I supported with feedback, design guidance, and several key screens.
-
-Once the flow was complete, we prepared the designs for handover to the development team, ensuring requirements, interactions, and assumptions were clearly documented. In parallel, our content and communication teams improved the letters, emails, and call scripts customers received, so the entire journey — not just the tool — became clearer and more consistent.
-
-!['Concept screens of tool']({{ site.baseurl }}/assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/tool-concept.png)
+The sprint and the direction that came out of it aligned teams that had been working from different pictures of the same journey, and the storyboard gave development a concrete starting point instead of a strategy document. A small part of the resulting tooling was later built and shipped into mijnNN, NN's customer portal.
 
 ## Closing thoughts
 
-This project brought clarity to a complex and highly regulated part of the mortgage journey. By aligning people and teams, reframing the problem, and defining a clear direction, we created a more supportive experience for customers while giving the business a solid foundation to build on.
+This project was less about any single screen and more about getting a room full of people from different departments to agree on what the actual problem was before anyone started designing a solution to it. The sprint did that. What we built afterward was smaller than the ambition of the sprint itself — which is honest, and also fairly normal for this kind of work.
