@@ -1,6 +1,6 @@
 ---
 layout: v2-project
-title: "Preparing the company to responsibly support customers with interest-only mortgages"
+title: "Preparing NN to support customers with an interest only mortgage digitally and responsibly"
 year: 2025
 company: "Nationale-Nederlanden"
 role: "UX / Product Designer"

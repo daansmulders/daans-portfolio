@@ -1,6 +1,6 @@
 ---
 layout: v2-project
-title: "Improving conversion through better advice on sustainable measures"
+title: "Improving conversion by giving better advice on sustainable measures"
 year: 2023
 company: "Powerly"
 role: "UX / Product Designer"

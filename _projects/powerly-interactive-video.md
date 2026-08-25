@@ -1,6 +1,6 @@
 ---
 layout: v2-project
-title: "Exploring interactive video to scale personal expert advice"
+title: "Exploring interactive video to scale expert advice"
 year: 2024
 company: "Powerly"
 role: "UX / Product Designer"
