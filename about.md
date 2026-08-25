@@ -5,7 +5,7 @@ permalink: /about/
 ---
 <div class="about-content" markdown="1">
 
-I'm Daan — a UX and digital product designer based in the Netherlands. For the past ten years I've been figuring out what things should be, then designing them well enough that they do their job and then some.
+I'm Daan — a UX and digital product designer based in the Netherlands. I research, design and evolve digital products as part of the team building them.
 
 Most of my work happens in the messy middle between business strategy and the thing people actually tap on. I like projects where the problem isn't obvious yet, where you have to dig around before the right thing to make becomes clear.
 
