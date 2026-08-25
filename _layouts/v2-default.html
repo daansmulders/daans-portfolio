@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{{ page.title | default: site.title }}</title>
+    <meta name="description" content="{{ page.summary | default: site.description }}">
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ '/assets/v2.css' | relative_url }}">
+  </head>
+
+  <body class="v2">
+    <header class="v2-header">
+      <a href="{{ '/' | relative_url }}" class="v2-header__brand">Daan Smulders</a>
+      <nav class="v2-header__nav">
+        <a href="{{ '/about/' | relative_url }}" class="v2-link">About</a>
+        <button id="theme-toggle" class="v2-link" type="button" aria-pressed="false">🌙 Dark</button>
+      </nav>
+    </header>
+
+    <main class="v2-main">
+      {{ content }}
+    </main>
+
+    <script src="{{ '/assets/js/preferences.js' | relative_url }}"></script>
+    <script data-goatcounter="https://daansmulders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+  </body>
+</html>

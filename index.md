@@ -1,3 +1,3 @@
 ---
-layout: v2-cases
+layout: v2-home
 ---

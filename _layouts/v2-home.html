@@ -1,0 +1,27 @@
+---
+layout: v2-default
+---
+<section class="v2-hero">
+  <p class="v2-hero__text">Daan is a UX and digital product designer who figures out what the thing should be, then designs it well enough that it does its job and then some. Ten years of that, across finance, sustainability, marketplaces and retail.</p>
+</section>
+
+{% assign sorted_projects = site.projects | sort: 'year' | reverse %}
+<div class="case-index">
+  {% for project in sorted_projects %}
+    {% unless project.hidden %}
+      <a href="{{ project.url | relative_url }}" class="{% cycle 'case-index__item', 'case-index__item case-index__item--reverse' %}">
+        <div class="case-index__media">
+          {% if project.hero_image %}
+            <img src="{{ project.hero_image | relative_url }}" alt="" loading="lazy">
+          {% endif %}
+        </div>
+        <div class="case-index__text">
+          <div class="case-index__meta">{{ project.company }} · {{ project.role }} · {{ project.year }}</div>
+          <h2 class="case-index__title">{{ project.title }}</h2>
+          <p class="case-index__summary">{{ project.summary }}</p>
+          <span class="case-index__cta">View case ↗</span>
+        </div>
+      </a>
+    {% endunless %}
+  {% endfor %}
+</div>

@@ -22,47 +22,36 @@ The `_site/` directory is the build output — don't edit files there directly.
 
 ## Architecture
 
-### Two distinct UIs
+### One multi-page site
 
-There are two different portfolio layouts that coexist:
+The site is a set of ordinary Jekyll pages sharing one visual system — no single-page carousel, no client-side content fetching. Every page uses plain server-rendered HTML/Liquid, styled by `assets/v2.css`.
 
-1. **v2 (current main, `/`)** — `index.md` uses `layout: v2-cases`. This is the primary interactive presentation. It renders all projects as full-screen snap-scrolling "cases" with a step-by-step carousel per case.
+- **Homepage (`/`)** — `index.md` uses `layout: v2-home`. Hero intro text + an editorial case index (`.case-index`) — alternating image-left/right entries linking to each project's own page. Projects with `hidden: true` in their front matter are excluded from this list without being unpublished.
+- **Project pages (`/projects/:title/`)** — each `_projects/*.md` file, rendered via `layout: v2-project`. Long-form: hero image, title/meta, Goal/Outcome/Role/Team grid (`.project-intro-grid`), then the project's own Markdown body.
+- **About (`/about/`)** — `about.md`, rendered via `layout: v2-default`.
 
-2. **v1 (`/v1/`)** — Legacy layout using `layout: default`. Kept around but not the primary view.
+### Project data flow
 
-### Project data flow (v2)
+Projects live in `_projects/*.md` as Jekyll collection items. Front matter carries metadata only: `title`, `year`, `company`, `role`, `summary`, `hero_image`, and an optional `hidden` flag. Everything below the front matter is **one continuous Markdown body** — prose, headings, `<figure>` images, and (where relevant) a `.video-grid` of autoplaying/pausable clips — rendered server-side by Jekyll/kramdown via `{{ content }}` in `_layouts/v2-project.html`. There is no per-step content, no JSON serialization, and no runtime fetching.
 
-Projects live in `_projects/*.md` as Jekyll collection items. Each project's front matter contains a `steps` array, where each step has:
-- `heading` — short title
-- `body` — path to a `.md` file in `case-content/<project>/steps/`
-- `image` or `video` — media asset path
+Media lives under `assets/images/<project>/`.
 
-Jekyll serializes the `steps` array as JSON into a `<script type="application/json" data-steps>` tag inside each `.v2-case` section. The `v2.js` JavaScript reads this JSON at runtime.
+### JavaScript
 
-Step body `.md` files are fetched at runtime via `fetch()` in `MarkdownLoader` (in `assets/js/v2.js`) — they're not rendered server-side. The loader has a simple custom Markdown-to-HTML renderer (paragraphs, bullet lists, bold, italic) and caches responses.
-
-### JavaScript (`assets/js/v2.js`)
-
-Key classes:
-- **`CaseCarousel`** — manages step navigation (prev/next) within a single case. Click left half = previous step, right half = next step.
-- **`SnapPaging`** — scroll snapping between cases. Uses `IntersectionObserver` + scroll-settle timeout. Mobile and desktop behave differently (mobile allows free scroll, desktop snaps more eagerly).
-- **`VideoController`** — handles muted looping video per step, with visibility-based play/pause.
-- **`OverlayManager`** — "Overview" panel (grid of all cases) and "About" header expansion.
-- **`CursorNav`** — shows a floating "Previous/Next" label that follows the cursor.
-
-Carousels are stored in `window.caseCarousels[]` for cross-component access (e.g., overview thumbnail navigation).
+There is no site-wide JS framework or SPA logic — only two small, independent scripts loaded where needed:
+- **`assets/js/preferences.js`** — wires up the `#theme-toggle` button, toggles `body.theme-dark`, persists the choice in `localStorage`. Loaded on every page via `v2-default.html`.
+- **`assets/js/video-control.js`** — autoplay + pause/play toggle for any `.project-video` element on a page. Loaded only by `_layouts/v2-project.html` (harmless no-op on projects with no video).
 
 ### Styling
 
-- `assets/styles.css` — styles for the `default` layout (v1, project detail pages)
-- `assets/v2.css` — styles for the v2 layout
-- Dark mode is toggled via `body.theme-dark` class, persisted in `localStorage` via `assets/js/preferences.js`
+- `assets/v2.css` — the only stylesheet. CSS custom properties (`--bg`, `--fg`, `--muted`, `--border-subtle`, `--accent`, `--link`) are redefined under `body.theme-dark` for dark mode.
+- Two typefaces, loaded via Google Fonts `<link>` tags in `_layouts/v2-default.html` (no self-hosted font files, no build step): **Bricolage Grotesque** (`--font-display`) for headlines/titles, **Public Sans** (`--font-body`) for everything else. This intentionally supersedes the earlier "no new web fonts" rule — see git history around 2026-08-25 for the rationale (TimesTen read as archaic for long-form reading). Bricolage Grotesque has no true italic — section headers that want emphasis use the `--accent` color instead of `font-style: italic` (see `.project-content h2` / `.about-content h2` in `assets/v2.css`).
 
 ### Layouts
 
-- `_layouts/default.html` — wraps standard pages; loads `styles.css` + `preferences.js`
-- `_layouts/projects.html` — extends `default`, used for individual project detail pages (`/projects/:title/`)
-- `_layouts/v2-cases.html` — standalone layout for the v2 UI; does NOT extend `default`
+- `_layouts/v2-default.html` — shared chrome (head, fixed header with Home/About/theme-toggle nav, footer scripts). Every other layout extends this.
+- `_layouts/v2-home.html` — homepage: hero + case-grid.
+- `_layouts/v2-project.html` — individual case study pages.
 
 ### Prototypes
 
@@ -86,28 +75,30 @@ These rules apply whenever implementing UI from Figma designs. Follow this workf
 4. Only after you have both outputs: download any needed assets and start coding
 5. Validate the final UI against the screenshot before marking complete
 
-### Portfolio (`assets/`, `_layouts/`, `_projects/`, `case-content/`)
+### Portfolio (`assets/`, `_layouts/`, `_projects/`)
 
 **Stack:** Jekyll static site, plain CSS, vanilla JS — no build tools, no npm
 
 **Design tokens** — CSS custom properties in `assets/v2.css`:
 
 ```css
---bg, --fg, --muted, --border-subtle, --link   /* theme colours */
---v2-pad-x: 48px                               /* horizontal padding */
---v2-space-sm/md/lg/xl                         /* spacing scale */
---v2-snap-gap: 32px                            /* snap scroll gap */
---v2-grid-gap: 64px                            /* content grid */
+--bg, --fg, --muted, --border-subtle, --accent, --link   /* theme colours; --link is an alias of --accent */
+--font-display, --font-body                              /* Bricolage Grotesque / Public Sans */
+--v2-pad-x: 48px                                          /* horizontal padding */
+--v2-space-sm/md/lg/xl                                    /* spacing scale */
+--v2-content-max: 760px                                   /* prose/content max width */
+--v2-index-max: 1080px                                    /* homepage case-index max width */
 ```
 
 **IMPORTANT: Never hardcode colors.** Use the CSS variables above.
 
-**Dark mode:** toggled via `body.theme-dark` class (set in `assets/js/preferences.js`); all color variables must have a dark-mode override in the existing `:root body.theme-dark {}` block.
+**Dark mode:** toggled via `body.theme-dark` class (set in `assets/js/preferences.js`); all color variables must have a dark-mode override in the existing `body.theme-dark {}` block.
 
 **Responsive:** mobile breakpoint is `@media (max-width: 700px)`. Horizontal padding drops to `20px`, layout shifts from multi-column grid to stacked.
 
-**Typography:** `TimesTen LT Std` serif loaded from `assets/fonts/`. Do not add new web fonts.
+**Typography:** `Bricolage Grotesque` (display/headlines) + `Public Sans` (body/UI), loaded via Google Fonts in `_layouts/v2-default.html`. Do not add further web fonts beyond this pairing without deliberate art-direction review.
+
+**Chrome:** buttons, nav links, and the back-link avoid borders/boxes — hover states use color shift to `--accent` and a thin animated underline (see `.v2-link` in `assets/v2.css`), not bordered pills.
 
 **Asset paths:**
-- Portfolio images → `assets/images/`
-- Case step media → `case-content/{project}/images/`
+- Portfolio images → `assets/images/{project}/`
