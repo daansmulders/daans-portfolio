@@ -1,0 +1,3 @@
+At the same time, I worked to improve the quality and depth of the advice where possible. When recommendations felt superficial or mismatched trust broke down quickly, particularly for homeowners who already had a good understanding of their home.
+
+By making better use of the available data, the advice became more specific and accurate. This allowed the Woningcheck to better support both exploratory homeowners and more advanced users with higher expectations.

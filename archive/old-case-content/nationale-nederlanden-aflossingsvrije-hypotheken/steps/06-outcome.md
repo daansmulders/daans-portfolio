@@ -1,0 +1,3 @@
+The project produced a clear direction and a full end-to-end storyboard that aligned teams across departments. A structured handover prepared the work for development, and the first implementation steps for a new tool and improved communication were set in motion.
+
+By reframing the problem and aligning people early, we created a more supportive experience for customers while giving the business a solid foundation to meet regulatory requirements more efficiently.

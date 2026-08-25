@@ -1,0 +1,3 @@
+Research showed that homeowners arrived with very different levels of knowledge. Some were starting from zero and needed help understanding what was even possible, while others already had specific goals in mind, such as installing a heat pump or going gas-free.
+
+Despite these differences, almost everyone needed the same thing: clear, trustworthy explanations before they felt ready to move forward. The challenge was finding a way to provide that clarity earlier in the journey without relying entirely on one-to-one phone calls.

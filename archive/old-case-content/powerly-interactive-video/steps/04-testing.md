@@ -1,0 +1,3 @@
+I tested the prototype in moderated sessions with users who had just scheduled a free advice call. These participants were actively exploring sustainability options and were about to experience the existing phone-first process.
+
+Overall, users responded positively to the interactive format. Many found the short, tailored videos clearer and more approachable than text, and appreciated being able to explore information “in their own time.” Several participants said the concept helped them feel more confident and prepared before speaking to an expert.

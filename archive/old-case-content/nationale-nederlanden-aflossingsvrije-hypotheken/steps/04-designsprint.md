@@ -1,0 +1,3 @@
+We started by aligning on goals, mapping the customer journey, and visualizing the broader ecosystem. We validated assumptions with business stakeholders and clarified regulatory, operational, and financial constraints.
+
+Using methods like the 5 Whys, we moved beyond surface-level issues to uncover root problems. Rather than converging on a single solution, we combined the strongest ideas into a cohesive overarching direction that addressed both customer needs and business realities.
