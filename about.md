@@ -5,6 +5,8 @@ permalink: /about/
 ---
 <div class="about-content" markdown="1">
 
+<a href="{{ '/' | relative_url }}" class="back-link">← Home</a>
+
 I'm Daan — a UX and digital product designer based in the Netherlands. I research, design and evolve digital products as part of the team building them.
 
 Most of my work happens in the messy middle between business strategy and the thing people actually tap on. I like projects where the problem isn't obvious yet, where you have to dig around before the right thing to make becomes clear.
