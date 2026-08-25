@@ -68,7 +68,7 @@ Carousels are stored in `window.caseCarousels[]` for cross-component access (e.g
 
 `prototypes/hypotheekversneller/` is a standalone vanilla JS/HTML prototype (mortgage calculator), included as a static file via `_config.yml`'s `include` list.
 
-The **Sliminject** prototype (GLP-1 treatment tracking app) has been moved to its own repository: [github.com/daansmulders/sliminject](https://github.com/daansmulders/sliminject). The design specs (`specs/001-012`) remain in this repo as case study documentation.
+The **Sliminject** prototype (GLP-1 treatment tracking app) has been moved to its own repository: [github.com/daansmulders/sliminject](https://github.com/daansmulders/sliminject). The design specs (`specs/001-012`) have been archived to `archive/sliminject/specs/`.
 
 ### Analytics
 
