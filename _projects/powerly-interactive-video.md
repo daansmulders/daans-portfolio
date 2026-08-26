@@ -203,6 +203,6 @@ So while the concept showed promise with users, we learned that it wasn’t feas
 
 ## Closing thoughts
 
-We didn’t launch this concept, but the five sessions weren’t wasted time. Talking to real homeowners, even briefly, taught me more about how they actually think about sustainability than any amount of internal documentation could have. Rapid prototyping followed by real conversations is, in my experience, the fastest way to find out whether an idea actually works. It’s only gotten faster since: prototyping something this high-fidelity now takes a fraction of the time it did here, thanks to AI. That’s a story for another case study.
+We didn’t launch this concept, but the five sessions weren’t wasted time. Talking to real homeowners, even briefly, taught me more about how they actually think about sustainability than any amount of internal documentation could have. Rapid prototyping followed by real conversations is, in my experience, the fastest way to find out whether an idea actually works. It’s only gotten faster since: prototyping something this high-fidelity now takes a fraction of the time it did here, thanks to AI. I put that to the test in [a later project]({{ '/projects/nationale-nederlanden-rapid-prototyping/' | relative_url }}).
 
 <script src="/assets/js/video-control.js"></script>
