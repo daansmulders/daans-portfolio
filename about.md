@@ -7,11 +7,9 @@ permalink: /about/
 
 <a href="{{ '/' | relative_url }}" class="back-link">← Home</a>
 
-I'm Daan — a UX and digital product designer based in the Netherlands. I research, design and evolve digital products as part of the team building them.
+I'm Daan, a UX and digital product designer based in the Netherlands. I work across the full width of a problem: research, concept, interface, and the conversations that connect them. Usually the problem isn't obvious yet, and someone has to dig around before the right thing to build becomes clear.
 
-Most of my work happens in the messy middle between business strategy and the thing people actually tap on. I like projects where the problem isn't obvious yet, where you have to dig around before the right thing to make becomes clear.
-
-I tend to work across the full width of a problem. Research, concept, interface, the conversations that connect them. Mostly I just keep asking why until the answer stops changing.
+The work in between spans workshops, prototypes and usability tests, and I gravitate toward the messiest part of each. Mostly I just keep asking why until the answer stops changing.
 
 ## Where I've worked
 
@@ -19,6 +17,6 @@ Currently at **Nationale-Nederlanden**, figuring out how to responsibly serve cu
 
 ## Get in touch
 
-I'm always up for a good conversation about design, work, or something else entirely. Reach me at [daan.smulders@gmail.com](mailto:daan.smulders@gmail.com).
+If you want to talk — about a role, a project, or just to compare notes — I'm easy to reach. [daan.smulders@gmail.com](mailto:daan.smulders@gmail.com).
 
 </div>
