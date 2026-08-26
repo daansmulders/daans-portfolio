@@ -1,6 +1,6 @@
 /* v2.css — long-form, multi-page portfolio
    Homepage (editorial case index), project pages (hero image + intro grid + prose body), About page.
-   Display type: Fraunces. Body/UI type: Public Sans. Loaded via Google Fonts in v2-default.html.
+   Display type: Bricolage Grotesque. Body/UI type: Public Sans. Loaded via Google Fonts in v2-default.html.
 */
 
 /* =============================================================================
@@ -40,12 +40,9 @@ body.theme-dark {
   --link: var(--accent);
 }
 
-/* Smooth theme switch — applied briefly during toggle */
-body.theme-transitioning,
-body.theme-transitioning *,
-body.theme-transitioning *::before,
-body.theme-transitioning *::after {
-  transition: background-color 350ms ease, color 350ms ease, border-color 350ms ease, opacity 350ms ease !important;
+/* Smooth theme switch — body-level only, not forced onto every descendant */
+body {
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 /* =============================================================================
