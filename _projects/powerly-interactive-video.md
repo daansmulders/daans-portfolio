@@ -5,7 +5,7 @@ year: 2024
 company: "Powerly"
 role: "UX / Product Designer"
 summary: "I designed and tested an interactive video prototype to help homeowners understand their sustainable options earlier in the journey. Reducing dependency on phone calls and making expert advice more scalable."
-hero_image: "/assets/images/powerly-interactive-video/interactive-video-hero.png"
+hero_image: "/assets/images/powerly-interactive-video/interactive-video-hero.webp"
 ---
 
 <div class="project-intro-grid">
@@ -117,7 +117,7 @@ This helped us define which video paths needed deeper content.
 
 <figure>
   <img
-    src="{{ site.baseurl }}/assets/images/powerly-interactive-video/journey-high-level.png"
+    src="{{ site.baseurl }}/assets/images/powerly-interactive-video/journey-high-level.webp"
     loading="lazy"
     decoding="async"
     alt="High-level journey of knowledge in sustainable measures for homeowners"
@@ -128,7 +128,7 @@ This helped us define which video paths needed deeper content.
 
 <figure>
   <img
-    src="{{ site.baseurl }}/assets/images/powerly-interactive-video/video-flow.png"
+    src="{{ site.baseurl }}/assets/images/powerly-interactive-video/video-flow.webp"
     loading="lazy"
     decoding="async"
     alt="High-level flow of the interactive video concept"

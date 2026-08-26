@@ -5,7 +5,7 @@ year: 2023
 company: "Powerly"
 role: "UX / Product Designer"
 summary: "The Woningcheck combines a few homeowner details with public housing data and a private possibilities-and-savings API to generate personalized sustainable measures, savings, and a next step: booking a call with a sustainability expert. I researched how different homeowners used it, then redesigned it for accuracy and trust."
-hero_image: "/assets/images/powerly-woningcheck/form-step-energy-costs.png"
+hero_image: "/assets/images/powerly-woningcheck/form-step-energy-costs.webp"
 ---
 
 <div class="project-intro-grid">
@@ -30,7 +30,7 @@ hero_image: "/assets/images/powerly-woningcheck/form-step-energy-costs.png"
 Powerly helped homeowners figure out what sustainable measures made sense for their home, and guided them through actually installing them. The Woningcheck was the front door to that: answer a few questions, get a personalized set of measures, expected savings, and — if it looked worth it — a next step of talking to a sustainability expert.
 
 <figure>
-  <img src="{{ '/assets/images/powerly-woningcheck/cover.png' | relative_url }}" loading="lazy" decoding="async" alt="Woningcheck entry screen asking for postcode and house number">
+  <img src="{{ '/assets/images/powerly-woningcheck/cover.webp' | relative_url }}" loading="lazy" decoding="async" alt="Woningcheck entry screen asking for postcode and house number">
   <figcaption>The entry point: postcode and house number, then straight into personalized advice.</figcaption>
 </figure>
 
@@ -71,7 +71,7 @@ Every design decision on this project came back to the same question: how do you
     </p>
   </div>
   <figure class="case-media">
-    <img src="{{ '/assets/images/powerly-woningcheck/form-step-additional-details.png' | relative_url }}" loading="lazy" decoding="async" alt="Additional details form step with most fields pre-filled from housing data">
+    <img src="{{ '/assets/images/powerly-woningcheck/form-step-additional-details.webp' | relative_url }}" loading="lazy" decoding="async" alt="Additional details form step with most fields pre-filled from housing data">
     <figcaption>Most of the technical detail pre-filled — the homeowner only had to correct what didn't match.</figcaption>
   </figure>
 </div>
@@ -87,7 +87,7 @@ Every design decision on this project came back to the same question: how do you
     </p>
   </div>
   <figure class="case-media">
-    <img src="{{ '/assets/images/powerly-woningcheck/form-step-energy-costs.png' | relative_url }}" loading="lazy" decoding="async" alt="Energy usage form step showing manual entry versus an estimate option">
+    <img src="{{ '/assets/images/powerly-woningcheck/form-step-energy-costs.webp' | relative_url }}" loading="lazy" decoding="async" alt="Energy usage form step showing manual entry versus an estimate option">
     <figcaption>Enter your own numbers, or let the tool estimate them from what it already knows.</figcaption>
   </figure>
 </div>
@@ -97,7 +97,7 @@ Every design decision on this project came back to the same question: how do you
 Research showed the biggest driver for actually installing sustainable measures was money — what it would save, what it would cost, what it would do to the home's value. So that's what the results screen leads with: savings per year, total cost, CO₂ reduction, the effect on home value, all specific to that address.
 
 <figure>
-  <img src="{{ '/assets/images/powerly-woningcheck/results.png' | relative_url }}" loading="lazy" decoding="async" alt="Results screen showing savings, cost, CO2 reduction and per-measure breakdowns with video explainers">
+  <img src="{{ '/assets/images/powerly-woningcheck/results.webp' | relative_url }}" loading="lazy" decoding="async" alt="Results screen showing savings, cost, CO2 reduction and per-measure breakdowns with video explainers">
   <figcaption>A real result: €3.000 saved per year, 75% CO₂ reduction, broken down by measure.</figcaption>
 </figure>
 
@@ -108,7 +108,7 @@ For anyone unfamiliar with a specific measure, there's a short video explaining 
 ## Getting to the call
 
 <figure>
-  <img src="{{ '/assets/images/powerly-woningcheck/create-appointment.png' | relative_url }}" loading="lazy" decoding="async" alt="Appointment booking flow: email lookup, scheduling form, and confirmation screen">
+  <img src="{{ '/assets/images/powerly-woningcheck/create-appointment.webp' | relative_url }}" loading="lazy" decoding="async" alt="Appointment booking flow: email lookup, scheduling form, and confirmation screen">
   <figcaption>Email lookup, a fast way to grab a slot, and a confirmation you could actually find again later.</figcaption>
 </figure>
 

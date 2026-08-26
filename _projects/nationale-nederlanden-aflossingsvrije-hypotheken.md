@@ -5,7 +5,7 @@ year: 2025
 company: "Nationale-Nederlanden"
 role: "UX / Product Designer"
 summary: "Nationale-Nederlanden needed a strategy for customers with interest-only mortgages who might be at risk at the end of their term. I ran a design sprint with a colleague to find the real problem, then iterated on the concept that came out of it — part of which was later built into mijnNN."
-hero_image: "/assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/aflossingsvrij-storyboard-end.png"
+hero_image: "/assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/aflossingsvrij-storyboard-end.webp"
 ---
 
 <div class="project-intro-grid">
@@ -42,7 +42,7 @@ The problem was big enough, and spread across enough departments, that we didn't
 The sprint reframed the starting question into one sentence everyone could work from: how do we track, report, and improve reach and conversion of interest-only customer activation, cost-efficiently, for customers within any AFM risk category — so we avoid financial risk for both the customer and NN by getting vulnerable customers to take the right action at the right time.
 
 <figure>
-  <img src="{{ '/assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/problem-areas.png' | relative_url }}" loading="lazy" decoding="async" alt="Workshop board showing voted problem statements and root-cause trees from the design sprint">
+  <img src="{{ '/assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/problem-areas.webp' | relative_url }}" loading="lazy" decoding="async" alt="Workshop board showing voted problem statements and root-cause trees from the design sprint">
   <figcaption>The team's problem statements, voted and ranked, then dug into with a 5 Whys exercise.</figcaption>
 </figure>
 
@@ -55,14 +55,14 @@ We took the top-voted problems and ran a 5 Whys on each, clustering what came ou
 Coming out of the sprint, I developed the direction into detailed storyboards and concept mockups — a way for stakeholders to see the experience end-to-end and actually argue about trade-offs, rather than approve an abstract strategy.
 
 <figure>
-  <img src="{{ '/assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/aflossingsvrij-storyboard-full.png' | relative_url }}" loading="lazy" decoding="async" alt="Full end-to-end storyboard of the interest-only mortgage journey">
+  <img src="{{ '/assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/aflossingsvrij-storyboard-full.webp' | relative_url }}" loading="lazy" decoding="async" alt="Full end-to-end storyboard of the interest-only mortgage journey">
   <figcaption>The full journey storyboard, used to walk stakeholders through the proposed experience and surface disagreements early.</figcaption>
 </figure>
 
 One concrete piece to come out of this was a short self-service scan: about five minutes, ending in a plain-language breakdown of a customer's actual mortgage — how much was annuity, how much was interest-only — and a direct question about how they expected to repay it at the end of the term.
 
 <figure>
-  <img src="{{ '/assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/tool-concept.png' | relative_url }}" loading="lazy" decoding="async" alt="Concept screens for a short mortgage scan tool">
+  <img src="{{ '/assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/tool-concept.webp' | relative_url }}" loading="lazy" decoding="async" alt="Concept screens for a short mortgage scan tool">
   <figcaption>The scan: a five-minute flow ending in a plain breakdown of the mortgage and a direct question about the customer's plan.</figcaption>
 </figure>
 
@@ -71,7 +71,7 @@ One concrete piece to come out of this was a short self-service scan: about five
 A colleague produced the first draft of this concept in Figma, then went on holiday. I took it over for that stretch and iterated on his designs — refining the flow, tightening specific screens, working through edge cases he hadn't gotten to yet.
 
 <figure>
-  <img src="{{ '/assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/figma-overview.png' | relative_url }}" loading="lazy" decoding="async" alt="Figma overview of the full mortgage flow prototype with dated update annotations">
+  <img src="{{ '/assets/images/nationale-nederlanden-aflossingsvrije-hypotheken/figma-overview.webp' | relative_url }}" loading="lazy" decoding="async" alt="Figma overview of the full mortgage flow prototype with dated update annotations">
   <figcaption>The flow as it grew during that stretch — one of several dated updates from that period.</figcaption>
 </figure>
 
