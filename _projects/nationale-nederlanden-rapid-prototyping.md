@@ -44,10 +44,13 @@ The extra-repayment idea had been around for a while. People had a hunch it migh
 
 I tested it internally first, then with mortgage advisors and customers. The research concluded the idea had real potential: not a hunch anymore, an answer.
 
-<figure>
-  <img src="{{ '/assets/images/nationale-nederlanden-rapid-prototyping/hypotheekversneller.webp' | relative_url }}" loading="lazy" decoding="async" alt="Hypotheekversneller prototype showing a chart of interest saved and a monthly payment breakdown">
-  <figcaption>The Hypotheekversneller prototype — built to test a dormant idea, fast.</figcaption>
-</figure>
+<div class="video-frame">
+  <div class="project-video" data-autoplay>
+    <video class="project-video__media" src="{{ '/assets/images/nationale-nederlanden-rapid-prototyping/hypotheekversneller-demo.mp4' | relative_url }}" autoplay muted loop playsinline preload="metadata"></video>
+    <button class="project-video__pause">❚❚</button>
+  </div>
+  <p class="video-caption">The Hypotheekversneller prototype — built to test a dormant idea, fast.</p>
+</div>
 
 ## The advisor flow: from static screens to a second usability round
 
@@ -55,10 +58,13 @@ The mortgage-mutation flow in the advisor portal had already been designed and t
 
 That round caught things the first one couldn't have: a few steps got reshuffled, and some smaller usability issues surfaced that only show up once something actually behaves like software.
 
-<figure>
-  <img src="{{ '/assets/images/nationale-nederlanden-rapid-prototyping/mortgage-mutations-flow.webp' | relative_url }}" loading="lazy" decoding="async" alt="Advisor-portal mortgage adjustment flow showing loan value, energy label, and loan parts">
-  <figcaption>The advisor-portal flow, rebuilt as a full interactive prototype.</figcaption>
-</figure>
+<div class="video-frame">
+  <div class="project-video" data-autoplay>
+    <video class="project-video__media" src="{{ '/assets/images/nationale-nederlanden-rapid-prototyping/mortgage-mutations-demo.mp4' | relative_url }}" autoplay muted loop playsinline preload="metadata"></video>
+    <button class="project-video__pause">❚❚</button>
+  </div>
+  <p class="video-caption">The advisor-portal flow, rebuilt as a full interactive prototype.</p>
+</div>
 
 ## Beyond the research
 

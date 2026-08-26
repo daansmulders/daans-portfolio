@@ -474,6 +474,31 @@ img {
   max-width: 371px;
 }
 
+/* Landscape prototype demos — framed on a tinted background with a soft shadow */
+.video-frame {
+  max-width: var(--v2-content-max);
+  margin: var(--v2-space-xl) auto;
+  padding: var(--v2-space-lg);
+  background: color-mix(in srgb, var(--accent) 14%, var(--bg));
+  border-radius: 20px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.18);
+}
+
+body.theme-dark .video-frame {
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+}
+
+.video-frame .project-video {
+  width: 100%;
+  aspect-ratio: 1400 / 866;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.video-frame .video-caption {
+  max-width: none;
+}
+
 /* =============================================================================
    BACK LINK
 ============================================================================= */
@@ -540,6 +565,11 @@ img {
 
   .project-hero img {
     width: 100%;
+  }
+
+  .video-frame {
+    padding: var(--v2-space-md);
+    border-radius: 14px;
   }
 
   .project-intro-grid,
