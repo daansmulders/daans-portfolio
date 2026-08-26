@@ -2,6 +2,7 @@
 layout: v2-project
 title: "Preparing NN to support customers with an interest only mortgage digitally and responsibly"
 year: 2025
+order: 4
 company: "Nationale-Nederlanden"
 role: "UX / Product Designer"
 summary: "Nationale-Nederlanden needed a strategy for customers with interest-only mortgages who might be at risk at the end of their term. I ran a design sprint with a colleague to find the real problem, then iterated on the concept that came out of it — part of which was later built into mijnNN."

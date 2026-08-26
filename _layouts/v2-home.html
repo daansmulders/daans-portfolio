@@ -5,7 +5,7 @@ layout: v2-default
   <p class="v2-hero__text">I'm Daan. I research, design and evolve digital products as part of the team building them. Now at <span class="v2-hero__company">Nationale-Nederlanden</span>, previously at <span class="v2-hero__company">Powerly</span>, <span class="v2-hero__company">Werkspot</span>, <span class="v2-hero__company">Ace &amp; Tate</span> and <span class="v2-hero__company">funda</span>.</p>
 </section>
 
-{% assign sorted_projects = site.projects | sort: 'year' %}
+{% assign sorted_projects = site.projects | sort: 'order' %}
 <div class="case-index">
   {% for project in sorted_projects %}
     {% unless project.hidden %}

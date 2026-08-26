@@ -2,6 +2,7 @@
 layout: v2-project
 title: "Improving conversion by giving better advice on sustainable measures"
 year: 2023
+order: 2
 company: "Powerly"
 role: "UX / Product Designer"
 summary: "The Woningcheck combines a few homeowner details with public housing data and a private possibilities-and-savings API to generate personalized sustainable measures, savings, and a next step: booking a call with a sustainability expert. I researched how different homeowners used it, then redesigned it for accuracy and trust."

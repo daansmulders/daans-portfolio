@@ -2,6 +2,7 @@
 layout: v2-project
 title: "Exploring interactive video to scale expert advice"
 year: 2024
+order: 3
 company: "Powerly"
 role: "UX / Product Designer"
 summary: "I designed and tested an interactive video prototype to help homeowners understand their sustainable options earlier in the journey. Reducing dependency on phone calls and making expert advice more scalable."
