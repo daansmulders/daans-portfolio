@@ -1,0 +1,425 @@
+/* reading.css — standalone stylesheet for the /reading/ log.
+   Deliberately not shared with v2.css — its own type, color, and rhythm.
+   Display: PicNic (self-hosted, assets/fonts/, no bold available).
+   Meta/quotes: Space Mono. */
+
+@font-face {
+  font-family: 'PicNic';
+  src: url('/assets/fonts/PicNic.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+:root {
+  --bg: #fcfcfa;
+  --ink: #121212;
+  --ink-muted: #6b6b6b;
+  --rule: rgba(18, 18, 18, 0.1);
+  --accent: #3f2bff;
+  --font-display: 'PicNic', Georgia, serif;
+  --font-mono: 'Space Mono', 'SF Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+body.reading {
+  font-family: var(--font-mono);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+a {
+  color: inherit;
+}
+
+.reading-header {
+  padding: 32px 32px 0;
+}
+
+.reading-header__back {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-muted);
+  text-decoration: none;
+}
+
+.reading-header__back:hover {
+  color: var(--accent);
+}
+
+.reading-main {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 40px 32px 96px;
+}
+
+.reading-title {
+  font-family: var(--font-display);
+  font-size: 4rem;
+  font-weight: 400;
+  line-height: 0.95;
+  color: var(--accent);
+  margin: 0 0 56px;
+}
+
+.reading-intro {
+  font-family: var(--font-mono);
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin: 0 0 64px;
+  max-width: 42ch;
+}
+
+.reading-nav {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 48px;
+}
+
+.reading-nav__link {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-muted);
+  text-decoration: none;
+}
+
+.reading-nav__link:hover {
+  color: var(--accent);
+}
+
+.reading-nav__link--active {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.reading-section {
+  margin-bottom: 56px;
+}
+
+.reading-section__note {
+  font-family: var(--font-mono);
+  color: var(--ink-muted);
+  font-size: 0.8rem;
+  margin: -12px 0 20px;
+  max-width: 46ch;
+}
+
+.timeline-h {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  margin-left: -50vw;
+  margin-top: 8px;
+}
+
+.timeline-h__scroll {
+  display: flex;
+  align-items: flex-start;
+  gap: 40px;
+  overflow-x: auto;
+  padding: 72px 32px 40px;
+  scroll-snap-type: x proximity;
+}
+
+.timeline-h__month {
+  flex: 0 0 360px;
+  scroll-snap-align: start;
+  position: relative;
+  padding-top: 36px;
+}
+
+.timeline-h__month::before {
+  content: none;
+}
+
+.timeline-h__month::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 12px;
+  width: calc(100% - 12px + 40px);
+  height: 2px;
+  background: var(--rule);
+}
+
+.timeline-h__month--undated {
+  flex-basis: 360px;
+}
+
+.timeline-h__month--undated::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--ink-muted);
+  z-index: 1;
+}
+
+.timeline-h__month--current {
+  flex-basis: 460px;
+}
+
+.timeline-h__marker {
+  position: absolute;
+  top: -8px;
+  left: 0;
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--bg);
+  background: var(--ink);
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 100px;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.timeline-h__marker--now {
+  background: var(--accent);
+}
+
+.timeline-h__year {
+  position: absolute;
+  top: -48px;
+  left: 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+.timeline-h__spacer {
+  flex: 0 0 50vw;
+  position: relative;
+}
+
+.timeline-h__spacer::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--rule);
+}
+
+.timeline-h__books {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.timeline-h__book .book-entry__title {
+  display: block;
+  font-size: 1.9rem;
+  line-height: 1.1;
+}
+
+.timeline-h__book .book-entry__author {
+  margin-top: 2px;
+}
+
+.timeline-h__book .book-entry__quotes {
+  margin-top: 12px;
+}
+
+.reading-section__title {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bg);
+  background: var(--ink);
+  font-weight: 700;
+  margin: 0 0 24px;
+  padding: 6px 12px;
+  border-radius: 100px;
+}
+
+.book-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.book-entry {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.book-entry:last-child {
+  border-bottom: none;
+}
+
+.book-entry__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.book-entry__title {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 400;
+  line-height: 1.15;
+  text-decoration: none;
+}
+
+.book-entry__title:hover {
+  color: var(--accent);
+}
+
+.book-entry__author {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.book-entry__quotes {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.book-entry__quotes blockquote {
+  margin: 0;
+  padding: 2px 0 2px 16px;
+  border-left: 2px solid var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.book-entry__quotes blockquote p {
+  margin: 0 0 8px;
+}
+
+.book-entry__quotes blockquote p:last-child {
+  margin-bottom: 0;
+  color: var(--ink-muted);
+}
+
+.author-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.author-entry {
+  margin-bottom: 40px;
+}
+
+.author-entry__name {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.author-entry__count {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--accent);
+  vertical-align: super;
+  margin-left: 2px;
+}
+
+.book-list--nested {
+  padding-left: 20px;
+  border-left: 1px solid var(--rule);
+}
+
+.book-list--nested .book-entry {
+  padding: 14px 0;
+}
+
+.book-list--nested .book-entry__title {
+  font-size: 1.2rem;
+}
+
+.book-page__back {
+  display: inline-block;
+  margin-bottom: 40px;
+}
+
+.book-page__author {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.03em;
+  margin: -8px 0 40px;
+}
+
+.reading-footer {
+  text-align: center;
+  padding: 32px;
+  font-family: var(--font-mono);
+  color: var(--ink-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.reading-footer__credit {
+  margin-top: 6px;
+  opacity: 0.7;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.reading-footer__credit a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.reading-footer__credit a:hover {
+  color: var(--accent);
+}
+
+@media (max-width: 600px) {
+  .reading-header {
+    padding: 24px 20px 0;
+  }
+
+  .reading-main {
+    padding: 32px 20px 64px;
+  }
+
+  .reading-title {
+    font-size: 2.75rem;
+  }
+
+  .book-entry__title {
+    font-size: 1.4rem;
+  }
+}

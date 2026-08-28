@@ -1,0 +1,14 @@
+---
+layout: reading-default
+---
+<div class="reading-list">
+  <a href="{{ '/reading/' | relative_url }}" class="reading-header__back book-page__back">← Reading log</a>
+  <h1 class="reading-title">{{ page.title }}</h1>
+  <p class="book-page__author">
+    {{ page.author }}{% if page.finished %} · finished {{ page.finished | date: "%B %-d, %Y" }}{% endif %}
+  </p>
+
+  {% if content and content != "" %}
+  <div class="book-entry__quotes book-page__quotes">{{ content }}</div>
+  {% endif %}
+</div>

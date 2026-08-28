@@ -1,0 +1,31 @@
+---
+layout: reading-default
+---
+<div class="reading-list">
+
+  <h1 class="reading-title">{{ page.title }}</h1>
+  {% include reading-nav.html %}
+
+  {% assign read_books = site.books | where: "status", "read" %}
+  {% assign author_groups = read_books | group_by: "author" | sort: "name" %}
+
+  <section class="reading-section">
+    <ul class="author-list">
+      {% for group in author_groups %}
+      <li class="author-entry">
+        <div class="author-entry__name">
+          {{ group.name }}
+          {% if group.items.size > 1 %}<span class="author-entry__count">{{ group.items.size }}</span>{% endif %}
+        </div>
+        <ul class="book-list book-list--nested">
+          {% assign books_sorted = group.items | sort: "order" | reverse %}
+          {% for book in books_sorted %}
+          {% include book-entry.html book=book %}
+          {% endfor %}
+        </ul>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+
+</div>

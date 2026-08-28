@@ -1,0 +1,5 @@
+<nav class="reading-nav">
+  <a href="{{ '/reading/' | relative_url }}" class="reading-nav__link{% if page.url == '/reading/' %} reading-nav__link--active{% endif %}">List</a>
+  <a href="{{ '/reading/timeline/' | relative_url }}" class="reading-nav__link{% if page.url == '/reading/timeline/' %} reading-nav__link--active{% endif %}">Timeline</a>
+  <a href="{{ '/reading/authors/' | relative_url }}" class="reading-nav__link{% if page.url == '/reading/authors/' %} reading-nav__link--active{% endif %}">Authors</a>
+</nav>

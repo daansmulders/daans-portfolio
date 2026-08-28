@@ -1,0 +1,9 @@
+<li class="book-entry">
+  <div class="book-entry__meta">
+    <a href="{{ include.book.url | relative_url }}" class="book-entry__title">{{ include.book.title }}</a>
+    <span class="book-entry__author">{{ include.book.author }}</span>
+  </div>
+  {% if include.book.content and include.book.content != "" %}
+  <div class="book-entry__quotes">{{ include.book.content }}</div>
+  {% endif %}
+</li>

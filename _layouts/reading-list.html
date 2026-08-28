@@ -1,0 +1,34 @@
+---
+layout: reading-default
+---
+<div class="reading-list">
+
+  <h1 class="reading-title">{{ page.title }}</h1>
+
+  {% include reading-nav.html %}
+
+  {% if page.intro %}<p class="reading-intro">{{ page.intro }}</p>{% endif %}
+
+  {% assign currently_reading = site.books | where: "status", "reading" %}
+  {% if currently_reading.size > 0 %}
+  <section class="reading-section">
+    <h2 class="reading-section__title">Currently reading</h2>
+    <ul class="book-list">
+      {% for book in currently_reading %}
+      {% include book-entry.html book=book %}
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% assign read_books = site.books | where: "status", "read" | sort: "order" | reverse %}
+  <section class="reading-section">
+    <h2 class="reading-section__title">Read in 2026</h2>
+    <ul class="book-list">
+      {% for book in read_books %}
+      {% include book-entry.html book=book %}
+      {% endfor %}
+    </ul>
+  </section>
+
+</div>

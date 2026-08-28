@@ -7,6 +7,9 @@ collections:
   projects:
     output: true
     permalink: /projects/:title/
+  books:
+    output: true
+    permalink: /reading/:title/
 
 include:
   - prototypes

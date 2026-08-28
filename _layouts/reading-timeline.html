@@ -1,0 +1,80 @@
+---
+layout: reading-default
+---
+<div class="reading-list">
+
+  <h1 class="reading-title">{{ page.title }}</h1>
+  {% include reading-nav.html %}
+
+  {% assign read_books = site.books | where: "status", "read" %}
+  {% assign dated_books = read_books | where_exp: "b", "b.finished" | sort: "finished" %}
+  {% assign undated_books = read_books | where_exp: "b", "b.finished == nil" | sort: "order" | reverse %}
+  {% assign currently_reading = site.books | where: "status", "reading" | first %}
+
+  <div class="timeline-h">
+    <div class="timeline-h__scroll">
+      {% for book in undated_books %}
+      <div class="timeline-h__month timeline-h__month--undated">
+        <div class="timeline-h__books">
+          <div class="timeline-h__book">
+            <a href="{{ book.url | relative_url }}" class="book-entry__title">{{ book.title }}</a>
+            <div class="book-entry__author">{{ book.author }}</div>
+            {% if book.content and book.content != "" %}
+            <div class="book-entry__quotes">{{ book.content }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+      {% assign prev_year = "" %}
+      {% for book in dated_books %}
+      {% assign this_year = book.finished | date: "%Y" %}
+      <div class="timeline-h__month{% if forloop.last and currently_reading == nil %} timeline-h__month--current{% endif %}">
+        {% if this_year != prev_year %}
+        <div class="timeline-h__year">{{ this_year }}</div>
+        {% endif %}
+        <div class="timeline-h__marker">✓ {{ book.finished | date: "%-d %b" }}</div>
+        <div class="timeline-h__books">
+          <div class="timeline-h__book">
+            <a href="{{ book.url | relative_url }}" class="book-entry__title">{{ book.title }}</a>
+            <div class="book-entry__author">{{ book.author }}</div>
+            {% if book.content and book.content != "" %}
+            <div class="book-entry__quotes">{{ book.content }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% assign prev_year = this_year %}
+      {% endfor %}
+
+      {% if currently_reading %}
+      <div class="timeline-h__month timeline-h__month--current">
+        <div class="timeline-h__marker timeline-h__marker--now">Currently reading</div>
+        <div class="timeline-h__books">
+          <div class="timeline-h__book">
+            <a href="{{ currently_reading.url | relative_url }}" class="book-entry__title">{{ currently_reading.title }}</a>
+            <div class="book-entry__author">{{ currently_reading.author }}</div>
+            {% if currently_reading.content and currently_reading.content != "" %}
+            <div class="book-entry__quotes">{{ currently_reading.content }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="timeline-h__spacer"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var current = document.querySelector('.timeline-h__month--current');
+    if (current) {
+      var anchor = current.querySelector('.timeline-h__marker') || current;
+      anchor.scrollIntoView({ inline: 'center', block: 'nearest' });
+    }
+  });
+</script>

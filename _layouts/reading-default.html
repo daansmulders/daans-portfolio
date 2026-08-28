@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{{ page.title | default: "Reading" }} — Daan Smulders</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ '/assets/reading.css' | relative_url }}">
+  </head>
+
+  <body class="reading">
+    <header class="reading-header">
+      <a href="{{ '/' | relative_url }}" class="reading-header__back">← Daan Smulders</a>
+    </header>
+
+    <main class="reading-main">
+      {{ content }}
+    </main>
+
+    <footer class="reading-footer">
+      <div>A running log of what I've read.</div>
+      <div class="reading-footer__credit">Headings set in PicNic by Mariel Nils, via <a href="https://velvetyne.fr/fonts/picnic/">velvetyne.fr</a>.</div>
+    </footer>
+  </body>
+</html>
