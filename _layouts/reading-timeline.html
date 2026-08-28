@@ -10,9 +10,14 @@ layout: reading-default
   {% assign dated_books = read_books | where_exp: "b", "b.finished" | sort: "finished" %}
   {% assign undated_books = read_books | where_exp: "b", "b.finished == nil" | sort: "order" | reverse %}
   {% assign currently_reading = site.books | where: "status", "reading" | first %}
+  {% assign latest_year = dated_books.last.finished | date: "%Y" %}
 
   <div class="timeline-h">
     <div class="timeline-h__scroll">
+      {% if dated_books.size > 0 %}
+      <div class="timeline-h__year-sticky" id="timelineYear">{{ latest_year }}</div>
+      {% endif %}
+
       {% for book in undated_books %}
       <div class="timeline-h__month timeline-h__month--undated">
         <div class="timeline-h__books">
@@ -27,13 +32,9 @@ layout: reading-default
       </div>
       {% endfor %}
 
-      {% assign prev_year = "" %}
       {% for book in dated_books %}
       {% assign this_year = book.finished | date: "%Y" %}
-      <div class="timeline-h__month{% if forloop.last and currently_reading == nil %} timeline-h__month--current{% endif %}">
-        {% if this_year != prev_year %}
-        <div class="timeline-h__year">{{ this_year }}</div>
-        {% endif %}
+      <div class="timeline-h__month{% if forloop.last and currently_reading == nil %} timeline-h__month--current{% endif %}" data-year="{{ this_year }}">
         <div class="timeline-h__marker">✓ {{ book.finished | date: "%-d %b" }}</div>
         <div class="timeline-h__books">
           <div class="timeline-h__book">
@@ -45,7 +46,6 @@ layout: reading-default
           </div>
         </div>
       </div>
-      {% assign prev_year = this_year %}
       {% endfor %}
 
       {% if currently_reading %}
@@ -75,6 +75,27 @@ layout: reading-default
     if (current) {
       var anchor = current.querySelector('.timeline-h__marker') || current;
       anchor.scrollIntoView({ inline: 'center', block: 'nearest' });
+    }
+
+    var yearEl = document.getElementById('timelineYear');
+    var scrollEl = document.querySelector('.timeline-h__scroll');
+    var yearItems = document.querySelectorAll('.timeline-h__month[data-year]');
+
+    if (yearEl && scrollEl && yearItems.length) {
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            yearEl.textContent = entry.target.getAttribute('data-year');
+          }
+        });
+      }, {
+        root: scrollEl,
+        // Shrinks the observation area to a thin strip at the horizontal
+        // center, so the year only updates for whichever entry is centered.
+        rootMargin: '0px -45% 0px -45%',
+        threshold: 0
+      });
+      yearItems.forEach(function (el) { observer.observe(el); });
     }
   });
 </script>
