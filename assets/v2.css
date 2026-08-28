@@ -317,6 +317,8 @@ img {
   display: inline-block;
   font-size: 0.95rem;
   color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
   transition: transform 200ms ease;
 }
 
@@ -533,6 +535,8 @@ body.theme-dark .video-frame {
   color: var(--fg);
   gap: 0.4rem;
   margin: var(--v2-space-lg) 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
   transition: color 180ms ease, gap 180ms ease;
 }
 
@@ -569,6 +573,43 @@ body.theme-dark .video-frame {
   margin: 0 0 var(--v2-space-md);
 }
 
+.about-content p a,
+.project-content p a,
+.case-text a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.about-aside {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--v2-space-xl) * 1.6);
+  margin: var(--v2-space-lg) 0;
+}
+
+.about-aside__text {
+  flex: 1;
+}
+
+.about-aside__text p {
+  margin: 0;
+}
+
+.about-aside__photo {
+  flex: 0 0 150px;
+  margin: 0;
+}
+
+.about-aside__photo img {
+  aspect-ratio: 4 / 5;
+  width: 100%;
+  object-fit: cover;
+  object-position: 65% 35%;
+  border-radius: 10px;
+  box-shadow: 0 16px 32px -12px rgba(0, 0, 0, 0.35);
+  transform: rotate(3deg);
+}
+
 /* =============================================================================
    RESPONSIVE
 ============================================================================= */
@@ -600,6 +641,17 @@ body.theme-dark .video-frame {
     align-items: flex-start;
     gap: var(--v2-space-sm);
     margin-top: 72px;
+  }
+
+  .about-aside {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: var(--v2-space-md);
+  }
+
+  .about-aside__photo {
+    flex-basis: auto;
+    width: 160px;
   }
 
   .project-intro-grid,
