@@ -12,6 +12,15 @@ layout: reading-default
   {% assign currently_reading = site.books | where: "status", "reading" | first %}
   {% assign latest_year = dated_books.last.finished | date: "%Y" %}
 
+  {% comment %}
+    Entrance order runs right-to-left: "now" appears first, then each column
+    ripples backward into the past, with the gaps between reveals shrinking
+    as it goes — a rewind that speeds up the further back it travels.
+  {% endcomment %}
+  {% assign total_items = undated_books.size | plus: dated_books.size %}
+  {% if currently_reading %}{% assign total_items = total_items | plus: 1 %}{% endif %}
+  {% assign last_index = total_items | minus: 1 %}
+
   <div class="timeline-h">
     <div class="timeline-h__scroll">
       {% if dated_books.size > 0 %}
@@ -19,7 +28,10 @@ layout: reading-default
       {% endif %}
 
       {% for book in undated_books %}
-      <div class="timeline-h__month timeline-h__month--undated">
+      {% assign reverse_index = last_index | minus: forloop.index0 %}
+      {% assign delay_denom = reverse_index | plus: 3 %}
+      {% assign delay_ms = reverse_index | times: 300.0 | divided_by: delay_denom | round %}
+      <div class="timeline-h__month timeline-h__month--undated" style="animation-delay: {{ delay_ms }}ms">
         <div class="timeline-h__books">
           <div class="timeline-h__book">
             <a href="{{ book.url | relative_url }}" class="book-entry__title">{{ book.title }}</a>
@@ -34,7 +46,11 @@ layout: reading-default
 
       {% for book in dated_books %}
       {% assign this_year = book.finished | date: "%Y" %}
-      <div class="timeline-h__month{% if forloop.last and currently_reading == nil %} timeline-h__month--current{% endif %}" data-year="{{ this_year }}">
+      {% assign position_index = forloop.index0 | plus: undated_books.size %}
+      {% assign reverse_index = last_index | minus: position_index %}
+      {% assign delay_denom = reverse_index | plus: 3 %}
+      {% assign delay_ms = reverse_index | times: 300.0 | divided_by: delay_denom | round %}
+      <div class="timeline-h__month{% if forloop.last and currently_reading == nil %} timeline-h__month--current{% endif %}" data-year="{{ this_year }}" style="animation-delay: {{ delay_ms }}ms">
         <div class="timeline-h__marker">✓ {{ book.finished | date: "%-d %b" }}</div>
         <div class="timeline-h__books">
           <div class="timeline-h__book">
@@ -49,7 +65,7 @@ layout: reading-default
       {% endfor %}
 
       {% if currently_reading %}
-      <div class="timeline-h__month timeline-h__month--current">
+      <div class="timeline-h__month timeline-h__month--current" style="animation-delay: 0ms">
         <div class="timeline-h__marker timeline-h__marker--now">Currently reading</div>
         <div class="timeline-h__books">
           <div class="timeline-h__book">

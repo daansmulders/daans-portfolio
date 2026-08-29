@@ -408,6 +408,80 @@ a {
   color: var(--accent);
 }
 
+/* =============================================================================
+   ENTRANCE ANIMATION
+   Runs on every load, since every navigation on this multi-page site is a
+   fresh document — there's no client-side routing to gate a "first time" on.
+============================================================================= */
+@keyframes readingEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reading-title,
+.reading-nav,
+.reading-intro,
+.reading-section__title,
+.book-entry,
+.author-entry,
+.timeline-h__year-sticky,
+.timeline-h__month {
+  animation: readingEnter 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.reading-nav {
+  animation-delay: 40ms;
+}
+
+.reading-intro {
+  animation-delay: 60ms;
+}
+
+.reading-section__title {
+  animation-delay: 20ms;
+}
+
+.book-entry:nth-child(1) { animation-delay: 60ms; }
+.book-entry:nth-child(2) { animation-delay: 85ms; }
+.book-entry:nth-child(3) { animation-delay: 110ms; }
+.book-entry:nth-child(4) { animation-delay: 135ms; }
+.book-entry:nth-child(5) { animation-delay: 160ms; }
+.book-entry:nth-child(6) { animation-delay: 185ms; }
+.book-entry:nth-child(7) { animation-delay: 210ms; }
+.book-entry:nth-child(8) { animation-delay: 235ms; }
+
+.author-entry:nth-child(1) { animation-delay: 60ms; }
+.author-entry:nth-child(2) { animation-delay: 90ms; }
+.author-entry:nth-child(3) { animation-delay: 120ms; }
+.author-entry:nth-child(4) { animation-delay: 150ms; }
+.author-entry:nth-child(5) { animation-delay: 180ms; }
+
+.timeline-h__year-sticky {
+  animation-delay: 30ms;
+}
+
+/* Per-column .timeline-h__month animation-delay is set inline in
+   reading-timeline.html — it ripples "now" to past, accelerating. */
+
+@media (prefers-reduced-motion: reduce) {
+  .reading-title,
+  .reading-nav,
+  .reading-intro,
+  .reading-section__title,
+  .book-entry,
+  .author-entry,
+  .timeline-h__year-sticky,
+  .timeline-h__month {
+    animation: none;
+  }
+}
+
 @media (max-width: 600px) {
   .reading-header {
     padding: 24px 20px 0;
