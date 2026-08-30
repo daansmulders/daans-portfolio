@@ -6,7 +6,7 @@ order: 7
 status: read
 ---
 
-> Op mijn koptelefoon luisterde ik niet naar muziek maar naar een album vol vuurwerk geluiden
+> Op mijn koptelefoon luisterde ik niet naar muziek maar naar een album vol vuurwerkgeluiden
 
 > Ik had geen van deze boeken gelezen en toch wist ik er van
 >
