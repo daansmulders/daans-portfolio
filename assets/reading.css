@@ -35,7 +35,7 @@ body {
 body.reading {
   font-family: var(--font-mono);
   line-height: 1.6;
-  font-size: 0.95rem;
+  font-size: 0.75rem;
 }
 
 a {
@@ -48,7 +48,7 @@ a {
 
 .reading-header__back {
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 0.62rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--ink-muted);
@@ -67,31 +67,31 @@ a {
 
 .reading-title {
   font-family: var(--font-display);
-  font-size: 4rem;
+  font-size: 2.6rem;
   font-weight: 400;
   line-height: 0.95;
   color: var(--accent);
-  margin: 0 0 56px;
+  margin: 0 0 24px;
 }
 
 .reading-intro {
   font-family: var(--font-mono);
   color: var(--ink-muted);
-  font-size: 0.95rem;
+  font-size: 0.7rem;
   line-height: 1.7;
-  margin: 0 0 64px;
+  margin: 0 0 44px;
   max-width: 42ch;
 }
 
 .reading-nav {
   display: flex;
   gap: 20px;
-  margin-bottom: 48px;
+  margin-bottom: 32px;
 }
 
 .reading-nav__link {
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 0.62rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--ink-muted);
@@ -109,13 +109,13 @@ a {
 }
 
 .reading-section {
-  margin-bottom: 56px;
+  margin-bottom: 40px;
 }
 
 .reading-section__note {
   font-family: var(--font-mono);
   color: var(--ink-muted);
-  font-size: 0.8rem;
+  font-size: 0.62rem;
   margin: -12px 0 20px;
   max-width: 46ch;
 }
@@ -125,23 +125,23 @@ a {
   position: relative;
   left: 50%;
   margin-left: -50vw;
-  margin-top: 8px;
+  margin-top: 0;
 }
 
 .timeline-h__scroll {
   display: flex;
   align-items: flex-start;
-  gap: 40px;
+  gap: 18px;
   overflow-x: auto;
-  padding: 72px 32px 40px;
+  padding: 40px 32px 32px;
   scroll-snap-type: x proximity;
 }
 
 .timeline-h__month {
-  flex: 0 0 360px;
+  flex: 0 0 280px;
   scroll-snap-align: start;
   position: relative;
-  padding-top: 36px;
+  padding-top: 26px;
 }
 
 .timeline-h__month::before {
@@ -153,13 +153,13 @@ a {
   position: absolute;
   top: 5px;
   left: 12px;
-  width: calc(100% - 12px + 40px);
+  width: calc(100% - 12px + 18px);
   height: 2px;
   background: var(--rule);
 }
 
 .timeline-h__month--undated {
-  flex-basis: 360px;
+  flex-basis: 280px;
 }
 
 .timeline-h__month--undated::before {
@@ -176,7 +176,7 @@ a {
 }
 
 .timeline-h__month--current {
-  flex-basis: 460px;
+  flex-basis: 340px;
 }
 
 .timeline-h__marker {
@@ -185,7 +185,7 @@ a {
   left: 0;
   display: inline-block;
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.58rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--bg);
@@ -205,9 +205,9 @@ a {
   flex: 0 0 auto;
   position: sticky;
   left: 32px;
-  margin-top: -48px;
+  margin-top: -28px;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.55rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-muted);
@@ -233,12 +233,12 @@ a {
 .timeline-h__books {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 20px;
 }
 
 .timeline-h__book .book-entry__title {
   display: block;
-  font-size: 1.9rem;
+  font-size: 1.4rem;
   line-height: 1.1;
 }
 
@@ -253,7 +253,7 @@ a {
 .reading-section__title {
   display: inline-block;
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.58rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--bg);
@@ -271,7 +271,7 @@ a {
 }
 
 .book-entry {
-  padding: 24px 0;
+  padding: 8px 0;
   border-bottom: 1px solid var(--rule);
 }
 
@@ -287,9 +287,9 @@ a {
 
 .book-entry__title {
   font-family: var(--font-display);
-  font-size: 1.7rem;
+  font-size: 1.3rem;
   font-weight: 400;
-  line-height: 1.15;
+  line-height: 0.95;
   text-decoration: none;
 }
 
@@ -300,16 +300,17 @@ a {
 .book-entry__author {
   font-family: var(--font-mono);
   color: var(--accent);
-  font-size: 0.8rem;
+  font-size: 0.6rem;
+  line-height: 1.2;
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
 
 .book-entry__quotes {
-  margin-top: 18px;
+  margin-top: 12px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .book-entry__quotes blockquote {
@@ -317,7 +318,7 @@ a {
   padding: 2px 0 2px 16px;
   border-left: 2px solid var(--accent);
   font-family: var(--font-mono);
-  font-size: 0.9rem;
+  font-size: 0.7rem;
   line-height: 1.6;
   color: var(--ink);
 }
@@ -338,18 +339,18 @@ a {
 }
 
 .author-entry {
-  margin-bottom: 40px;
+  margin-bottom: 28px;
 }
 
 .author-entry__name {
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: 1.15rem;
   margin-bottom: 8px;
 }
 
 .author-entry__count {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.52rem;
   color: var(--accent);
   vertical-align: super;
   margin-left: 2px;
@@ -365,7 +366,7 @@ a {
 }
 
 .book-list--nested .book-entry__title {
-  font-size: 1.2rem;
+  font-size: 0.85rem;
 }
 
 .book-page__back {
@@ -377,7 +378,7 @@ a {
   font-family: var(--font-mono);
   color: var(--accent);
   text-transform: uppercase;
-  font-size: 0.85rem;
+  font-size: 0.65rem;
   letter-spacing: 0.03em;
   margin: -8px 0 40px;
 }
@@ -387,7 +388,7 @@ a {
   padding: 32px;
   font-family: var(--font-mono);
   color: var(--ink-muted);
-  font-size: 0.75rem;
+  font-size: 0.58rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -492,10 +493,10 @@ a {
   }
 
   .reading-title {
-    font-size: 2.75rem;
+    font-size: 1.9rem;
   }
 
   .book-entry__title {
-    font-size: 1.4rem;
+    font-size: 1.05rem;
   }
 }

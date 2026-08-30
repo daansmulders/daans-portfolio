@@ -36,7 +36,8 @@ layout: reading-default
           <div class="timeline-h__book">
             <a href="{{ book.url | relative_url }}" class="book-entry__title">{{ book.title }}</a>
             <div class="book-entry__author">{{ book.author }}</div>
-            {% if book.content and book.content != "" %}
+            {% assign book_content = book.content | strip %}
+            {% if book_content != "" %}
             <div class="book-entry__quotes">{{ book.content }}</div>
             {% endif %}
           </div>
@@ -56,7 +57,8 @@ layout: reading-default
           <div class="timeline-h__book">
             <a href="{{ book.url | relative_url }}" class="book-entry__title">{{ book.title }}</a>
             <div class="book-entry__author">{{ book.author }}</div>
-            {% if book.content and book.content != "" %}
+            {% assign book_content = book.content | strip %}
+            {% if book_content != "" %}
             <div class="book-entry__quotes">{{ book.content }}</div>
             {% endif %}
           </div>
@@ -71,7 +73,8 @@ layout: reading-default
           <div class="timeline-h__book">
             <a href="{{ currently_reading.url | relative_url }}" class="book-entry__title">{{ currently_reading.title }}</a>
             <div class="book-entry__author">{{ currently_reading.author }}</div>
-            {% if currently_reading.content and currently_reading.content != "" %}
+            {% assign currently_reading_content = currently_reading.content | strip %}
+            {% if currently_reading_content != "" %}
             <div class="book-entry__quotes">{{ currently_reading.content }}</div>
             {% endif %}
           </div>

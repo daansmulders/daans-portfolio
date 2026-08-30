@@ -8,7 +8,8 @@ layout: reading-default
     {{ page.author }}{% if page.finished %} · finished {{ page.finished | date: "%B %-d, %Y" }}{% endif %}
   </p>
 
-  {% if content and content != "" %}
+  {% assign page_content = content | strip %}
+  {% if page_content != "" %}
   <div class="book-entry__quotes book-page__quotes">{{ content }}</div>
   {% endif %}
 </div>
