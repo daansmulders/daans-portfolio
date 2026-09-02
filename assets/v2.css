@@ -443,6 +443,58 @@ img {
   margin-top: var(--v2-space-sm);
 }
 
+/* Before/after click toggle inside a case-media figure */
+.compare-toggle__buttons {
+  display: flex;
+  gap: var(--v2-space-md);
+  margin-bottom: var(--v2-space-sm);
+}
+
+.compare-toggle figcaption {
+  margin-top: 0;
+  margin-bottom: var(--v2-space-sm);
+}
+
+.compare-toggle__btn {
+  position: relative;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.compare-toggle__btn::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 220ms var(--ease-enter);
+}
+
+.compare-toggle__btn:hover,
+.compare-toggle__btn:focus-visible {
+  color: var(--fg);
+}
+
+.compare-toggle__btn.is-active {
+  color: var(--accent);
+}
+
+.compare-toggle__btn.is-active::after,
+.compare-toggle__btn:hover::after,
+.compare-toggle__btn:focus-visible::after {
+  transform: scaleX(1);
+}
+
 /* =============================================================================
    VIDEO GRID
 ============================================================================= */
@@ -676,5 +728,13 @@ body.theme-dark .video-frame {
   .case-index__text,
   .case-index__item--reverse .case-index__text {
     order: 2;
+  }
+
+  /* Before shots are cropped UI elements, not full screens — keep them
+     from stretching edge-to-edge once the case-section column goes full width. */
+  .compare-toggle img.is-before {
+    max-width: 300px;
+    display: block;
+    margin: 0 auto;
   }
 }

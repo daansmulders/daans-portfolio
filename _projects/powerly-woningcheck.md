@@ -77,9 +77,22 @@ Every design decision on this project came back to the same question: how do you
       Some fields couldn't be solved this way. Insulation thickness, for instance, is genuinely hard to answer even for homeowners who know their house well, and the input format for that field was dictated by the API we relied on for the calculation. That was a real constraint — I didn't have a clean answer for it, and neither did the team.
     </p>
   </div>
-  <figure class="case-media">
-    <img src="{{ '/assets/images/powerly-woningcheck/form-step-additional-details.webp' | relative_url }}" loading="lazy" decoding="async" alt="Additional details form step with most fields pre-filled from housing data">
-    <figcaption>Most of the technical detail pre-filled — the homeowner only had to correct what didn't match.</figcaption>
+  <figure class="case-media compare-toggle" data-compare>
+    <div class="compare-toggle__buttons">
+      <button type="button" class="compare-toggle__btn" data-compare-show="before">Before</button>
+      <button type="button" class="compare-toggle__btn is-active" data-compare-show="after">After</button>
+    </div>
+    <figcaption>Most of the technical detail filled in already, the homeowner only had to correct what didn't match.</figcaption>
+    <img
+      src="{{ '/assets/images/powerly-woningcheck/form-step-additional-details.webp' | relative_url }}"
+      data-compare-after="{{ '/assets/images/powerly-woningcheck/form-step-additional-details.webp' | relative_url }}"
+      data-compare-after-alt="Additional details form step with most fields pre-filled from housing data"
+      data-compare-after-caption="Most of the technical detail filled in already, the homeowner only had to correct what didn't match."
+      data-compare-before="{{ '/assets/images/powerly-woningcheck/old-form-installed-measures.webp' | relative_url }}"
+      data-compare-before-alt="Old form step asking whether extra sustainable measures were taken, with a blank dropdown and no guidance"
+      data-compare-before-caption="A blank dropdown, no pre-fill, no sense of what to answer."
+      loading="lazy" decoding="async"
+      alt="Additional details form step with most fields pre-filled from housing data">
   </figure>
 </div>
 
@@ -93,9 +106,22 @@ Every design decision on this project came back to the same question: how do you
       So we added an estimate option, calculated from what the homeowner had already told us. It was less precise than a real meter reading, but it kept the flow moving for people who wanted to explore their options before doing any lookups — which, for the homeowners just starting out, was most of them.
     </p>
   </div>
-  <figure class="case-media">
-    <img src="{{ '/assets/images/powerly-woningcheck/form-step-energy-costs.webp' | relative_url }}" loading="lazy" decoding="async" alt="Energy usage form step showing manual entry versus an estimate option">
+  <figure class="case-media compare-toggle" data-compare>
+    <div class="compare-toggle__buttons">
+      <button type="button" class="compare-toggle__btn" data-compare-show="before">Before</button>
+      <button type="button" class="compare-toggle__btn is-active" data-compare-show="after">After</button>
+    </div>
     <figcaption>Enter your own numbers, or let the tool estimate them from what it already knows.</figcaption>
+    <img
+      src="{{ '/assets/images/powerly-woningcheck/form-step-energy-costs.webp' | relative_url }}"
+      data-compare-after="{{ '/assets/images/powerly-woningcheck/form-step-energy-costs.webp' | relative_url }}"
+      data-compare-after-alt="Energy usage form step showing manual entry versus an estimate option"
+      data-compare-after-caption="Enter your own numbers, or let the tool estimate them from what it already knows."
+      data-compare-before="{{ '/assets/images/powerly-woningcheck/old-form-step-energy-costs.webp' | relative_url }}"
+      data-compare-before-alt="Old form step showing an energy estimate with a plain text link to enter exact usage instead"
+      data-compare-before-caption="An estimate with an escape hatch, but not much reason to trust either number."
+      loading="lazy" decoding="async"
+      alt="Energy usage form step showing manual entry versus an estimate option">
   </figure>
 </div>
 
