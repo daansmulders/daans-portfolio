@@ -35,6 +35,12 @@ Powerly helped homeowners figure out what sustainable measures made sense for th
   <figcaption>The entry point: postcode and house number, then straight into personalized advice.</figcaption>
 </figure>
 
+## The strategic stakes
+
+Powerly's whole business was a bet on scale: the more homeowners it could move from "curious" to "installed," the better. A phone call with a sustainability expert worked well, but it cost people-hours, and people-hours don't scale. The Woningcheck was supposed to handle as much of that journey online as possible, and save the calls for homeowners who actually needed one.
+
+At the time, it wasn't pulling its weight. Too many homeowners came in, looked around, and left without booking a call or requesting a quote. The Woningcheck wasn't just one feature among many; it was meant to be the foundation for whatever self-serve journey Powerly built next. If it couldn't reliably move people forward now, there was nothing to expand it into later.
+
 ## Context
 
 The Woningcheck combined public housing data with a private API that calculated implementation possibilities and savings for a specific address. But part of what fed that calculation still had to come from the homeowner — and homeowners often don't know basic facts about their own house, like what kind of insulation is behind the walls. That's a hard trade-off by design: ask more, and fewer people finish; ask less, and the advice gets shakier.
@@ -55,7 +61,7 @@ Both groups needed the same underlying thing: advice specific enough to trust, n
 
 The interesting part of this project wasn't any single screen — it was a tension running underneath all of them. The Woningcheck's accuracy depended on pushing the private possibilities-and-savings API as hard as it could go: the more precisely we could feed it, the better the advice. But part of that input still had to come from a homeowner who didn't know their wall-insulation type off the top of their head, filling in a form on their phone.
 
-There was a business stake in this too: Powerly needed more of these visits to end in a booked call. Pushing for more data up front might have made the advice sharper, but it would have cost us exactly the people we needed to convert.
+That strategic bet made the trade-off sharper, not softer: pushing for more data up front might have made the advice better, but it would have cost us exactly the homeowners the drop-off problem needed us to keep.
 
 Every design decision on this project came back to the same question: how do you get advice that's actually worth trusting out of input you know won't be perfect — without losing the person along the way?
 
