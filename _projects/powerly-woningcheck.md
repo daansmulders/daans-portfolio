@@ -37,7 +37,7 @@ Powerly helped homeowners figure out what sustainable measures made sense for th
 
 ## The strategic stakes
 
-Powerly's whole business was a bet on scale: the more homeowners it could move from "curious" to "installed," the better. A phone call with a sustainability expert worked well, but it cost people-hours, and people-hours don't scale. The Woningcheck was supposed to handle as much of that journey online as possible, and save the calls for homeowners who actually needed one.
+Powerly's goal was to get as many homeowners as possible to actually install sustainable measures. A phone call with a sustainability expert worked well, but it cost people-hours, and helping more people meant not putting an expert in front of every single one of them. The Woningcheck was supposed to handle as much of that journey online as possible, and save the calls for homeowners who actually needed one.
 
 At the time, it wasn't pulling its weight. Too many homeowners came in, looked around, and left without booking a call or requesting a quote. The Woningcheck wasn't just one feature among many; it was meant to be the foundation for whatever self-serve journey Powerly built next. If it couldn't reliably move people forward now, there was nothing to expand it into later.
 
