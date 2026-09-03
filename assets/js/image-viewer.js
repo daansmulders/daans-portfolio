@@ -6,7 +6,9 @@ document.addEventListener("DOMContentLoaded", () => {
   overlay.className = "image-viewer";
   overlay.innerHTML = `
     <button type="button" class="image-viewer__close" aria-label="Close image">&times;</button>
-    <img class="image-viewer__img" alt="">
+    <div class="image-viewer__inner">
+      <img class="image-viewer__img" alt="">
+    </div>
   `;
   document.body.appendChild(overlay);
 
@@ -22,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     img.addEventListener("click", () => {
       viewerImg.src = img.currentSrc || img.src;
       viewerImg.alt = img.alt;
+      overlay.scrollTop = 0;
       overlay.classList.add("is-open");
       document.body.classList.add("image-viewer-open");
     });

@@ -511,10 +511,7 @@ img.is-zoomable:hover {
   position: fixed;
   inset: 0;
   z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--v2-space-xl) var(--v2-pad-x);
+  overflow-y: auto;
   background: rgba(0, 0, 0, 0.85);
   opacity: 0;
   visibility: hidden;
@@ -526,9 +523,19 @@ img.is-zoomable:hover {
   visibility: visible;
 }
 
+/* min-height (not height) lets this grow past the viewport for tall
+   images — centering a shorter image, but not clipping a taller one
+   above the scrollable area. */
+.image-viewer__inner {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--v2-space-xl) var(--v2-pad-x);
+}
+
 .image-viewer__img {
   max-width: 100%;
-  max-height: 100%;
   border-radius: 6px;
   cursor: zoom-out;
   transform: scale(0.97);
