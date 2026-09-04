@@ -25,3 +25,8 @@ finished: 2026-08-30
 
 > Related reading:
 > https://www.dennisjunk.com/readingsubtly/2012/03/lifes-white-machine-james-wood-and-what.html
+
+> Michael Clune - Theory of prose (no: a journal of the arts, #7)
+> Allan Grossman's essays in The Long Schoolroom
+> Jeff Clark, Geoffrey G. O'Brien - 2A
+> John Ashbery
