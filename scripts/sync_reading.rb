@@ -7,7 +7,12 @@
 # Run it after editing either file in Obsidian:
 #   ruby scripts/sync_reading.rb
 # Then review the diff and commit/push as normal — this script never touches
-# git itself.
+# git itself, except for one thing: a _books/ file marked status: reading
+# that no longer matches an entry in either Obsidian list (finished or
+# still-reading) is deleted automatically, since "currently reading" is a
+# transient state that's stale the moment you move on from a book. Finished
+# books are left alone even if they go stale — those are a permanent record,
+# so removing one is always a manual decision.
 
 require 'fileutils'
 
@@ -126,7 +131,15 @@ puts 'Review with: git status / git diff _books/'
   stale = existing - updated_slugs
   next if stale.empty?
 
-  puts "\nThese _books/ files are marked status: #{status} but no longer match an Obsidian entry:"
-  stale.each { |s| puts "  - #{s}.md" }
-  puts '(Not deleted automatically — remove by hand if that book really came off the list.)'
+  if status == 'reading'
+    puts "\nRemoving _books/ file(s) marked status: reading that no longer match an Obsidian entry (not finished, not in 'Nu aan het lezen'):"
+    stale.each do |s|
+      File.delete(File.join(BOOKS_DIR, "#{s}.md"))
+      puts "  - deleted #{s}.md"
+    end
+  else
+    puts "\nThese _books/ files are marked status: #{status} but no longer match an Obsidian entry:"
+    stale.each { |s| puts "  - #{s}.md" }
+    puts '(Not deleted automatically — remove by hand if that book really came off the list.)'
+  end
 end
