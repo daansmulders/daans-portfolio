@@ -46,7 +46,7 @@ There is no site-wide JS framework or SPA logic — only two small, independent 
 ### Styling
 
 - `assets/v2.css` — the only stylesheet. CSS custom properties (`--bg`, `--fg`, `--muted`, `--border-subtle`, `--accent`, `--link`) are redefined under `body.theme-dark` for dark mode.
-- Two typefaces, loaded via Google Fonts `<link>` tags in `_layouts/v2-default.html` (no self-hosted font files, no build step): **Bricolage Grotesque** (`--font-display`) for headlines/titles, **Public Sans** (`--font-body`) for everything else. This intentionally supersedes the earlier "no new web fonts" rule — see git history around 2026-08-25 for the rationale (TimesTen read as archaic for long-form reading). Bricolage Grotesque has no true italic — section headers that want emphasis use the `--accent` color instead of `font-style: italic` (see `.project-content h2` / `.about-content h2` in `assets/v2.css`).
+- Two typefaces: **Ronzino** (`--font-display`) for headlines/titles, self-hosted as WOFF2 under `assets/fonts/` (Regular/Medium/Bold, `@font-face` declared at the top of `assets/v2.css`) — SIL OFL licensed, designed by Nunzio Mazzaferro / Collletttivo, credited in the site footer; and **Public Sans** (`--font-body`) for everything else, loaded via a Google Fonts `<link>` tag in `_layouts/v2-default.html`. Ronzino replaced Bricolage Grotesque on 2026-10-10 after trialing it alongside TimesTen, Sligoil, and Absans — see git history around that date for the other candidates. Ronzino has no true italic face loaded — section headers that want emphasis use the `--accent` color instead of `font-style: italic` (see `.project-content h2` / `.about-content h2` in `assets/v2.css`).
 
 ### Layouts
 
@@ -84,7 +84,7 @@ These rules apply whenever implementing UI from Figma designs. Follow this workf
 
 ```css
 --bg, --fg, --muted, --border-subtle, --accent, --link   /* theme colours; --link is an alias of --accent */
---font-display, --font-body                              /* Bricolage Grotesque / Public Sans */
+--font-display, --font-body                              /* Ronzino (self-hosted) / Public Sans */
 --v2-pad-x: 48px                                          /* horizontal padding */
 --v2-space-sm/md/lg/xl                                    /* spacing scale */
 --v2-content-max: 760px                                   /* prose/content max width */
@@ -97,7 +97,7 @@ These rules apply whenever implementing UI from Figma designs. Follow this workf
 
 **Responsive:** mobile breakpoint is `@media (max-width: 700px)`. Horizontal padding drops to `20px`, layout shifts from multi-column grid to stacked.
 
-**Typography:** `Bricolage Grotesque` (display/headlines) + `Public Sans` (body/UI), loaded via Google Fonts in `_layouts/v2-default.html`. Do not add further web fonts beyond this pairing without deliberate art-direction review.
+**Typography:** `Ronzino` (display/headlines, self-hosted WOFF2 under `assets/fonts/`) + `Public Sans` (body/UI, Google Fonts). Do not add further web fonts beyond this pairing without deliberate art-direction review.
 
 **Chrome:** buttons, nav links, and the back-link avoid borders/boxes — hover states use color shift to `--accent` and a thin animated underline (see `.v2-link` in `assets/v2.css`), not bordered pills.
 

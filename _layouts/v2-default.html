@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ '/assets/v2.css' | relative_url }}">
   </head>
 
@@ -26,8 +26,11 @@
     </main>
 
     <footer class="v2-footer">
-      <span>&copy; {{ site.time | date: '%Y' }} Daan Smulders</span>
-      <a href="mailto:daan.smulders@gmail.com" class="v2-link">daan.smulders@gmail.com</a>
+      <div class="v2-footer__row">
+        <span>&copy; {{ site.time | date: '%Y' }} Daan Smulders</span>
+        <a href="mailto:daan.smulders@gmail.com" class="v2-link">daan.smulders@gmail.com</a>
+      </div>
+      <div class="v2-footer__credit">Headings set in Ronzino by Nunzio Mazzaferro, via <a href="https://collletttivo.it" class="v2-link">collletttivo.it</a>.</div>
     </footer>
 
     <script src="{{ '/assets/js/preferences.js' | relative_url }}"></script>
